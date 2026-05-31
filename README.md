@@ -2,19 +2,23 @@
 
 # SnapClick
 
-**macOS 超级效率工具箱**
+### macOS 效率增强工具 — 右键增强 · 截图标注 · 屏幕贴图 · 智能取色
 
-[![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-blue)](https://www.apple.com/macos)
+[![Version](https://img.shields.io/github/v/release/Tyeerth/SnapClick?color=blue&label=version)](https://github.com/Tyeerth/SnapClick/releases)
+[![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey.svg)](https://github.com/Tyeerth/SnapClick/releases)
 [![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)](https://swift.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/Tyeerth/SnapClick/total)](https://github.com/Tyeerth/SnapClick/releases/latest)
 
-一款专为 macOS 打造的高级效率增强工具，融合 **超级右键** 和 **iShot** 的核心精髓，将 Finder 菜单增强、高级截图、屏幕贴图、智能取色等常用效率功能一体化汇总，以纯原生 Swift 架构呈现。
+一款专为 macOS 打造的高级效率增强工具，将 Finder 菜单增强、高级截图标注、屏幕贴图、智能取色等常用效率功能一体化汇总，以纯原生 Swift 架构呈现，为您提供丝滑般尊贵的使用体验。
+
+[功能特性](#-功能特性) · [下载安装](#-下载安装) · [编译构建](#-编译构建) · [参与贡献](#-参与贡献)
 
 </div>
 
 ---
 
-## ✨ 功能概览
+## ✨ 功能特性
 
 ### 🔧 Finder 右键菜单增强
 
@@ -40,7 +44,31 @@
 
 ---
 
-## 🛠️ 技术栈
+## � 下载安装
+
+### 方式一：直接下载安装包（推荐）
+
+前往 [Releases 页面](https://github.com/Tyeerth/SnapClick/releases/latest) 下载最新的 `.dmg` 安装包，双击打开后拖拽到应用程序文件夹即可。
+
+<a href="https://github.com/Tyeerth/SnapClick/releases/latest">
+  <img src="https://img.shields.io/badge/Download-Latest%20Release-blue?style=for-the-badge&logo=github" alt="Download Latest Release">
+</a>
+
+### 方式二：从源码编译
+
+请参阅下方 [编译构建](#-编译构建) 章节。
+
+### ⚠️ 首次运行授权
+
+首次启动时，App 会引导您授予以下权限：
+
+1. **屏幕录制权限** — 用于截图和放大镜取色
+2. **辅助功能权限** — 用于捕获全局快捷键
+3. **Finder 扩展启用** — 在「系统设置 → 通用 → 登录项与扩展 → Finder 扩展」中勾选 `FinderExtension`
+
+---
+
+## �🛠️ 技术栈
 
 | 技术 | 说明 |
 |------|------|
@@ -53,7 +81,7 @@
 
 ---
 
-## 🚀 编译与运行
+## � 编译构建
 
 ### 前置要求
 
@@ -65,7 +93,7 @@
 
 1. **克隆仓库**
    ```bash
-   git clone https://github.com/tyeerth/SnapClick.git
+   git clone https://github.com/Tyeerth/SnapClick.git
    cd SnapClick
    ```
 
@@ -79,14 +107,6 @@
    - `FinderExtension`（右键菜单插件，Bundle ID: `com.snapclick.app.FinderExtension`，沙盒模式，绑定 App Group: `group.com.snapclick.shared`）
 
 4. **构建运行** — 选择 Scheme `SnapClick` → 构建目标 `My Mac` → 运行 (⌘R)
-
-### 授权系统权限
-
-首次启动时，App 会引导您授予以下权限：
-
-1. **屏幕录制权限** — 用于截图和放大镜取色
-2. **辅助功能权限** — 用于捕获全局快捷键
-3. **Finder 扩展启用** — 在「系统设置 → 通用 → 登录项与扩展 → Finder 扩展」中勾选 `FinderExtension`
 
 ---
 

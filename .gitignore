@@ -70,3 +70,7 @@ generate_new_file_templates_ui.py
 screen*.html
 stitch_screen.html
 test_plan.sh
+build/
+dmg_temp/
+*.dmg
+
