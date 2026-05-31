@@ -1,0 +1,72 @@
+# Xcode
+build/
+DerivedData/
+*.xcscmblueprint
+*.xccheckout
+xcschememanagement.plist
+
+# Build artifacts
+*.o
+*.obj
+*.exe
+*.app
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+*.xcodeproj/xcuserdata/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+Carthage/Checkouts/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# User-specific
+*.xcuserstate
+xcuserdata/
+
+# Secrets
+*.env
+*.p12
+*.mobileprovision
+*.provisionprofile
+
+# Logs
+*.log
+build.log
+
+# Temporary
+*.tmp
+*.bak
+*~
+
+# Project-specific
+project.yml
+fix_indicator.py
+patch_toolbar.py
+generate_new_file_templates_ui.py
+screen*.html
+stitch_screen.html
+test_plan.sh

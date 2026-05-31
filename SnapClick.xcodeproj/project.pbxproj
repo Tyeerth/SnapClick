@@ -1,0 +1,622 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0657167DE2C59DACA496DD2B /* AnnotationCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4ABF050DAAD40FB6D791BF /* AnnotationCanvas.swift */; };
+		06A044A74E609C23EFB3BD34 /* AnnotationEditorWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062788C3D91FF29E6DDD9906 /* AnnotationEditorWindow.swift */; };
+		11AE016EBDEFA30C2177E8A7 /* FinderExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 80DAA1AF1121ECCDCBD7B156 /* FinderExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		13625153C5688129F44086E9 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C46AC68C3BABB8B159D58F /* StatusBarController.swift */; };
+		1855E1A8E76776BAD4409C23 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B99FD79048A7735A9956942 /* AppSettings.swift */; };
+		1BB1A74A956E7AE476C9D07A /* RightClickSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74ED8107A2EFF5B9CAFCE061 /* RightClickSettingsView.swift */; };
+		21C6264DF180501773134310 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0433B561482FC0EC58A4A1B6 /* HotkeyManager.swift */; };
+		2A1C62886ACA6FD00DB9BD98 /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6872E5C78F239D82BE8D993 /* MainWindow.swift */; };
+		40D27421D7CEFA593BB883E1 /* ColorPickerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD418F2D1FF7DD0732DE2DD3 /* ColorPickerOverlay.swift */; };
+		4EFB1CDBDACE80A604A368D2 /* ScreenCaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B20B6D6EE1640BF54BBC935 /* ScreenCaptureEngine.swift */; };
+		5A4F0DDD0D3DE99A38DEB030 /* FileOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C728AC70204FB78B11F8127 /* FileOperations.swift */; };
+		65E31D69DFC1729AEFF67CE5 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A6C8E8517F9F68D84B9D4F /* AppGroup.swift */; };
+		6EF8692B7B9691813E92E508 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A6C8E8517F9F68D84B9D4F /* AppGroup.swift */; };
+		809AF42932A62209C306A5C7 /* CaptureOverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CD49210FC7B57F9047CCFB5 /* CaptureOverlayWindow.swift */; };
+		80E8D8DD13F0D17352FA9DC5 /* PinColorSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA26F3D57131F67CDA209D51 /* PinColorSettingsView.swift */; };
+		86FB6BB220CF88CA6F0DCCBC /* FileOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C728AC70204FB78B11F8127 /* FileOperations.swift */; };
+		9365899555B15A4038717ADA /* PinWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DA6EBCC16BC194C262297E /* PinWindowManager.swift */; };
+		A47A6942859E9F4C173A99CC /* ScreenshotSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1A3385902B220B27E2707E /* ScreenshotSettings.swift */; };
+		AAAEA98CEF5556B146454878 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C203EBA64C4CDA4AB2A77471 /* Assets.xcassets */; };
+		B293E3874C992053AF89D238 /* FinderSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B67219E48B82E5EBAC7D2CA /* FinderSync.swift */; };
+		C14E9B6617CB509E5887A7AF /* PinWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B618C795C91C6275CCF7FE7 /* PinWindowController.swift */; };
+		C2D695438119EE4EDAF01453 /* FavoriteDirectoriesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC9274894385E7870B9B740 /* FavoriteDirectoriesManager.swift */; };
+		CB9D56AFEB620999E3FDA6E8 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356B4D9A7F2536E337434D86 /* PermissionManager.swift */; };
+		CDD10FAA8245BB8A646015CD /* SnapClickApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 444974DA6DAF9FA9AA13F497 /* SnapClickApp.swift */; };
+		DAE84CA4381EAB3D3131755B /* ColorPickerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E726F4FECD04F3A4B58A14 /* ColorPickerEngine.swift */; };
+		DC7E5D9B626A8FC5EB0A1F1C /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AECAC44BA8CFCA81B4F3F1 /* WelcomeView.swift */; };
+		EBEC4CB0B57FD5A9A7172FC9 /* NewFileTemplateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A649C4A715F98C5C33BBF1 /* NewFileTemplateManager.swift */; };
+		EFC3811C577879CEE51CC772 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2198C875A4A24E3B059D9A /* AppDelegate.swift */; };
+		F8A7D5271F31CE3535894316 /* AnnotationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877DB63F0C874C583636ADFA /* AnnotationTool.swift */; };
+		FC781E49D0D33CE3AD78F24F /* MenuBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55F876CA3F012723C042EAC1 /* MenuBuilder.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		46B8ED7EC035B57E9710ACFD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F423DA18773EBB2A88D57C06 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3AED3807AAE0CAC3EB365C17;
+			remoteInfo = FinderExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC36D74D93C025CF8EBC523B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				11AE016EBDEFA30C2177E8A7 /* FinderExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0433B561482FC0EC58A4A1B6 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		062788C3D91FF29E6DDD9906 /* AnnotationEditorWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationEditorWindow.swift; sourceTree = "<group>"; };
+		0EE93F12C6AC05EFABDF11EC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1C1A3385902B220B27E2707E /* ScreenshotSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSettings.swift; sourceTree = "<group>"; };
+		24C46AC68C3BABB8B159D58F /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		24DA6EBCC16BC194C262297E /* PinWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinWindowManager.swift; sourceTree = "<group>"; };
+		356B4D9A7F2536E337434D86 /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
+		444974DA6DAF9FA9AA13F497 /* SnapClickApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapClickApp.swift; sourceTree = "<group>"; };
+		49AECAC44BA8CFCA81B4F3F1 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		55F876CA3F012723C042EAC1 /* MenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBuilder.swift; sourceTree = "<group>"; };
+		56A649C4A715F98C5C33BBF1 /* NewFileTemplateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFileTemplateManager.swift; sourceTree = "<group>"; };
+		5B618C795C91C6275CCF7FE7 /* PinWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinWindowController.swift; sourceTree = "<group>"; };
+		61497BADE33278DD3DE419BA /* SnapClick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapClick.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6B20B6D6EE1640BF54BBC935 /* ScreenCaptureEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureEngine.swift; sourceTree = "<group>"; };
+		6B99FD79048A7735A9956942 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		6C728AC70204FB78B11F8127 /* FileOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileOperations.swift; sourceTree = "<group>"; };
+		74ED8107A2EFF5B9CAFCE061 /* RightClickSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RightClickSettingsView.swift; sourceTree = "<group>"; };
+		7B67219E48B82E5EBAC7D2CA /* FinderSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinderSync.swift; sourceTree = "<group>"; };
+		80DAA1AF1121ECCDCBD7B156 /* FinderExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FinderExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		877DB63F0C874C583636ADFA /* AnnotationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationTool.swift; sourceTree = "<group>"; };
+		99A6C8E8517F9F68D84B9D4F /* AppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
+		9CD49210FC7B57F9047CCFB5 /* CaptureOverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureOverlayWindow.swift; sourceTree = "<group>"; };
+		9D4ABF050DAAD40FB6D791BF /* AnnotationCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationCanvas.swift; sourceTree = "<group>"; };
+		BD418F2D1FF7DD0732DE2DD3 /* ColorPickerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerOverlay.swift; sourceTree = "<group>"; };
+		C203EBA64C4CDA4AB2A77471 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CEC9274894385E7870B9B740 /* FavoriteDirectoriesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteDirectoriesManager.swift; sourceTree = "<group>"; };
+		DA26F3D57131F67CDA209D51 /* PinColorSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinColorSettingsView.swift; sourceTree = "<group>"; };
+		E5E726F4FECD04F3A4B58A14 /* ColorPickerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerEngine.swift; sourceTree = "<group>"; };
+		EB2198C875A4A24E3B059D9A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		F6872E5C78F239D82BE8D993 /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		209131C1AAA233689877ED93 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				80DAA1AF1121ECCDCBD7B156 /* FinderExtension.appex */,
+				61497BADE33278DD3DE419BA /* SnapClick.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		26AD29B494C789E4E2808F06 /* SnapClick */ = {
+			isa = PBXGroup;
+			children = (
+				C203EBA64C4CDA4AB2A77471 /* Assets.xcassets */,
+				4516BC1DEDBF38F48C5FF6DB /* App */,
+				3ABA99606C9D4F329A5187D9 /* Core */,
+				6E349E69AFB984FEE43E1088 /* Modules */,
+				58C84DD08F6196412B4C4F03 /* UI */,
+			);
+			path = SnapClick;
+			sourceTree = "<group>";
+		};
+		3491746B597FC998D3B66066 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		35C1D6CCC01311A295E683D9 = {
+			isa = PBXGroup;
+			children = (
+				9BA3C664A59EE53FD8B9ED98 /* FinderExtension */,
+				C6FBBE5E1A1ADF8F35A5A871 /* Shared */,
+				26AD29B494C789E4E2808F06 /* SnapClick */,
+				209131C1AAA233689877ED93 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3ABA99606C9D4F329A5187D9 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				6B99FD79048A7735A9956942 /* AppSettings.swift */,
+				0433B561482FC0EC58A4A1B6 /* HotkeyManager.swift */,
+				356B4D9A7F2536E337434D86 /* PermissionManager.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		4516BC1DEDBF38F48C5FF6DB /* App */ = {
+			isa = PBXGroup;
+			children = (
+				EB2198C875A4A24E3B059D9A /* AppDelegate.swift */,
+				444974DA6DAF9FA9AA13F497 /* SnapClickApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		58C84DD08F6196412B4C4F03 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				F6872E5C78F239D82BE8D993 /* MainWindow.swift */,
+				24C46AC68C3BABB8B159D58F /* StatusBarController.swift */,
+				49AECAC44BA8CFCA81B4F3F1 /* WelcomeView.swift */,
+				3491746B597FC998D3B66066 /* Components */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		6E349E69AFB984FEE43E1088 /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				FEEE3E3A4E6207F8AF18E4B9 /* PinColor */,
+				E8EC86BF78A061A78F0E0912 /* RightClick */,
+				B1DAFAE394787EF0FFDD55B0 /* Screenshot */,
+			);
+			path = Modules;
+			sourceTree = "<group>";
+		};
+		9BA3C664A59EE53FD8B9ED98 /* FinderExtension */ = {
+			isa = PBXGroup;
+			children = (
+				7B67219E48B82E5EBAC7D2CA /* FinderSync.swift */,
+				0EE93F12C6AC05EFABDF11EC /* Info.plist */,
+				55F876CA3F012723C042EAC1 /* MenuBuilder.swift */,
+			);
+			path = FinderExtension;
+			sourceTree = "<group>";
+		};
+		B1DAFAE394787EF0FFDD55B0 /* Screenshot */ = {
+			isa = PBXGroup;
+			children = (
+				9D4ABF050DAAD40FB6D791BF /* AnnotationCanvas.swift */,
+				062788C3D91FF29E6DDD9906 /* AnnotationEditorWindow.swift */,
+				877DB63F0C874C583636ADFA /* AnnotationTool.swift */,
+				9CD49210FC7B57F9047CCFB5 /* CaptureOverlayWindow.swift */,
+				6B20B6D6EE1640BF54BBC935 /* ScreenCaptureEngine.swift */,
+				1C1A3385902B220B27E2707E /* ScreenshotSettings.swift */,
+			);
+			path = Screenshot;
+			sourceTree = "<group>";
+		};
+		C6FBBE5E1A1ADF8F35A5A871 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				99A6C8E8517F9F68D84B9D4F /* AppGroup.swift */,
+				6C728AC70204FB78B11F8127 /* FileOperations.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		E8EC86BF78A061A78F0E0912 /* RightClick */ = {
+			isa = PBXGroup;
+			children = (
+				CEC9274894385E7870B9B740 /* FavoriteDirectoriesManager.swift */,
+				56A649C4A715F98C5C33BBF1 /* NewFileTemplateManager.swift */,
+				74ED8107A2EFF5B9CAFCE061 /* RightClickSettingsView.swift */,
+			);
+			path = RightClick;
+			sourceTree = "<group>";
+		};
+		FEEE3E3A4E6207F8AF18E4B9 /* PinColor */ = {
+			isa = PBXGroup;
+			children = (
+				E5E726F4FECD04F3A4B58A14 /* ColorPickerEngine.swift */,
+				BD418F2D1FF7DD0732DE2DD3 /* ColorPickerOverlay.swift */,
+				DA26F3D57131F67CDA209D51 /* PinColorSettingsView.swift */,
+				5B618C795C91C6275CCF7FE7 /* PinWindowController.swift */,
+				24DA6EBCC16BC194C262297E /* PinWindowManager.swift */,
+			);
+			path = PinColor;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3AED3807AAE0CAC3EB365C17 /* FinderExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 50B5510944FA76C7B2E2A255 /* Build configuration list for PBXNativeTarget "FinderExtension" */;
+			buildPhases = (
+				FCE57D444B086D0DF7A1D7AF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FinderExtension;
+			packageProductDependencies = (
+			);
+			productName = FinderExtension;
+			productReference = 80DAA1AF1121ECCDCBD7B156 /* FinderExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B71799A9D61E3A90958DE3CB /* SnapClick */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55F561D0FC7BE60E7B3078D2 /* Build configuration list for PBXNativeTarget "SnapClick" */;
+			buildPhases = (
+				6581E462B96EC8C739B4F4CE /* Sources */,
+				586EDBEF8A2CC41986C9584A /* Resources */,
+				CC36D74D93C025CF8EBC523B /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				248117AA35617EA04EEF1F0D /* PBXTargetDependency */,
+			);
+			name = SnapClick;
+			packageProductDependencies = (
+			);
+			productName = SnapClick;
+			productReference = 61497BADE33278DD3DE419BA /* SnapClick.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F423DA18773EBB2A88D57C06 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					3AED3807AAE0CAC3EB365C17 = {
+						ProvisioningStyle = Automatic;
+					};
+					B71799A9D61E3A90958DE3CB = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 0781614AF13BC22B2D9A60AA /* Build configuration list for PBXProject "SnapClick" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 35C1D6CCC01311A295E683D9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 209131C1AAA233689877ED93 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3AED3807AAE0CAC3EB365C17 /* FinderExtension */,
+				B71799A9D61E3A90958DE3CB /* SnapClick */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		586EDBEF8A2CC41986C9584A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AAAEA98CEF5556B146454878 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6581E462B96EC8C739B4F4CE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0657167DE2C59DACA496DD2B /* AnnotationCanvas.swift in Sources */,
+				06A044A74E609C23EFB3BD34 /* AnnotationEditorWindow.swift in Sources */,
+				F8A7D5271F31CE3535894316 /* AnnotationTool.swift in Sources */,
+				EFC3811C577879CEE51CC772 /* AppDelegate.swift in Sources */,
+				65E31D69DFC1729AEFF67CE5 /* AppGroup.swift in Sources */,
+				1855E1A8E76776BAD4409C23 /* AppSettings.swift in Sources */,
+				809AF42932A62209C306A5C7 /* CaptureOverlayWindow.swift in Sources */,
+				DAE84CA4381EAB3D3131755B /* ColorPickerEngine.swift in Sources */,
+				40D27421D7CEFA593BB883E1 /* ColorPickerOverlay.swift in Sources */,
+				C2D695438119EE4EDAF01453 /* FavoriteDirectoriesManager.swift in Sources */,
+				86FB6BB220CF88CA6F0DCCBC /* FileOperations.swift in Sources */,
+				21C6264DF180501773134310 /* HotkeyManager.swift in Sources */,
+				2A1C62886ACA6FD00DB9BD98 /* MainWindow.swift in Sources */,
+				EBEC4CB0B57FD5A9A7172FC9 /* NewFileTemplateManager.swift in Sources */,
+				CB9D56AFEB620999E3FDA6E8 /* PermissionManager.swift in Sources */,
+				80E8D8DD13F0D17352FA9DC5 /* PinColorSettingsView.swift in Sources */,
+				C14E9B6617CB509E5887A7AF /* PinWindowController.swift in Sources */,
+				9365899555B15A4038717ADA /* PinWindowManager.swift in Sources */,
+				1BB1A74A956E7AE476C9D07A /* RightClickSettingsView.swift in Sources */,
+				4EFB1CDBDACE80A604A368D2 /* ScreenCaptureEngine.swift in Sources */,
+				A47A6942859E9F4C173A99CC /* ScreenshotSettings.swift in Sources */,
+				CDD10FAA8245BB8A646015CD /* SnapClickApp.swift in Sources */,
+				13625153C5688129F44086E9 /* StatusBarController.swift in Sources */,
+				DC7E5D9B626A8FC5EB0A1F1C /* WelcomeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FCE57D444B086D0DF7A1D7AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EF8692B7B9691813E92E508 /* AppGroup.swift in Sources */,
+				5A4F0DDD0D3DE99A38DEB030 /* FileOperations.swift in Sources */,
+				B293E3874C992053AF89D238 /* FinderSync.swift in Sources */,
+				FC781E49D0D33CE3AD78F24F /* MenuBuilder.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		248117AA35617EA04EEF1F0D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3AED3807AAE0CAC3EB365C17 /* FinderExtension */;
+			targetProxy = 46B8ED7EC035B57E9710ACFD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		30F922E692D1876215CDAA9C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_GROUP_ID = group.com.snapclick.shared;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = B4YD3GS8S3;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		364AF36E464F3E6FF5A851B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_GROUP_ID = group.com.snapclick.shared;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = B4YD3GS8S3;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		976C368C338405AB57CD7722 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SnapClick/SnapClick.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4DAY66XCT4;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = SnapClick/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapclick.app;
+				PRODUCT_NAME = SnapClick;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D4E3173E41EB2A5250454F9C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SnapClick/SnapClick.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4DAY66XCT4;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = SnapClick/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapclick.app;
+				PRODUCT_NAME = SnapClick;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		DC091F7BA7341FCEE6D3BBFA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FinderExtension/FinderExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4DAY66XCT4;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = FinderExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapclick.app.FinderExtension;
+				PRODUCT_NAME = FinderExtension;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F0E97AD4ED65CFA4EF3B03CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FinderExtension/FinderExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4DAY66XCT4;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = FinderExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapclick.app.FinderExtension;
+				PRODUCT_NAME = FinderExtension;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0781614AF13BC22B2D9A60AA /* Build configuration list for PBXProject "SnapClick" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				364AF36E464F3E6FF5A851B3 /* Debug */,
+				30F922E692D1876215CDAA9C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		50B5510944FA76C7B2E2A255 /* Build configuration list for PBXNativeTarget "FinderExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DC091F7BA7341FCEE6D3BBFA /* Debug */,
+				F0E97AD4ED65CFA4EF3B03CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		55F561D0FC7BE60E7B3078D2 /* Build configuration list for PBXNativeTarget "SnapClick" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				976C368C338405AB57CD7722 /* Debug */,
+				D4E3173E41EB2A5250454F9C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F423DA18773EBB2A88D57C06 /* Project object */;
+}
