@@ -232,17 +232,13 @@ private struct GeneralSettingsView: View {
                     .font(.headline)
 
                 WhiteCard {
-                    VStack(spacing: 0) {
+                    HStack {
                         Toggle("开机自启动".localized, isOn: $launchAtLogin)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-
-                        Divider().padding(.horizontal, 16)
-
+                        Spacer()
                         Toggle("在菜单栏显示图标".localized, isOn: $showInMenuBar)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                 }
             }
 
