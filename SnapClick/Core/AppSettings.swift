@@ -1,4 +1,5 @@
 import SwiftUI
+import ServiceManagement
 
 // MARK: - AppSettings
 
@@ -63,6 +64,36 @@ final class AppSettings: ObservableObject {
     var appLanguage: String {
         get { LanguageManager.shared.appLanguage }
         set { LanguageManager.shared.appLanguage = newValue }
+    }
+
+    /// 开机自启动
+    @AppStorage("launchAtLogin")
+    var launchAtLogin: Bool = false {
+        didSet {
+            updateLaunchAtLogin()
+        }
+    }
+
+    /// 在菜单栏显示图标
+    @AppStorage("showInMenuBar")
+    var showInMenuBar: Bool = true {
+        didSet {
+            NotificationCenter.default.post(name: .showInMenuBarDidChange, object: nil)
+        }
+    }
+
+    private func updateLaunchAtLogin() {
+        if #available(macOS 13.0, *) {
+            do {
+                if launchAtLogin {
+                    try SMAppService.mainApp.register()
+                } else {
+                    try SMAppService.mainApp.unregister()
+                }
+            } catch {
+                print("[AppSettings] 开机自启动设置失败: \(error)")
+            }
+        }
     }
 
     // MARK: 新建文件设置
@@ -417,6 +448,7 @@ public final class LanguageManager: ObservableObject {
 
 public extension Notification.Name {
     static let appLanguageDidChange = Notification.Name("AppLanguageDidChange")
+    static let showInMenuBarDidChange = Notification.Name("ShowInMenuBarDidChange")
 }
 
 // MARK: - String Extension

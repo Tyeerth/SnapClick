@@ -17,19 +17,34 @@ final class StatusBarController: NSObject {
     init(appDelegate: AppDelegate) {
         self.appDelegate = appDelegate
 
-        // 创建固定宽度的状态栏项
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
         super.init()
 
         setupIcon()
         setupMenu()
-        
+        updateVisibility()
+
         NotificationCenter.default.addObserver(self, selector: #selector(defaultsChanged), name: UserDefaults.didChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(languageChanged), name: .appLanguageDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(visibilityChanged), name: .showInMenuBarDidChange, object: nil)
     }
     
     @objc private func defaultsChanged() {
         setupMenu()
+    }
+
+    @objc private func languageChanged() {
+        setupMenu()
+        setupIcon()
+    }
+
+    @objc private func visibilityChanged() {
+        updateVisibility()
+    }
+
+    private func updateVisibility() {
+        statusItem.isVisible = AppSettings.shared.showInMenuBar
     }
 
     // MARK: 图标设置

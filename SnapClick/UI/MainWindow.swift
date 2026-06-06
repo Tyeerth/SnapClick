@@ -139,9 +139,6 @@ private struct GeneralSettingsView: View {
 
     @AppStorage("isFinderEnabled") private var isFinderEnabled: Bool = false
 
-    @State private var launchAtLogin = true
-    @State private var showInMenuBar = true
-
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
 
@@ -233,9 +230,9 @@ private struct GeneralSettingsView: View {
 
                 WhiteCard {
                     HStack {
-                        Toggle("开机自启动".localized, isOn: $launchAtLogin)
+                        Toggle("开机自启动".localized, isOn: $settings.launchAtLogin)
                         Spacer()
-                        Toggle("在菜单栏显示图标".localized, isOn: $showInMenuBar)
+                        Toggle("在菜单栏显示图标".localized, isOn: $settings.showInMenuBar)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
