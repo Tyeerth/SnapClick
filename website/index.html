@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapClick — macOS 效率增强工具 · 右键增强 · 截图标注 · 屏幕贴图 · 智能取色</title>
+  <meta name="description" content="一款专为 macOS 打造的高级效率增强工具。将 Finder 菜单增强、高级截图标注、屏幕贴图、智能取色等常用效率功能一体化汇总，以纯原生 Swift 架构呈现，为您提供丝滑般尊贵的使用体验。">
+  
+  <!-- 引入高级字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- 引入 Phosphor 线性图标 -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- 背景粒子微光 -->
+  <div class="glow-bg">
+    <div class="glowing-orb orb-1"></div>
+    <div class="glowing-orb orb-2"></div>
+  </div>
+
+  <!-- 浮动毛玻璃导航栏 -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo" id="nav-logo">
+        <i class="ph ph-sparkle"></i>
+        <span>SnapClick</span>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="#features" class="nav-link">功能特性</a>
+        <a href="#tech-specs" class="nav-link">技术架构</a>
+        <a href="#quick-start" class="nav-link">快速开始</a>
+      </div>
+      <div class="nav-cta">
+        <a href="https://github.com/Tyeerth/SnapClick/releases/latest" class="btn btn-nav" id="download-nav">
+          <span>免费下载</span>
+          <div class="btn-icon-wrapper">
+            <i class="ph ph-arrow-down"></i>
+          </div>
+        </a>
+      </div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="切换菜单">
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- 移动端侧滑菜单 -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu-links">
+      <a href="#features" class="mobile-link">功能特性</a>
+      <a href="#tech-specs" class="mobile-link">技术架构</a>
+      <a href="#quick-start" class="mobile-link">快速开始</a>
+      <a href="https://github.com/Tyeerth/SnapClick/releases/latest" class="btn btn-primary w-full justify-center">
+        <span>下载最新 Release</span>
+        <div class="btn-icon-wrapper">
+          <i class="ph ph-arrow-down"></i>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 主视觉 Hero 区域 -->
+  <header class="hero">
+    <div class="container hero-container">
+      <div class="eyebrow-wrapper fade-up">
+        <span class="eyebrow">macOS 效率终极增强</span>
+      </div>
+      <h1 class="hero-title fade-up">让 macOS 效率，更近一步</h1>
+      <p class="hero-subtitle fade-up">
+        右键增强 · 区域截图 · 智能取色 · 屏幕贴图，一站式原生 Swift 高效体验。
+      </p>
+      
+      <!-- 按钮机制 (Button-in-Button) -->
+      <div class="hero-actions fade-up">
+        <a href="https://github.com/Tyeerth/SnapClick/releases/latest" class="btn btn-primary" id="download-hero">
+          <span>下载 macOS 安装包</span>
+          <div class="btn-icon-wrapper">
+            <i class="ph ph-arrow-down"></i>
+          </div>
+        </a>
+        <a href="#quick-start" class="btn btn-secondary">
+          <span>从源码编译</span>
+          <div class="btn-icon-wrapper">
+            <i class="ph ph-code"></i>
+          </div>
+        </a>
+      </div>
+
+      <!-- 主 App 设置面板截图 (Double-Bezel 结构) -->
+      <div class="hero-preview-wrapper fade-up">
+        <div class="double-bezel-outer">
+          <div class="double-bezel-inner">
+            <img src="assets/hero_screenshot.png" alt="SnapClick 设置面板截图" class="hero-image" id="hero-img">
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Bento 核心功能区域 -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="eyebrow">卓越功能</span>
+        <h2 class="section-title">重新定义你的 macOS 工作流</h2>
+        <p class="section-subtitle">
+          抛弃繁杂的第三方单功能插件，以统一、纯粹且强大的原生体验接管你的日常操作。
+        </p>
+      </div>
+
+      <!-- Bento 网格 (非对称布局) -->
+      <div class="bento-grid">
+        
+        <!-- 卡片 1: Finder 右键增强 -->
+        <div class="bento-card col-span-2 fade-up" id="feature-right-click">
+          <div class="double-bezel-outer">
+            <div class="double-bezel-inner flex-row">
+              <div class="card-text">
+                <div class="card-icon-pill">
+                  <i class="ph ph-cursor-click"></i>
+                </div>
+                <h3>Finder 右键菜单增强</h3>
+                <p>完美集成于系统右键菜单，一键新建 Markdown、Text 或 Office 常用文件，支持自定义模版。支持跨目录剪切粘贴、快捷拉起外部终端与 VS Code 编辑器、高速路径拷贝以及文件 MD5/SHA256 校验，告别繁复的拖拽与路径寻找。</p>
+                <ul class="feature-tag-list">
+                  <li><i class="ph ph-plus-circle"></i> 模板一键新建</li>
+                  <li><i class="ph ph-scissors"></i> 高效剪切粘贴</li>
+                  <li><i class="ph ph-command"></i> 终端快捷呼出</li>
+                  <li><i class="ph ph-shield-check"></i> 哈希校验</li>
+                </ul>
+              </div>
+              <div class="card-media">
+                <img src="assets/right_click_screenshot.png" alt="Finder 右键增强菜单" class="bento-image">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片 2: 高级截图与标注 -->
+        <div class="bento-card fade-up" id="feature-screenshot">
+          <div class="double-bezel-outer">
+            <div class="double-bezel-inner flex-col">
+              <div class="card-text">
+                <div class="card-icon-pill">
+                  <i class="ph ph-camera"></i>
+                </div>
+                <h3>高级截图与标注</h3>
+                <p>智能识别悬停窗口，拖拽精准像素截取。内置丰富的标注编辑器，支持直线、箭头、高亮遮罩、模糊马赛克、智能步骤序号以及截图美化包装（圆角与柔和毛玻璃大阴影）。</p>
+              </div>
+              <div class="card-media">
+                <img src="assets/screenshot_editor_screenshot.png" alt="高级截图与标注" class="bento-image">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片 3: 屏幕贴图与精准取色 -->
+        <div class="bento-card fade-up" id="feature-pin-color">
+          <div class="double-bezel-outer">
+            <div class="double-bezel-inner flex-col">
+              <div class="card-text">
+                <div class="card-icon-pill">
+                  <i class="ph ph-eyedropper"></i>
+                </div>
+                <h3>屏幕贴图与精准取色</h3>
+                <p>多视窗屏幕悬浮固定，支持透明度调节、全局置顶与跨 Space 跟随。配合 16 倍高精度像素放大镜，一键获取 HEX、RGB、HSL 颜色代码，为设计师与开发者打造。</p>
+              </div>
+              <div class="card-media">
+                <img src="assets/pin_color_screenshot.png" alt="屏幕贴图与取色器" class="bento-image">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 技术规格与架构 -->
+  <section class="tech-specs" id="tech-specs">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="eyebrow">技术实力</span>
+        <h2 class="section-title">纯原生，极速且安全</h2>
+        <p class="section-subtitle">
+          依托 macOS 最新底层技术，保证内存占用极低且响应迅速，绝无后台多余网络消耗。
+        </p>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card fade-up">
+          <i class="ph ph-swift-logo tech-icon"></i>
+          <h4>Swift 5.9+</h4>
+          <p>完全由原生 Swift 语言编写，确保无任何臃肿框架，秒开体验。</p>
+        </div>
+        <div class="tech-card fade-up">
+          <i class="ph ph-cpu tech-icon"></i>
+          <h4>ScreenCaptureKit</h4>
+          <p>采用 Apple 官方高性能屏幕捕获框架，提供超凡顺畅的截图体验。</p>
+        </div>
+        <div class="tech-card fade-up">
+          <i class="ph ph-hard-drives tech-icon"></i>
+          <h4>FinderSync 插件</h4>
+          <p>基于系统底层 FinderSync 架构开发的右键增强，完美契合 Finder 操作环境。</p>
+        </div>
+        <div class="tech-card fade-up">
+          <i class="ph ph-key tech-icon"></i>
+          <h4>CGEventTap 监听</h4>
+          <p>底层的全局快捷键高精度拦截，热键响应不延迟，无冲突。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 源码编译与快速开始 -->
+  <section class="quick-start" id="quick-start">
+    <div class="container">
+      <div class="double-bezel-outer fade-up">
+        <div class="double-bezel-inner build-box">
+          <div class="build-content">
+            <span class="eyebrow">开源透明</span>
+            <h2>从源码编译构建</h2>
+            <p>SnapClick 全面开源，支持在您自己的电脑上使用 Xcode 15 快速编译和私有化构建。</p>
+            
+            <div class="terminal-window">
+              <div class="terminal-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="title">终端 (Terminal)</span>
+              </div>
+              <div class="terminal-body">
+                <div class="code-line">
+                  <span class="prompt">$</span>
+                  <span class="code-text" id="git-clone-cmd">git clone https://github.com/Tyeerth/SnapClick.git</span>
+                  <button class="copy-btn" data-target="git-clone-cmd" aria-label="复制代码">
+                    <i class="ph ph-copy"></i>
+                  </button>
+                </div>
+                <div class="code-line">
+                  <span class="prompt">$</span>
+                  <span class="code-text" id="cd-cmd">cd SnapClick && open SnapClick.xcodeproj</span>
+                  <button class="copy-btn" data-target="cd-cmd" aria-label="复制代码">
+                    <i class="ph ph-copy"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="build-tips">
+              <div class="tip-item">
+                <i class="ph ph-check-circle"></i>
+                <span>前置条件：macOS 13.0+ 及 Xcode 15.0+</span>
+              </div>
+              <div class="tip-item">
+                <i class="ph ph-check-circle"></i>
+                <span>在主 Target 签名中配置您的 Team 账号</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <i class="ph ph-sparkle"></i>
+        <span>SnapClick</span>
+      </div>
+      <p class="footer-desc">让你的 macOS 右键与截图焕发新生，每一行代码都追求极致体验。</p>
+      <div class="footer-links">
+        <a href="https://github.com/Tyeerth/SnapClick" class="footer-link"><i class="ph ph-github-logo"></i> GitHub 仓库</a>
+        <a href="https://github.com/Tyeerth/SnapClick/releases" class="footer-link"><i class="ph ph-download-simple"></i> 发布版本</a>
+        <a href="https://github.com/Tyeerth/SnapClick/blob/main/LICENSE" class="footer-link"><i class="ph ph-scales"></i> Apache 2.0 协议</a>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 SnapClick. 保留所有权利。</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="index.js"></script>
+</body>
+</html>
