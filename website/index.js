@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initScrollReveal();
   initCommandCopy();
+  initInteractiveViewer();
 });
 
 /**
@@ -126,6 +127,36 @@ function initCommandCopy() {
       } catch (err) {
         console.error('复制失败: ', err);
       }
+    });
+  });
+}
+
+/**
+ * 交互式设置模拟窗口切换逻辑
+ */
+function initInteractiveViewer() {
+  const sidebarItems = document.querySelectorAll('.window-sidebar .sidebar-item');
+  const screenshots = document.querySelectorAll('.window-content .tab-screenshot');
+  
+  if (!sidebarItems.length || !screenshots.length) return;
+  
+  sidebarItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const targetTab = item.getAttribute('data-tab');
+      
+      // 1. 更新侧边栏按钮的 active 状态
+      sidebarItems.forEach(btn => btn.classList.remove('active'));
+      item.classList.add('active');
+      
+      // 2. 更新右侧截图的显示状态 (带过渡动效)
+      screenshots.forEach(img => {
+        const imgTab = img.id.replace('screenshot-', '');
+        if (imgTab === targetTab) {
+          img.classList.add('active');
+        } else {
+          img.classList.remove('active');
+        }
+      });
     });
   });
 }
