@@ -118,6 +118,14 @@ class FinderSyncExtension: FIFinderSync {
         sendCommand("copyPath", selectedItems: finderSelectedItems, targetDir: finderTargetDirectory, representedObject: obj)
     }
 
+    @objc func copyTargetDirectoryPath(_ sender: NSMenuItem) {
+        guard let dir = finderTargetDirectory else { return }
+        let obj = MenuBuilder.getRepresentedObject(for: sender.tag)
+        // 复用 copyPath 命令：把当前目录作为唯一 item，
+        // 主 App 端的 FileOperations.copyPath 会按 path 字段拷贝到剪贴板
+        sendCommand("copyPath", selectedItems: [dir], targetDir: dir, representedObject: obj)
+    }
+
     @objc func computeHash(_ sender: NSMenuItem) {
         let obj = MenuBuilder.getRepresentedObject(for: sender.tag)
         sendCommand("computeHash", selectedItems: finderSelectedItems, targetDir: finderTargetDirectory, representedObject: obj)

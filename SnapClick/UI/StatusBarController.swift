@@ -552,3 +552,4 @@ extension StatusBarController: NSMenuDelegate {
     }
 }
 
+

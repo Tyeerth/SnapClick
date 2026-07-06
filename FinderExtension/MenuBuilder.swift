@@ -22,6 +22,11 @@ enum MenuBuilder {
             menu.addItem(termItem)
         }
 
+        // 空白处右键：拷贝当前目录的完整路径
+        if isContainer {
+            menu.addItem(makeCopyCurrentDirPathItem(target: target))
+        }
+
         // 编辑器 / IDE 类工具（无论是空白处还是选中文件都显示）
         let devItems = makeDevToolItems(target: target)
         if !devItems.isEmpty {
@@ -195,6 +200,19 @@ enum MenuBuilder {
 
     private static func makeCopyPathItem(target: AnyObject) -> NSMenuItem {
         let item = NSMenuItem(title: "拷贝路径", action: #selector(FinderSyncExtension.copyPath(_:)), keyEquivalent: "")
+        item.target = target
+        item.image = sfSymbol("link", size: 14)
+        MenuBuilder.setRepresentedObject("full", for: item)
+        return item
+    }
+
+    /// 空白处右键：拷贝当前目录的完整路径
+    private static func makeCopyCurrentDirPathItem(target: AnyObject) -> NSMenuItem {
+        let item = NSMenuItem(
+            title: "拷贝当前目录路径",
+            action: #selector(FinderSyncExtension.copyTargetDirectoryPath(_:)),
+            keyEquivalent: ""
+        )
         item.target = target
         item.image = sfSymbol("link", size: 14)
         MenuBuilder.setRepresentedObject("full", for: item)

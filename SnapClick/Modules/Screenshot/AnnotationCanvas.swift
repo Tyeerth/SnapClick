@@ -515,7 +515,11 @@ class AnnotationCanvas: NSView {
     func exportAsImage() -> NSImage {
         let size = bounds.size
         let result = NSImage(size: size)
-        result.lockFocus()
+        // 画布自身是 isFlipped = true，所有标注坐标以左上角为原点。
+        // 导出时必须使用 lockFocusFlipped(true)，让导出上下文与画布坐标系一致，
+        // 否则在标准非翻转上下文里 CGContext 绘制的标注会被垂直镜像，
+        // 表现为"画笔/矩形画的位置与点击位置严重错位"。
+        result.lockFocusFlipped(true)
 
         // 先画底图
         if let image = baseImage {
