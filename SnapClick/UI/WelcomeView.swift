@@ -12,6 +12,15 @@ struct WelcomeView: View {
     @ObservedObject private var settings = AppSettings.shared
     @AppStorage("isFinderEnabled") private var isFinderEnabled: Bool = false
 
+    private func handleComplete() {
+        onComplete()
+        if let welcome = NSApp.windows.first(where: { $0.title.contains("欢迎使用 SnapClick") }) {
+            welcome.performClose(nil)
+        } else {
+            NSApp.sendAction(#selector(NSWindow.performClose(_:)), to: nil, from: nil)
+        }
+    }
+
     private var grantedCount: Int {
         var count = 0
         if permission.hasScreenRecordingPermission { count += 1 }
@@ -22,24 +31,14 @@ struct WelcomeView: View {
 
     var body: some View {
         ZStack {
-            // ── 统一底面背景（毛玻璃或纯色） ────────────────────────────────
-            if settings.enableGlassEffect {
-                VisualEffectView(material: .underWindowBackground, blendingMode: .behindWindow)
-                    .ignoresSafeArea()
-            } else {
-                Color.dynamic(
-                    light: Color(white: 0.98),
-                    dark: Color(white: 0.12)
-                )
-                .ignoresSafeArea()
-            }
+            // ── Liquid Glass 窗口底面背景（与主窗口保持一致） ──────────────────
+            LiquidGlassBackdrop()
 
             HStack(spacing: 0) {
 
                 // ── 左侧侧边栏 ──────────────────────────────────────────
                 VStack(alignment: .leading, spacing: 0) {
 
-                    // App 头部
                     HStack(spacing: 10) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -72,7 +71,7 @@ struct WelcomeView: View {
                         }
                     }
                     .padding(.horizontal, 14)
-                    .padding(.top, 40)
+                    .padding(.top, 8)
                     .padding(.bottom, 14)
 
                     // 伪导航菜单（与主窗口视觉一致）
@@ -124,11 +123,29 @@ struct WelcomeView: View {
                     }
                     .padding(14)
                     .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(Color.primary.opacity(0.03))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .stroke(DT.cardBorder, lineWidth: 0.5)
+                        ZStack {
+                            if settings.enableGlassEffect {
+                                VisualEffectView(material: .contentBackground, blendingMode: .withinWindow)
+                            }
+                            Color.dynamic(
+                                light: Color.white.opacity(0.18),
+                                dark: Color(white: 1, opacity: 0.08)
+                            )
+                        }
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(settings.enableGlassEffect ? 0.55 : 0.25),
+                                        Color.white.opacity(settings.enableGlassEffect ? 0.14 : 0.05)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ),
+                                lineWidth: 1
                             )
                     )
                     .padding(.horizontal, 12)
@@ -136,14 +153,34 @@ struct WelcomeView: View {
                 }
                 .frame(width: 210)
                 .background(
-                    Group {
-                        if !settings.enableGlassEffect {
+                    ZStack {
+                        if settings.enableGlassEffect {
+                            VisualEffectView(material: .sidebar, blendingMode: .withinWindow)
                             Color.dynamic(
-                                light: Color(white: 0.94),
-                                dark: Color(white: 0.18)
+                                light: Color.white.opacity(0.18),
+                                dark: Color(white: 1, opacity: 0.10)
+                            )
+                        } else {
+                            Color.dynamic(
+                                light: Color(white: 0.97),
+                                dark: Color(white: 0.16)
                             )
                         }
                     }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(settings.enableGlassEffect ? 0.60 : 0.30),
+                                        Color.white.opacity(settings.enableGlassEffect ? 0.16 : 0.06)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ),
+                                lineWidth: 1
+                            )
+                    )
                 )
 
                 Divider().opacity(0.5)
@@ -220,7 +257,7 @@ struct WelcomeView: View {
 
                             // 完成按钮
                             VStack(spacing: 8) {
-                                Button(action: onComplete) {
+                                Button(action: handleComplete) {
                                     HStack(spacing: 8) {
                                         if grantedCount == 3 {
                                             Image(systemName: "checkmark.circle.fill")
@@ -247,13 +284,7 @@ struct WelcomeView: View {
                     .scrollContentBackground(.hidden)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(
-                    Group {
-                        if settings.enableGlassEffect {
-                            Color(red: 160/255, green: 161/255, blue: 162/255).opacity(0.5)
-                        }
-                    }
-                )
+                .background(Color.clear)
             }
         }
         .frame(width: 820, height: 580)
@@ -307,6 +338,7 @@ private struct WelcomePermCard: View {
     let isGranted: Bool
     let onAuthorize: () -> Void
 
+    @ObservedObject private var settings = AppSettings.shared
     @State private var isHovered = false
 
     var body: some View {
@@ -357,16 +389,37 @@ private struct WelcomePermCard: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(isGranted ? DT.successGreen.opacity(0.04) : DT.cardBg)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(isHovered ? Color.primary.opacity(0.03) : Color.clear)
+            ZStack {
+                if settings.enableGlassEffect {
+                    VisualEffectView(material: .contentBackground, blendingMode: .withinWindow)
+                }
+                Color.dynamic(
+                    light: Color.white.opacity(0.20),
+                    dark: Color(white: 1, opacity: 0.10)
                 )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .stroke(isGranted ? DT.successGreen.opacity(0.2) : DT.cardBorder, lineWidth: 0.75)
+            }
+        )
+        .clipShape(RoundedRectangle(cornerRadius: DT.cardRadius, style: .continuous))
+        .overlay(
+            // 1px 高光边框
+            RoundedRectangle(cornerRadius: DT.cardRadius, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(settings.enableGlassEffect ? 0.60 : 0.30),
+                            Color.white.opacity(settings.enableGlassEffect ? 0.18 : 0.06)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 1
                 )
+        )
+        .shadow(
+            color: Color.black.opacity(settings.enableGlassEffect ? 0.18 : 0.06),
+            radius: settings.enableGlassEffect ? 20 : 4,
+            x: 0,
+            y: settings.enableGlassEffect ? 8 : 1
         )
         .onHover { hovered in withAnimation(.easeOut(duration: 0.15)) { isHovered = hovered } }
     }

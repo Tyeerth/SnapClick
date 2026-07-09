@@ -5,18 +5,58 @@ import AppKit
 struct VisualEffectView: NSViewRepresentable {
     var material: NSVisualEffectView.Material = .sidebar
     var blendingMode: NSVisualEffectView.BlendingMode = .behindWindow
+    var emphasized: Bool = false
+    var state: NSVisualEffectView.State = .active
 
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
         view.material = material
         view.blendingMode = blendingMode
-        view.state = .active
+        view.state = state
+        view.isEmphasized = emphasized
         return view
     }
 
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
         nsView.material = material
         nsView.blendingMode = blendingMode
+        nsView.isEmphasized = emphasized
+        nsView.state = state
+    }
+}
+
+// MARK: - Liquid Glass 背景（环境光折射 + 壁纸动态色彩渗透）
+
+/// 窗口级 Liquid Glass 背景：在系统壁纸之上叠一层柔和的径向渐变，
+/// 营造「环境光折射 + 动态色彩渗透」的氛围感。
+struct LiquidGlassBackdrop: View {
+    @ObservedObject private var settings = AppSettings.shared
+
+    var body: some View {
+        ZStack {
+            // 系统毛玻璃基底（最贴近系统壁纸）
+            VisualEffectView(material: .underWindowBackground, blendingMode: .behindWindow)
+
+            // 环境光折射层：左上 → 右下的多色径向晕染，模拟系统壁纸的色彩渗透
+            LinearGradient(
+                colors: [
+                    Color(red: 99/255,  green: 132/255, blue: 245/255).opacity(0.10),
+                    Color(red: 236/255, green: 100/255, blue: 145/255).opacity(0.06),
+                    Color(red: 52/255,  green: 199/255, blue: 189/255).opacity(0.08),
+                    Color.clear
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .blendMode(.plusLighter)
+            .opacity(settings.enableGlassEffect ? settings.glassOpacity : 0.0)
+
+            // 整体环境色调（与外观同步），降低饱和度让卡片更突出
+            // glassOpacity 越小，环境色调越淡，面板越透
+            DT.windowBackdrop
+                .opacity(settings.enableGlassEffect ? 0.25 * settings.glassOpacity : 1.0)
+        }
+        .ignoresSafeArea()
     }
 }
 
@@ -52,84 +92,150 @@ enum DT {
     static let sidebarBg        = Color.clear
     static let sidebarSelected  = Color(red: 59/255,  green: 130/255, blue: 246/255)
     static let accent           = Color(red: 59/255,  green: 130/255, blue: 246/255)
-    static let contentBg        = Color.dynamic(
-        light: Color.white.opacity(0.55),
-        dark: Color(white: 1, opacity: 0.04)
-    )
+
+    // Liquid Glass 卡片底色（白色叠加层，提高不透明度以保证可读性）
     static let cardBg           = Color.dynamic(
-        light: Color.white.opacity(0.95),
-        dark: Color(white: 1, opacity: 0.07)
-    )
-    static let cardBorder       = Color.dynamic(
-        light: Color(white: 0, opacity: 0.12),
+        light: Color.white.opacity(0.22),
         dark: Color(white: 1, opacity: 0.14)
+    )
+    // Liquid Glass 高光边框（1px rgba(255,255,255,0.3)）
+    static let cardBorder       = Color.dynamic(
+        light: Color.white.opacity(0.60),
+        dark: Color.white.opacity(0.26)
     )
     static let groupLabel       = Color.dynamic(light: Color(red: 148/255, green: 163/255, blue: 184/255), dark: Color(red: 107/255, green: 114/255, blue: 128/255))
     static let successGreen     = Color(red: 34/255,  green: 197/255, blue: 94/255)
     static let warningOrange    = Color(red: 249/255, green: 115/255, blue: 22/255)
 
     // 间距
-    static let contentPadding: CGFloat = 24
-    static let cardRadius: CGFloat     = 10
-    static let rowPadH: CGFloat        = 16
-    static let rowPadV: CGFloat        = 11
+    static let contentPadding: CGFloat = 28
+    // 圆角：卡片 24，侧边栏 28
+    static let cardRadius: CGFloat     = 24
+    static let rowPadH: CGFloat        = 18
+    static let rowPadV: CGFloat        = 12
 
     // 悬浮玻璃侧边栏（四周统一边距）
     static let sidebarWidth: CGFloat        = 196
     static let sidebarInset: CGFloat        = 8
     static let sidebarGap: CGFloat          = 4
-    static let sidebarCornerRadius: CGFloat = 12
+    static let sidebarCornerRadius: CGFloat = 30
+
+    // Liquid Glass 侧边栏 — 半透明白色叠加（保证内容可读，营造「磨砂」质感）
+    static let sidebarGlassOverlay = Color.dynamic(
+        light: Color.white.opacity(0.22),
+        dark: Color(white: 1, opacity: 0.12)
+    )
+
+    // Liquid Glass 侧边栏 — 顶部高光（环境光折射，模拟玻璃边缘的反射）
+    static let sidebarTopHighlight = Color.dynamic(
+        light: Color.white.opacity(0.55),
+        dark: Color.white.opacity(0.22)
+    )
+
+    // Liquid Glass 侧边栏 — 底部高光（极淡，几乎透明）
+    static let sidebarBottomHighlight = Color.dynamic(
+        light: Color.white.opacity(0.12),
+        dark: Color.white.opacity(0.05)
+    )
+
+    // 导航胶囊间距（呼吸感）
+    static let navCapsuleSpacing: CGFloat = 4
+    static let navCapsuleHPad: CGFloat    = 10
+    static let navCapsuleVPad: CGFloat    = 8
+
+    // 导航胶囊 Hover 背景（极淡玻璃高亮）
+    static let navCapsuleHoverBg = Color.dynamic(
+        light: Color.white.opacity(0.16),
+        dark: Color.white.opacity(0.08)
+    )
+
+    // 导航胶囊 Selected 渐变顶部（发光的液态玻璃）
+    static let navCapsuleSelectedTop = Color.dynamic(
+        light: Color.white.opacity(0.42),
+        dark: Color.white.opacity(0.30)
+    )
+    // 导航胶囊 Selected 渐变中部
+    static let navCapsuleSelectedMid = Color.dynamic(
+        light: Color.white.opacity(0.26),
+        dark: Color.white.opacity(0.18)
+    )
+    // 导航胶囊 Selected 渐变底部
+    static let navCapsuleSelectedBottom = Color.dynamic(
+        light: Color.white.opacity(0.14),
+        dark: Color.white.opacity(0.08)
+    )
+    // 导航胶囊 Selected 边缘（顶部亮、底部淡）
+    static let navCapsuleSelectedBorderTop = Color.dynamic(
+        light: Color.white.opacity(0.70),
+        dark: Color.white.opacity(0.40)
+    )
+    static let navCapsuleSelectedBorderBottom = Color.dynamic(
+        light: Color.white.opacity(0.18),
+        dark: Color.white.opacity(0.10)
+    )
 
     // 外层背景（窗口底色，与侧边栏玻璃形成对比）
+    // 跟随系统外观营造「环境光折射」的氛围色
     static let windowBackdrop = Color.dynamic(
-        light: Color(white: 0.93),
-        dark: Color(white: 0.08)
+        light: Color(red: 235/255, green: 238/255, blue: 245/255),
+        dark: Color(red: 18/255, green: 20/255, blue: 28/255)
     )
+
+    // Liquid Glass 强调色（用于系统壁纸动态色彩渗透）
+    static let liquidGlassTint = Color.dynamic(
+        light: Color(red: 99/255, green: 132/255, blue: 245/255).opacity(0.12),
+        dark: Color(red: 99/255, green: 132/255, blue: 245/255).opacity(0.18)
+    )
+
+    // 浮起阴影（柔和、扩散较大）
+    static let cardShadowRadius: CGFloat = 24
+    static let cardShadowY: CGFloat      = 10
+    static let cardShadowOpacity: Double = 0.10
 
     // Tab 栏背景（浅灰 / 深灰）
     static let tabBg = Color.dynamic(
-        light: Color(red: 241/255, green: 245/255, blue: 249/255),
+        light: Color.white.opacity(0.15),
         dark: Color(white: 1, opacity: 0.08)
     )
     // 信息提示横幅背景
     static let infoBannerBg = Color.dynamic(
-        light: Color(red: 239/255, green: 246/255, blue: 255/255),
-        dark: Color(red: 59/255, green: 130/255, blue: 246/255).opacity(0.12)
+        light: Color.white.opacity(0.18),
+        dark: Color(white: 1, opacity: 0.08)
     )
     // 信息提示横幅边框
     static let infoBannerBorder = Color.dynamic(
-        light: Color(red: 191/255, green: 219/255, blue: 254/255),
-        dark: Color(red: 59/255, green: 130/255, blue: 246/255).opacity(0.25)
+        light: Color.white.opacity(0.55),
+        dark: Color.white.opacity(0.20)
     )
     // 行悬停背景
     static let rowHoverBg = Color.dynamic(
-        light: Color(red: 248/255, green: 250/255, blue: 252/255),
-        dark: Color(white: 1, opacity: 0.05)
+        light: Color.white.opacity(0.18),
+        dark: Color(white: 1, opacity: 0.06)
     )
     // 表头背景
     static let tableHeaderBg = Color.dynamic(
-        light: Color(red: 248/255, green: 250/255, blue: 252/255),
-        dark: Color(white: 1, opacity: 0.05)
+        light: Color.white.opacity(0.10),
+        dark: Color(white: 1, opacity: 0.04)
     )
     // 内置标签背景
     static let badgeBg = Color.dynamic(
-        light: Color(red: 241/255, green: 245/255, blue: 249/255),
+        light: Color.white.opacity(0.18),
         dark: Color(white: 1, opacity: 0.10)
     )
     // 占位符/最浅文字
     static let placeholderText = Color.dynamic(
-        light: Color(red: 203/255, green: 213/255, blue: 225/255),
-        dark: Color(white: 1, opacity: 0.25)
+        light: Color(red: 148/255, green: 163/255, blue: 184/255),
+        dark: Color(white: 1, opacity: 0.30)
     )
     // KeyBadge 背景
     static let keyBadgeBg = Color.dynamic(
-        light: Color.white,
-        dark: Color(white: 1, opacity: 0.12)
+        light: Color.white.opacity(0.35),
+        dark: Color(white: 1, opacity: 0.14)
     )
     // KeyBadge 边框
     static let keyBadgeBorder = Color.dynamic(
-        light: Color(red: 203/255, green: 213/255, blue: 225/255),
-        dark: Color(white: 1, opacity: 0.20)
+        light: Color.white.opacity(0.6),
+        dark: Color.white.opacity(0.22)
     )
     // 未选中 Tab / 次要控件文字（与 customSecondaryText 一致）
     static let unselectedTabText = Color.dynamic(
@@ -138,17 +244,17 @@ enum DT {
     )
     // 未选中格式 Badge 背景
     static let unselectedBadgeBg = Color.dynamic(
-        light: Color(red: 241/255, green: 245/255, blue: 249/255),
+        light: Color.white.opacity(0.20),
         dark: Color(white: 1, opacity: 0.08)
     )
     // 未安装应用图标占位背景
     static let appIconPlaceholderBg = Color.dynamic(
-        light: Color(red: 241/255, green: 245/255, blue: 249/255),
+        light: Color.white.opacity(0.20),
         dark: Color(white: 1, opacity: 0.08)
     )
     // 空态图片占位背景
     static let emptyImagePlaceholderBg = Color.dynamic(
-        light: Color(red: 241/255, green: 245/255, blue: 249/255),
+        light: Color.white.opacity(0.20),
         dark: Color(white: 1, opacity: 0.08)
     )
 }
@@ -204,29 +310,97 @@ private struct SidebarNavItem: View {
         Button(action: action) {
             HStack(spacing: 10) {
                 Image(systemName: dest.symbolName)
-                    .font(.system(size: 13.5, weight: isSelected ? .semibold : .regular))
-                    .foregroundStyle(isSelected ? DT.accent : .customSecondaryText)
-                    .frame(width: 18)
+                    .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
+                    .foregroundStyle(iconColor)
+                    .frame(width: 20, height: 20)
 
                 Text(dest.localizedTitle)
                     .font(.system(size: 13.5, weight: isSelected ? .semibold : .regular))
-                    .foregroundStyle(isSelected ? .customPrimaryText : .customMediumText)
+                    .foregroundStyle(textColor)
 
-                Spacer()
+                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background(
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .fill(isSelected
-                          ? DT.accent.opacity(0.12)
-                          : (isHovered ? Color.primary.opacity(0.05) : Color.clear))
-            )
+            .padding(.horizontal, DT.navCapsuleHPad)
+            .padding(.vertical, DT.navCapsuleVPad)
+            .frame(maxWidth: .infinity)
+            .background(capsuleBackground)
+            .overlay(capsuleBorder)
+            .clipShape(Capsule(style: .continuous))
+            .contentShape(Capsule(style: .continuous))
         }
         .buttonStyle(.plain)
         .focusable(false)
-        .onHover { isHovered = $0 }
+        .onHover { hovering in
+            withAnimation(.easeOut(duration: 0.18)) {
+                isHovered = hovering
+            }
+        }
+        .animation(.easeOut(duration: 0.20), value: isSelected)
         .accessibilityLabel(dest.localizedTitle)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private var iconColor: Color {
+        if isSelected {
+            return .customPrimaryText
+        }
+        return isHovered ? .customMediumText : .customSecondaryText
+    }
+
+    private var textColor: Color {
+        if isSelected {
+            return .customPrimaryText
+        }
+        return isHovered ? .customMediumText : .customSecondaryText
+    }
+
+    @ViewBuilder
+    private var capsuleBackground: some View {
+        if isSelected {
+            ZStack {
+                Capsule(style: .continuous)
+                    .fill(DT.navCapsuleSelectedTop)
+                Capsule(style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                DT.navCapsuleSelectedTop,
+                                DT.navCapsuleSelectedMid,
+                                DT.navCapsuleSelectedBottom
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
+        } else if isHovered {
+            Capsule(style: .continuous)
+                .fill(DT.navCapsuleHoverBg)
+        } else {
+            Capsule(style: .continuous)
+                .fill(Color.clear)
+        }
+    }
+
+    @ViewBuilder
+    private var capsuleBorder: some View {
+        if isSelected {
+            Capsule(style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            DT.navCapsuleSelectedBorderTop,
+                            DT.navCapsuleSelectedBorderBottom
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 0.75
+                )
+        } else {
+            Capsule(style: .continuous)
+                .stroke(Color.clear, lineWidth: 0.75)
+        }
     }
 }
 
@@ -246,6 +420,7 @@ struct SettingsPageHeader: View {
 
 struct DesignCard<Content: View>: View {
     let content: Content
+    @ObservedObject private var settings = AppSettings.shared
 
     init(@ViewBuilder content: () -> Content) {
         self.content = content()
@@ -255,13 +430,36 @@ struct DesignCard<Content: View>: View {
         VStack(spacing: 0) {
             content
         }
-        .background(DT.cardBg)
+        .background(
+            ZStack {
+                if settings.enableGlassEffect {
+                    VisualEffectView(material: .contentBackground, blendingMode: .withinWindow)
+                }
+                DT.cardBg.opacity(settings.glassOpacity)
+            }
+        )
         .clipShape(RoundedRectangle(cornerRadius: DT.cardRadius, style: .continuous))
         .overlay(
+            // 1px 高光边框：顶部稍亮、底部稍暗，模拟玻璃边缘的折射高光
             RoundedRectangle(cornerRadius: DT.cardRadius, style: .continuous)
-                .stroke(DT.cardBorder, lineWidth: 0.75)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(settings.enableGlassEffect ? 0.60 : 0.35),
+                            Color.white.opacity(settings.enableGlassEffect ? 0.18 : 0.08)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 1
+                )
         )
-        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
+        .shadow(
+            color: Color.black.opacity(settings.enableGlassEffect ? 0.18 : 0.08),
+            radius: settings.enableGlassEffect ? 24 : 8,
+            x: 0,
+            y: settings.enableGlassEffect ? 10 : 2
+        )
     }
 }
 
@@ -300,30 +498,24 @@ struct SectionLabel: View {
 
 struct MainWindow: View {
     @State private var selectedDestination: SettingsDestination? = .general
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @ObservedObject private var languageManager = LanguageManager.shared
     @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
         ZStack {
-            // ── 外层窗口底色（与侧边栏玻璃形成对比） ───────────────────────
-            DT.windowBackdrop
-                .opacity(settings.enableGlassEffect ? settings.glassOpacity : 1.0)
-                .ignoresSafeArea()
+            // ── Liquid Glass 窗口背景（系统毛玻璃 + 环境光折射 + 动态色彩渗透） ──
+            LiquidGlassBackdrop()
 
-            HStack(spacing: 0) {
-               // ── 悬浮玻璃侧边栏（四周留边距） ───────────────────────────
-               SidebarView(selectedDestination: $selectedDestination)
-                    .padding(.top, 0)
-                   .padding(.bottom, DT.sidebarInset)
-                   .padding(.leading, DT.sidebarInset)
-                   .padding(.trailing, DT.sidebarGap)
-
-               // ── 内容工作区 ──────────────────────────────────────────
-               DetailView(selectedDestination: $selectedDestination)
-                    .padding(.top, 28)
-                   .padding(.trailing, DT.sidebarInset)
-                   .padding(.bottom, DT.sidebarInset)
+            NavigationSplitView(columnVisibility: $columnVisibility) {
+                SidebarView(selectedDestination: $selectedDestination)
+                    .navigationSplitViewColumnWidth(min: DT.sidebarWidth,
+                                                    ideal: DT.sidebarWidth,
+                                                    max: DT.sidebarWidth)
+            } detail: {
+                DetailView(selectedDestination: $selectedDestination)
             }
+            .navigationSplitViewStyle(.balanced)
         }
         .frame(minWidth: 820, idealWidth: 880, minHeight: 540, idealHeight: 600)
         .background(WindowAppearanceSync(appearance: settings.appAppearance))
@@ -345,7 +537,6 @@ private struct SidebarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // App 头部
             HStack(spacing: 10) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -357,11 +548,11 @@ private struct SidebarView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 32, height: 32)
-                        .shadow(color: DT.accent.opacity(0.4), radius: 4, x: 0, y: 2)
+                        .frame(width: 30, height: 30)
+                        .shadow(color: DT.accent.opacity(0.35), radius: 4, x: 0, y: 2)
 
                     Image(systemName: "camera.viewfinder")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.white)
                 }
                 .accessibilityHidden(true)
@@ -375,24 +566,23 @@ private struct SidebarView: View {
                         .foregroundStyle(DT.groupLabel)
                 }
 
-                Spacer()
+                Spacer(minLength: 0)
             }
-           .padding(.horizontal, 14)
-            .padding(.top, 42)
-           .padding(.bottom, 20)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 22)
 
-            VStack(spacing: 2) {
+            VStack(spacing: DT.navCapsuleSpacing) {
                 ForEach(SettingsDestination.allCases) { dest in
                     SidebarNavItem(dest: dest, isSelected: selectedDestination == dest) {
                         selectedDestination = dest
                     }
                 }
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 10)
 
-            Spacer()
+            Spacer(minLength: 12)
 
-            // 底部系统状态
             HStack(spacing: 6) {
                 Circle()
                     .fill(allGranted ? DT.successGreen : DT.warningOrange)
@@ -401,40 +591,47 @@ private struct SidebarView: View {
                     .font(.system(size: 10.5))
                     .foregroundStyle(allGranted ? DT.successGreen : DT.warningOrange)
             }
-            .padding(.horizontal, 14)
-            .padding(.bottom, 18)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 20)
         }
         .frame(width: DT.sidebarWidth)
-        .background(
-            Group {
-                if settings.enableGlassEffect {
-                    ZStack {
-                        VisualEffectView(material: .contentBackground, blendingMode: .withinWindow)
-                        Color.dynamic(
-                            light: Color.white.opacity(0.55),
-                            dark: Color(white: 1, opacity: 0.09)
-                        )
-                    }
-                } else {
-                    Color.dynamic(
-                        light: Color(white: 0.99),
-                        dark: Color(white: 0.18)
-                    )
-                }
+        .background(sidebarGlassBackground)
+    }
+
+    @ViewBuilder
+    private var sidebarGlassBackground: some View {
+        ZStack {
+            if settings.enableGlassEffect {
+                VisualEffectView(material: .sidebar, blendingMode: .behindWindow, state: .active)
+                DT.sidebarGlassOverlay
+                    .opacity(settings.glassOpacity)
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(settings.enableGlassEffect ? 0.12 * settings.glassOpacity : 0.04),
+                        Color.clear
+                    ],
+                    startPoint: .top,
+                    endPoint: .center
+                )
+            } else {
+                Color.dynamic(
+                    light: Color(white: 0.97),
+                    dark: Color(white: 0.16)
+                )
             }
-            .clipShape(RoundedRectangle(cornerRadius: DT.sidebarCornerRadius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: DT.sidebarCornerRadius, style: .continuous)
-                    .stroke(
-                        Color.dynamic(
-                            light: Color.white.opacity(0.6),
-                            dark: Color(white: 1, opacity: 0.12)
-                        ),
-                        lineWidth: 1
-                    )
+        }
+        .overlay(alignment: .trailing) {
+            LinearGradient(
+                colors: [
+                    DT.sidebarTopHighlight,
+                    DT.sidebarBottomHighlight
+                ],
+                startPoint: .top,
+                endPoint: .bottom
             )
-            .shadow(color: Color.black.opacity(0.10), radius: 8, x: 0, y: 2)
-        )
+            .frame(width: 1)
+        }
+        .ignoresSafeArea(.container, edges: .top)
     }
 }
 
@@ -470,7 +667,7 @@ private struct DetailView: View {
                     }
                     .padding(.horizontal, DT.contentPadding)
                     .padding(.bottom, DT.contentPadding)
-                    .padding(.top, DT.contentPadding + 6)
+                    .padding(.top, DT.contentPadding + 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(ScrollViewConfigurator())
                 }
@@ -678,43 +875,6 @@ private struct GeneralSettingsView: View {
                         description: "使窗口背景呈现半透明的玻璃质感".localized,
                         isOn: $settings.enableGlassEffect
                     )
-
-                    if settings.enableGlassEffect {
-                        CardDivider()
-
-                        VStack(spacing: 8) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("面板透明度".localized)
-                                        .font(.system(size: 13, weight: .medium))
-                                        .foregroundStyle(.customPrimaryText)
-                                    Text("Panel Opacity")
-                                        .font(.system(size: 10))
-                                        .foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                                Text("\(Int(settings.glassOpacity * 100))%")
-                                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                                    .foregroundStyle(DT.accent)
-                                    .frame(width: 46, alignment: .trailing)
-                            }
-                            .padding(.horizontal, DT.rowPadH)
-                            .padding(.top, DT.rowPadV)
-
-                            HStack(spacing: 8) {
-                                Text("透明".localized)
-                                    .font(.system(size: 10))
-                                    .foregroundStyle(.secondary)
-                                Slider(value: $settings.glassOpacity, in: 0.3...1.0, step: 0.05)
-                                    .tint(DT.accent)
-                                Text("不透明".localized)
-                                    .font(.system(size: 10))
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(.horizontal, DT.rowPadH)
-                            .padding(.bottom, DT.rowPadV)
-                        }
-                    }
                 }
             }
         }
@@ -1302,7 +1462,10 @@ struct HotkeyRecorderView: View {
             if !isModifierOnly {
                 let specialKeys: [UInt16: String] = [
                     49: "space", 36: "enter", 48: "tab",
-                    126: "up", 125: "down", 123: "left", 124: "right", 53: "esc"
+                    126: "up", 125: "down", 123: "left", 124: "right", 53: "esc",
+                    122: "f1", 120: "f2", 99: "f3", 118: "f4",
+                    96: "f5", 97: "f6", 98: "f7", 100: "f8",
+                    101: "f9", 109: "f10", 103: "f11", 111: "f12"
                 ]
                 let keyStr: String
                 if let special = specialKeys[keyCode] {
@@ -2081,6 +2244,7 @@ private struct RecordingPreviewDivider: View {
 // MARK: - 录制模式卡片
 
 private struct RecordingModeCard: View {
+    @ObservedObject private var settings = AppSettings.shared
     let icon: String
     let iconColor: Color
     let title: String
@@ -2118,7 +2282,7 @@ private struct RecordingModeCard: View {
             .padding(.horizontal, 8)
             .background(
                 RoundedRectangle(cornerRadius: DT.cardRadius, style: .continuous)
-                    .fill(DT.cardBg)
+                    .fill(DT.cardBg.opacity(settings.glassOpacity))
                     .overlay(
                         RoundedRectangle(cornerRadius: DT.cardRadius, style: .continuous)
                             .fill(isSelected ? Color.clear : (hovered ? Color.primary.opacity(0.03) : Color.clear))
@@ -2170,8 +2334,8 @@ extension Color {
         dark: Color(red: 156/255, green: 163/255, blue: 175/255)
     )
     static let customControlBg = Color.dynamic(
-        light: Color(red: 241/255, green: 245/255, blue: 249/255),
-        dark: Color(red: 45/255, green: 45/255, blue: 45/255)
+        light: Color.white.opacity(0.20),
+        dark: Color(white: 1, opacity: 0.08)
     )
 }
 

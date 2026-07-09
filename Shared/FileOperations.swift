@@ -15,20 +15,16 @@ class FileOperations {
     @discardableResult
     func createNewFile(dict: [String: String], in destURL: URL) -> URL? {
         guard let ext = dict["ext"] else { return nil }
-        
+
         let rawName = dict["name"] ?? "新建文件"
         let baseName = rawName.hasSuffix(".\(ext)") ? String(rawName.dropLast(ext.count + 1)) : rawName
         let content = dict["content"] ?? ""
 
         let finalURL = uniqueURL(in: destURL, name: baseName, ext: ext)
-        
+
         do {
-            if ext == "docx" || ext == "xlsx" || ext == "pptx" {
-                if let officeData = Self.minimalOfficeData(ext: ext) {
-                    try officeData.write(to: finalURL)
-                } else {
-                    try Data().write(to: finalURL)
-                }
+            if let templateURL = Self.officeTemplateURL(for: ext) {
+                try FileManager.default.copyItem(at: templateURL, to: finalURL)
             } else {
                 try content.write(to: finalURL, atomically: true, encoding: .utf8)
             }
@@ -255,81 +251,10 @@ class FileOperations {
         }
     }
 
-    private static func minimalOfficeData(ext: String) -> Data? {
-        let contentType: String
-        switch ext {
-        case "docx":
-            contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        case "xlsx":
-            contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        case "pptx":
-            contentType = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        default:
-            return nil
-        }
-
-        var data = Data()
-        let zip = ZipWriter()
-        zip.addEntry(name: "[Content_Types].xml", data: """
-        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-          <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-          <Default Extension="xml" ContentType="application/xml"/>
-          <Override PartName="/word/document.xml" ContentType="\(contentType)"/>
-        </Types>
-        """.data(using: .utf8)!, to: &data)
-
-        zip.addEntry(name: "_rels/.rels", data: """
-        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-          <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-        </Relationships>
-        """.data(using: .utf8)!, to: &data)
-
-        let mainPart: String
-        switch ext {
-        case "docx":
-            mainPart = "word/document.xml"
-        case "xlsx":
-            mainPart = "xl/workbook.xml"
-        case "pptx":
-            mainPart = "ppt/presentation.xml"
-        default:
-            mainPart = "word/document.xml"
-        }
-
-        let mainData: Data
-        switch ext {
-        case "docx":
-            mainData = """
-            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-              <w:body><w:p><w:r><w:t></w:t></w:r></w:p></w:body>
-            </w:document>
-            """.data(using: .utf8)!
-        case "xlsx":
-            mainData = """
-            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
-                      xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-              <sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets>
-            </workbook>
-            """.data(using: .utf8)!
-        case "pptx":
-            mainData = """
-            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
-                            xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-              <p:sldIdLst/>
-            </p:presentation>
-            """.data(using: .utf8)!
-        default:
-            mainData = Data()
-        }
-
-        zip.addEntry(name: mainPart, data: mainData, to: &data)
-        zip.finish(to: &data)
-        return data
+    private static func officeTemplateURL(for ext: String) -> URL? {
+        let supportedExts = ["docx", "xlsx", "pptx", "pages", "key", "numbers"]
+        guard supportedExts.contains(ext) else { return nil }
+        return Bundle.main.url(forResource: "template", withExtension: ext)
     }
 
     static func revealInFinder(_ url: URL) {
@@ -383,119 +308,3 @@ class FileOperations {
     }
 }
 
-private final class ZipWriter {
-    private struct Entry {
-        let name: String
-        let data: Data
-        let offset: UInt32
-        let crc32: UInt32
-    }
-
-    private var entries: [Entry] = []
-
-    func addEntry(name: String, data: Data, to output: inout Data) {
-        let offset = UInt32(output.count)
-        let crc = crc32(data)
-
-        output.append(localFileHeader(name: name, data: data, crc32: crc))
-        output.append(data)
-
-        entries.append(Entry(name: name, data: data, offset: offset, crc32: crc))
-    }
-
-    func finish(to output: inout Data) {
-        let centralDirOffset = UInt32(output.count)
-
-        for entry in entries {
-            output.append(centralDirectoryHeader(entry: entry))
-        }
-
-        let centralDirSize = UInt32(output.count) - centralDirOffset
-        let commentLen: UInt16 = 0
-
-        var eocd = Data()
-        eocd.append(contentsOf: [0x50, 0x4B, 0x05, 0x06])
-        eocd.append(contentsOf: [0x00, 0x00])
-        eocd.append(contentsOf: [0x00, 0x00])
-        eocd.append(uint16: UInt16(entries.count))
-        eocd.append(uint16: UInt16(entries.count))
-        eocd.append(uint32: centralDirSize)
-        eocd.append(uint32: centralDirOffset)
-        eocd.append(uint16: commentLen)
-
-        output.append(eocd)
-    }
-
-    private func localFileHeader(name: String, data: Data, crc32: UInt32) -> Data {
-        let nameData = name.data(using: .utf8)!
-        var header = Data()
-        header.append(contentsOf: [0x50, 0x4B, 0x03, 0x04])
-        header.append(uint16: 20)
-        header.append(uint16: 0)
-        header.append(uint16: 0)
-        header.append(uint16: 0)
-        header.append(uint32: crc32)
-        header.append(uint32: UInt32(data.count))
-        header.append(uint32: UInt32(data.count))
-        header.append(uint16: UInt16(nameData.count))
-        header.append(uint16: 0)
-        header.append(nameData)
-        return header
-    }
-
-    private func centralDirectoryHeader(entry: Entry) -> Data {
-        let nameData = entry.name.data(using: .utf8)!
-        var header = Data()
-        header.append(contentsOf: [0x50, 0x4B, 0x01, 0x02])
-        header.append(uint16: 20)
-        header.append(uint16: 20)
-        header.append(uint16: 0)
-        header.append(uint16: 0)
-        header.append(uint16: 0)
-        header.append(uint32: entry.crc32)
-        header.append(uint32: UInt32(entry.data.count))
-        header.append(uint32: UInt32(entry.data.count))
-        header.append(uint16: UInt16(nameData.count))
-        header.append(uint16: 0)
-        header.append(uint16: 0)
-        header.append(uint16: 0)
-        header.append(uint16: 0)
-        header.append(uint32: 0)
-        header.append(uint32: entry.offset)
-        header.append(nameData)
-        return header
-    }
-
-    private func crc32(_ data: Data) -> UInt32 {
-        var crc: UInt32 = 0xFFFFFFFF
-        let table: [UInt32] = {
-            var t = [UInt32](repeating: 0, count: 256)
-            for i in 0..<256 {
-                var c = UInt32(i)
-                for _ in 0..<8 {
-                    c = (c & 1) != 0 ? (0xEDB88320 ^ (c >> 1)) : (c >> 1)
-                }
-                t[i] = c
-            }
-            return t
-        }()
-        for byte in data {
-            crc = table[Int((crc ^ UInt32(byte)) & 0xFF)] ^ (crc >> 8)
-        }
-        return crc ^ 0xFFFFFFFF
-    }
-}
-
-private extension Data {
-    mutating func append(uint16 value: UInt16) {
-        append(UInt8(value & 0xFF))
-        append(UInt8((value >> 8) & 0xFF))
-    }
-
-    mutating func append(uint32 value: UInt32) {
-        append(UInt8(value & 0xFF))
-        append(UInt8((value >> 8) & 0xFF))
-        append(UInt8((value >> 16) & 0xFF))
-        append(UInt8((value >> 24) & 0xFF))
-    }
-}

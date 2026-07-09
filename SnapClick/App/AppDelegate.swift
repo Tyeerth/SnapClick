@@ -4,8 +4,6 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusBarController: StatusBarController?
-    private var settingsWindow: NSWindow?
-    private var welcomeWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.applicationIconImage = NSImage(named: "AppIcon")
@@ -50,7 +48,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let settings = AppSettings.shared
         if settings.isFirstLaunch {
-            showWelcomeWindow()
+            AppNavigation.shared.openWelcome()
         }
     }
 
@@ -101,46 +99,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        openSettings()
+        openMainWindow()
         return true
     }
 
     func openSettings() {
-        print("[诊断] AppDelegate.openSettings 调用, settingsWindow == nil ? \(settingsWindow == nil)")
-        if settingsWindow == nil {
-            let hostingView = NSHostingView(rootView: MainWindow()
-                .environmentObject(ColorPickerEngine.shared)
-                .environmentObject(PinWindowManager.shared))
-            hostingView.wantsLayer = true
-            hostingView.layer?.backgroundColor = .clear
-            let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 880, height: 600),
-                styleMask: [.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView],
-                backing: .buffered,
-                defer: false
-            )
-            window.title = "SnapClick 设置"
-            window.titlebarAppearsTransparent = true
-            window.titleVisibility = .hidden
-            window.titlebarSeparatorStyle = .none
-            window.isMovableByWindowBackground = true
-            // 不再透明，让标题栏区域由侧边栏的 VisualEffectView 自然延伸覆盖
-            window.contentView = hostingView
-            applyAppearance(to: window)
-            applyGlassEffect(to: window)
-            window.center()
-            window.isReleasedWhenClosed = false
-            settingsWindow = window
-        }
-        applyAppearance(to: settingsWindow)
-        applyGlassEffect(to: settingsWindow)
-        settingsWindow?.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        print("[诊断] settingsWindow.frame = \(String(describing: settingsWindow?.frame)), isVisible = \(String(describing: settingsWindow?.isVisible)), screen = \(String(describing: settingsWindow?.screen))")
+        openMainWindow()
     }
 
     func closeSettings() {
-        settingsWindow?.orderOut(nil)
+        // SwiftUI Window 由系统管理，关闭交给主 App scene
+    }
+
+    private func openMainWindow() {
+        let targetTitle = "SnapClick 设置"
+        for window in NSApp.windows where window.title == targetTitle {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+        AppNavigation.shared.openMain()
     }
 
     private func applyAppearance(to window: NSWindow?) {
@@ -161,12 +139,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isOpaque = true
             window.backgroundColor = .windowBackgroundColor
         }
-        print("[诊断玻璃] enableGlassEffect=\(AppSettings.shared.enableGlassEffect) isOpaque=\(window.isOpaque) bg=\(String(describing: window.backgroundColor)) contentView=\(String(describing: type(of: window.contentView)))")
     }
 
     @objc private func handleGlassEffectChanged() {
-        applyGlassEffect(to: settingsWindow)
-        applyGlassEffect(to: welcomeWindow)
+        // SwiftUI Window 自带 .background 适配外观变化，无需手动通知
     }
 
     private func setupFinderCommandObserver() {
@@ -267,31 +243,4 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func showWelcomeWindow() {
-        let hostingView = NSHostingView(rootView: WelcomeView {
-            AppSettings.shared.isFirstLaunch = false
-            self.welcomeWindow?.close()
-            self.welcomeWindow = nil
-        })
-        hostingView.wantsLayer = true
-        hostingView.layer?.backgroundColor = .clear
-
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 600, height: 560),
-            styleMask: [.titled, .closable, .fullSizeContentView],
-            backing: .buffered,
-            defer: false
-        )
-        window.title = "欢迎使用 SnapClick".localized
-        window.titlebarAppearsTransparent = true
-        window.titleVisibility = .hidden
-        window.isMovableByWindowBackground = true
-        window.contentView = hostingView
-        applyGlassEffect(to: window)
-        window.center()
-        window.isReleasedWhenClosed = false
-        welcomeWindow = window
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-    }
 }
