@@ -409,10 +409,8 @@ private struct NewFileTemplatesSection: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Text("后缀".localized)
                             .frame(width: 80, alignment: .leading)
-                        Text("主菜单".localized)
-                            .frame(width: 60, alignment: .center)
                         Text("操作".localized)
-                            .frame(width: 40, alignment: .center)
+                            .frame(width: 72, alignment: .center)
                     }
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.customSecondaryText)
@@ -468,6 +466,9 @@ private struct TemplateRow: View {
     let mgr: NewFileTemplateManager
 
     @State private var isHovered = false
+    @State private var isEditingName = false
+    @State private var draftName: String = ""
+    @FocusState private var nameFieldFocused: Bool
 
     var body: some View {
         HStack(spacing: 12) {
@@ -488,11 +489,7 @@ private struct TemplateRow: View {
             }
             .frame(width: 28, height: 28)
 
-            Text(tpl.name)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(tpl.isEnabled
-                                 ? .customPrimaryText
-                                 : Color.secondary)
+            nameColumn
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(".\(tpl.ext)")
@@ -500,15 +497,7 @@ private struct TemplateRow: View {
                 .foregroundStyle(.secondary)
                 .frame(width: 80, alignment: .leading)
 
-            Toggle("", isOn: Binding(
-                get: { tpl.inMainMenu ?? false },
-                set: { _ in mgr.toggleMainMenu(id: tpl.id) }
-            ))
-            .labelsHidden()
-            .toggleStyle(.checkbox)
-            .frame(width: 60, alignment: .center)
-
-            Group {
+            HStack(spacing: 6) {
                 if !tpl.isBuiltin {
                     Button { mgr.remove(id: tpl.id) } label: {
                         Image(systemName: "trash")
@@ -528,13 +517,87 @@ private struct TemplateRow: View {
                         )
                 }
             }
-            .frame(width: 40, alignment: .center)
+            .frame(width: 72, alignment: .center)
         }
         .padding(.horizontal, DT.rowPadH)
         .padding(.vertical, 8)
         .background(isHovered ? DT.rowHoverBg : Color.clear)
         .onHover { isHovered = $0 }
         .animation(.easeOut(duration: 0.1), value: isHovered)
+    }
+
+    @ViewBuilder
+    private var nameColumn: some View {
+        if isEditingName {
+            TextField("", text: $draftName)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13, weight: .medium))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .stroke(DT.accent.opacity(0.6), lineWidth: 1)
+                        )
+                )
+                .focused($nameFieldFocused)
+                .onAppear {
+                    draftName = tpl.name
+                    nameFieldFocused = true
+                }
+                .onSubmit(commitEdit)
+                .onExitCommand { cancelEdit() }
+                .onChange(of: nameFieldFocused) { focused in
+                    if !focused { commitEdit() }
+                }
+        } else {
+            HStack(spacing: 4) {
+                Text(tpl.name)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(tpl.isEnabled
+                                     ? .customPrimaryText
+                                     : Color.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .onTapGesture(count: 2) { beginEdit() }
+                if isHovered {
+                    Button(action: beginEdit) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(isHovered ? DT.accent : .secondary)
+                            .frame(width: 22, height: 22)
+                            .background(
+                                Circle()
+                                    .fill(isHovered
+                                          ? DT.accent.opacity(0.12)
+                                          : Color.clear)
+                            )
+                            .contentShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("编辑名称".localized)
+                }
+            }
+        }
+    }
+
+    private func beginEdit() {
+        draftName = tpl.name
+        isEditingName = true
+    }
+
+    private func commitEdit() {
+        let trimmed = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty && trimmed != tpl.name {
+            mgr.rename(id: tpl.id, newName: trimmed)
+        }
+        isEditingName = false
+    }
+
+    private func cancelEdit() {
+        isEditingName = false
     }
 
     private func iconName(for ext: String) -> String {

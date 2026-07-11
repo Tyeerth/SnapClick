@@ -10,19 +10,17 @@ struct FileTemplate: Codable, Identifiable, Hashable {
     var id: String
     var name: String           // 显示名称，如 "Markdown"
     var ext: String            // 扩展名，如 "md"
-    var isEnabled: Bool        // 是否在菜单中显示
-    var isBuiltin: Bool        // 是否为内置模板
+    var isEnabled: Bool        // 是否在右键菜单中显示
+    var isBuiltin: Bool        // 是否为内置模板（不可删除）
     var defaultContent: String // 新建时写入的默认内容
-    var inMainMenu: Bool?      // 是否在主菜单显示
 
-    init(name: String, ext: String, isBuiltin: Bool = false, content: String = "", inMainMenu: Bool = false) {
+    init(name: String, ext: String, isBuiltin: Bool = false, content: String = "") {
         self.id             = UUID().uuidString
         self.name           = name
         self.ext            = ext
         self.isEnabled      = true
         self.isBuiltin      = isBuiltin
         self.defaultContent = content
-        self.inMainMenu     = inMainMenu
     }
 }
 
@@ -62,14 +60,6 @@ final class NewFileTemplateManager: ObservableObject {
     func toggleEnabled(id: String) {
         guard let idx = templates.firstIndex(where: { $0.id == id }) else { return }
         templates[idx].isEnabled.toggle()
-        save()
-    }
-
-    /// 切换模板的主菜单显示状态
-    func toggleMainMenu(id: String) {
-        guard let idx = templates.firstIndex(where: { $0.id == id }) else { return }
-        let current = templates[idx].inMainMenu ?? false
-        templates[idx].inMainMenu = !current
         save()
     }
 

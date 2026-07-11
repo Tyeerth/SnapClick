@@ -5,6 +5,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusBarController: StatusBarController?
 
+    // 异步预热调度：避免模板/收藏目录的每次小改动都触发主线程上的图标 I/O
+    private let preheatQueue = DispatchQueue(label: "com.snapclick.app.preheat", qos: .utility)
+    private var pendingPreheatWorkItem: DispatchWorkItem?
+    private static let preheatDebounce: TimeInterval = 0.3
+
+    // 固定的 dev tool 候选列表（启动后不变）
+    private static let devToolCandidates: [(name: String, bundleID: String)] = [
+        ("Terminal",     "com.apple.Terminal"),
+        ("iTerm2",       "com.googlecode.iterm2"),
+        ("VS Code",      "com.microsoft.VSCode"),
+        ("Xcode",        "com.apple.dt.Xcode"),
+        ("Sublime Text", "com.sublimetext.4"),
+        ("TextEdit",     "com.apple.TextEdit"),
+    ]
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.applicationIconImage = NSImage(named: "AppIcon")
 
@@ -55,28 +70,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 将系统中已安装的终端 / 编辑器信息、常用目录 / 文件类型图标
     /// 全部预加载并写入 SharedStore，供沙盒内的 FinderExtension 直接读取。
     /// FinderExtension 之后不再调用任何会触发 TCC 的 NSWorkspace API。
+    ///
+    /// 实现：debounce + 串行后台队列。预热是纯读取+写 SharedStore，FinderExtension
+    /// 每次右键都会重新读最新值，不需要严格实时同步；延迟几百毫秒对用户完全不可见。
     private func preheatFinderMenuAssets() {
-        let terminalCandidates: [(name: String, bundleID: String)] = [
-            ("Terminal",  "com.apple.Terminal"),
-            ("iTerm2",    "com.googlecode.iterm2"),
-        ]
-        let editorCandidates: [(name: String, bundleID: String)] = [
-            ("VS Code",      "com.microsoft.VSCode"),
-            ("Xcode",        "com.apple.dt.Xcode"),
-            ("Sublime Text", "com.sublimetext.4"),
-            ("TextEdit",     "com.apple.TextEdit"),
-        ]
-        let devTools = terminalCandidates + editorCandidates
-
-        let dirPaths = FavoriteDirectoriesManager.shared.favorites.map { $0.path }
-        let exts = NewFileTemplateManager.shared.enabledTemplates.map { $0.ext.lowercased() }
-
-        // 同步预热：启动时一次性完成，所有 I/O 都在主进程进行，
-        // 不会在 FinderExtension 沙盒内触发 TCC 弹窗
-        IconCache.preheat(
-            devTools: devTools,
-            favoriteDirectoryPaths: dirPaths,
-            fileTemplateExts: exts
+        pendingPreheatWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            // ObservableObject 必须在主线程读取
+            let dirPaths: [String]
+            let exts: [String]
+            if Thread.isMainThread {
+                dirPaths = FavoriteDirectoriesManager.shared.favorites.map { $0.path }
+                exts = NewFileTemplateManager.shared.enabledTemplates.map { $0.ext.lowercased() }
+            } else {
+                dirPaths = DispatchQueue.main.sync {
+                    FavoriteDirectoriesManager.shared.favorites.map { $0.path }
+                }
+                exts = DispatchQueue.main.sync {
+                    NewFileTemplateManager.shared.enabledTemplates.map { $0.ext.lowercased() }
+                }
+            }
+            self.preheatQueue.async {
+                IconCache.preheat(
+                    devTools: Self.devToolCandidates,
+                    favoriteDirectoryPaths: dirPaths,
+                    fileTemplateExts: exts
+                )
+            }
+        }
+        pendingPreheatWorkItem = workItem
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + Self.preheatDebounce,
+            execute: workItem
         )
     }
 

@@ -138,6 +138,17 @@ enum DT {
         dark: Color.white.opacity(0.05)
     )
 
+    // Liquid Glass 侧边栏 — 淡蓝 tinted glass（3-5% 品牌蓝渗透，Apple tinted glass 风格）
+    // 顶部稍重（环境光折射更明显），底部较淡；仅让品牌蓝色轻微渗透背景
+    static let sidebarBlueTintTop = Color.dynamic(
+        light: Color(red: 91/255, green: 124/255, blue: 255/255).opacity(0.05),
+        dark:  Color(red: 91/255, green: 124/255, blue: 255/255).opacity(0.07)
+    )
+    static let sidebarBlueTintBottom = Color.dynamic(
+        light: Color(red: 91/255, green: 124/255, blue: 255/255).opacity(0.02),
+        dark:  Color(red: 91/255, green: 124/255, blue: 255/255).opacity(0.03)
+    )
+
     // 导航胶囊间距（呼吸感）
     static let navCapsuleSpacing: CGFloat = 4
     static let navCapsuleHPad: CGFloat    = 10
@@ -613,6 +624,14 @@ private struct SidebarView: View {
                     startPoint: .top,
                     endPoint: .center
                 )
+                // Apple tinted glass：3-5% 品牌蓝从顶部渗透到底部，
+                // 极低饱和度，仅在仔细观察时透出冷调蓝
+                LinearGradient(
+                    colors: [DT.sidebarBlueTintTop, DT.sidebarBlueTintBottom],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .opacity(settings.glassOpacity)
             } else {
                 Color.dynamic(
                     light: Color(white: 0.97),
