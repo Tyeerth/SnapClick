@@ -18,12 +18,12 @@
 
 <br />
 
-<img src="docs/assets/introduce.png" alt="SnapClick 整体介绍" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<img src="docs/assets/app_introduction.gif" alt="SnapClick 整体介绍动图" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
 
 <br />
 
 <img src="docs/assets/hero_screenshot.png" alt="SnapClick 主设置界面" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
-
+<img src="docs/assets/hero_dark_screenshot.png" alt="SnapClick 主设置界面-暗黑模式" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
 </div>
 
 ***

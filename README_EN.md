@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="SnapClick" width="640">
+<img src="docs/assets/banner.png" alt="SnapClick" width="100%">
 
-### macOS Productivity Enhancer — Right-Click · Screenshot · Screen Recording · Pin · Color Picker
+### macOS Productivity Enhancer — Right-Click · Screenshot Annotation · Screen Recording · Screen Pinning · Smart Color Picker
 
 [![Version](https://img.shields.io/github/v/release/Tyeerth/SnapClick?color=blue&label=version)](https://github.com/Tyeerth/SnapClick/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey.svg)](https://github.com/Tyeerth/SnapClick/releases)
@@ -10,20 +10,20 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/Tyeerth/SnapClick/total)](https://github.com/Tyeerth/SnapClick/releases/latest)
 
-A premium productivity tool built exclusively for macOS, integrating Finder menu enhancement, advanced screenshot annotation, high-performance screen recording, screen pinning, and smart color picking — all delivered in pure native Swift for a silky-smooth experience.
+A premium productivity tool built exclusively for macOS, integrating Finder menu enhancement, advanced screenshot annotation, high-performance screen recording, screen pinning, and smart color picking — all delivered in a pure native Swift architecture for a silky-smooth, refined experience.
 
-[Features](#-features) · [Installation](#-installation) · [Tech Stack](#%EF%B8%8F-tech-stack) · [Build from Source](#-build-from-source) · [Project Structure](#-project-structure) · [Contact Author](#-contact-author) · [Official Website](http://snapclick.cn/)
+[Features](#-features) · [Installation](#-installation) · [Build from Source](#-build-from-source) · [Contact Author](#-contact-author) · [Official Website](http://snapclick.cn/)
 
 [中文文档](README.md)
 
-<br>
+<br />
 
-<img src="docs/assets/introduce.png" alt="SnapClick Overview" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<img src="docs/assets/app_introduction.gif" alt="SnapClick Overview Animation" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
 
-<br>
+<br />
 
-<img src="docs/assets/hero_screenshot.png" alt="SnapClick Main UI" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
-
+<img src="docs/assets/hero_screenshot.png" alt="SnapClick Main Settings — Light Mode" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<img src="docs/assets/hero_dark_screenshot.png" alt="SnapClick Main Settings — Dark Mode" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
 </div>
 
 ---
@@ -37,8 +37,6 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **Quick Move/Copy To** — Add favorite directories for one-click file archiving.
 - **Advanced Path Copy** — Copy full path, filename only, or POSIX-compliant path.
 - **Quick Open in Terminal/Editor** — Right-click to launch Terminal, iTerm2, VS Code, Warp, or Xcode in the current directory.
-- **File Hash Verification** — Quickly compute MD5, SHA1, SHA256 checksums.
-- **Quick AirDrop** — One-click AirDrop for selected files.
 
 <br>
 <img src="docs/assets/right_click_screenshot.png" alt="Finder Right-Click Menu" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
@@ -49,14 +47,14 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 ### 📸 Advanced Screenshot & Annotation
 
 - **Area Screenshot & Smart Window Detection** — Drag to select freely or auto-snap to hovered windows. Supports hotkey ⌥⇧A.
-- **Scrolling Screenshot (Long Screenshot)** — Capture long webpages or document lists seamlessly into a single image.
-- **Advanced Annotation Editor** — Rectangles, ellipses, lines, arrows, text, freehand drawing, highlight overlays, pixel-level mosaic, and smart step numbers.
-- **Beautification & Framing** — Frosted glass shadows, custom 0-32px rounded window borders.
+- **Smart Scrolling Screenshot (Long Screenshot)** — Capture long webpages or documents seamlessly through intelligent continuous capture.
+- **Advanced Annotation Editor** — A rich toolbar with rectangles, ellipses, lines, arrows, text, freehand brush, highlight overlays, step numbers, and pixel-level mosaic.
+- **Beautification & Framing** — Elegant frosted glass shadows, custom 0-32px rounded window borders.
 
 <br>
 <div align="center">
-  <img src="docs/assets/screenshot_editor_screenshot.png" alt="Screenshot Annotation" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
-  <img src="docs/assets/long_screenshot_preview.png" alt="Scrolling Capture" width="300" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+  <img src="docs/assets/screenshot_editor_screenshot.png" alt="Screenshot & Real-time Annotation" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
+  <img src="docs/assets/long_screenshot_preview.png" alt="Smart Scrolling Screenshot" width="300" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 </div>
 <br>
 
@@ -64,23 +62,23 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 
 ### 🎥 High-Performance Screen Recording
 
-- **Native SCK Architecture** — Powered by Apple's ScreenCaptureKit framework, delivering extremely low system overhead.
-- **Custom Recording Area** — Capture full screens, selected areas, or specific application windows.
-- **High Frame Rate & Coding** — Supports 30/60/120 FPS recording with advanced HEVC and H.264 codecs.
-- **Multi-Channel Audio Mixing** — Capture internal system audio (macOS 13+) and microphone input on two independent tracks.
-- **HUD Floating Controller** — A floating control panel to pause, resume, and stop recording, featuring live timers and audio waveforms.
+- **Native SCK Architecture** — Powered by Apple's official ScreenCaptureKit framework, hardware-accelerated with extremely low system overhead.
+- **Multi-Dimension Capture Area** — Supports custom region, full-screen, and per-application window recording modes.
+- **Ultra High Frame Rate** — Supports 30/60/120 FPS recording with H.264 / HEVC codecs, plus a "Source Quality" lossless resolution option.
+- **Dual Independent Audio Tracks** — Capture internal system audio (macOS 13+) and external/built-in microphone simultaneously on two separate tracks for easy post-production mixing.
+- **HUD Floating Controller** — An independent floating control panel with elapsed time display, pause / resume / stop actions.
 
 <br>
-<img src="docs/assets/recording_overlay.png" alt="Screen Recording Overlay" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="docs/assets/recording_overlay.png" alt="Screen Recording HUD & Selection" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---
 
-### 📌 Screen Pin (Pin Window)
+### 📌 Convenient Screen Pinning (Pin Window)
 
-- **Multi-Window Pinning** — Frame-free floating windows pinned to the top of your screen, supporting hotkey ⌥⇧P.
-- **Workspace Navigation** — Persist pins across spaces and follow active workflows.
-- **Flexible Interactions** — Zoom via double-clicks, adjust opacity smoothly using your scroll wheel, and manage active pins easily.
+- **Multi-Window Screen Pinning** — Pin screenshots or any image to the top of your screen with one click. Hotkey: ⌥⇧P.
+- **Floating Multi-Window Management** — Pins follow across macOS Spaces, supporting multiple pins at once.
+- **Free Interactive Adjustment** — Smooth scroll-wheel opacity adjustment, double-click to zoom, and quick pin management bar.
 
 <br>
 <img src="docs/assets/pin_window_overlay.png" alt="Pinned Screen Window" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
@@ -90,26 +88,13 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 
 ### 🔍 Precision Magnifier Color Picker
 
-- **16x Magnifier** — Visually zoom into pixels with a target grid for exact alignment, supporting hotkey ⌥⇧C.
-- **Multi-Format Codes** — Instantly copy HEX, RGB, HSL, Swift (NSColor), or CSS color codes.
-- **History Tracking** — Automatically saves your 20 most recent color picks for quick recall.
+- **16x Precision Magnifier** — A visual 16× pixel-level magnifier with hotkey ⌥⇧C.
+- **Multi-Format One-Click Conversion** — Perfectly supports one-click copy of HEX, RGB, HSL, Swift (NSColor), and CSS color codes.
+- **Color History** — Intelligently records and displays your 20 most recent color picks.
 
 <br>
-<img src="docs/assets/color_picker_overlay.png" alt="Magnifier Color Picker" width="450" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="docs/assets/color_picker_overlay.png" alt="1:1 Pixel-Precision Magnifier Color Picker" width="450" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
-
----
-
-## 🛠️ Tech Stack
-
-| Technology | Description |
-|------------|-------------|
-| Swift 5.9+ | Main development language |
-| SwiftUI + AppKit | Hybrid frontend following modern macOS design patterns |
-| ScreenCaptureKit | High-performance screen capturing and recording |
-| FinderSync | Native extension for Finder integration |
-| CGEventTap | Precision interception for global system hotkeys |
-| AVFoundation & CryptoKit | Multimedia processing and cryptographic file hashing |
 
 ---
 
@@ -127,13 +112,41 @@ Go to the [Releases page](https://github.com/Tyeerth/SnapClick/releases/latest) 
 
 See the [Build from Source](#-build-from-source) section below.
 
+### ⚠️ How to Open Unsigned Apps (Important)
+
+This project is not yet enrolled in the Apple paid Developer Program, so the released binaries are **not notarized by Apple**. On first launch, macOS Gatekeeper will block the app with a message such as "**is damaged and can't be opened**" or "**cannot be verified**". This does not indicate a problem with the app itself — use one of the following methods to launch it normally:
+
+#### Method 1: Remove the Quarantine Attribute (Recommended, Most Reliable)
+
+After dragging the app into your `Applications` folder, open Terminal and run:
+
+```bash
+sudo xattr -dr com.apple.quarantine /Applications/SnapClick.app
+```
+
+Enter your login password (the input is not echoed — this is normal) and press Return. You can then double-click to open the app normally.
+
+#### Method 2: Approve via System Settings
+
+1. Double-click the app, and click "**Cancel**" in the blocked prompt.
+2. Go to "**System Settings → Privacy & Security**" and scroll down to the Security section.
+3. Find the "**'SnapClick' was blocked**" message and click "**Open Anyway**".
+4. Click "**Open**" in the dialog that appears.
+
+#### Method 3: Open via Right-Click
+
+In the `Applications` folder, **right-click** SnapClick → choose "**Open**" → click "**Open**" again in the confirmation dialog.
+(Note: If the installer reports "is damaged", this method may not work — fall back to Method 1.)
+
+> 💡 The above steps only need to be performed once. After that, you can use the app like any other normal application.
+
 ### ⚠️ First-Run Permissions
 
-For features to work correctly, you will be prompted to grant these system privileges:
+On first launch, you will be guided to grant the following system permissions so that all features work correctly:
 
-1. **Screen Recording** — Required for screenshot, scrolling capture, screen recording, and color pickers.
-2. **Accessibility** — Required for capturing and triggering global hotkeys.
-3. **Finder Extension** — Enable in System Settings → General → Login Items & Extensions → Finder Extensions, check `FinderExtension`.
+1. **Screen Recording Permission** — Required for high-performance screenshot, scrolling capture, screen recording, and magnifier color picking.
+2. **Accessibility Permission** — Required to capture and intercept global hotkeys.
+3. **Finder Extension** — Please go to "System Settings → General → Login Items & Extensions → Finder Extensions" and enable `FinderExtension`.
 
 ---
 
@@ -159,73 +172,20 @@ For features to work correctly, you will be prompted to grant these system privi
    ```
 
 3. **Configure code signing** — Under Xcode's `Signing & Capabilities`, configure your Development Team for both targets:
-   - `SnapClick` (Main App, Bundle ID: `com.snapclick.app`, non-sandboxed)
+   - `SnapClick` (Main App, Bundle ID: `com.snapclick.app`, non-sandboxed privileged mode)
    - `FinderExtension` (Right-click plugin, Bundle ID: `com.snapclick.app.FinderExtension`, sandboxed, bound to App Group `group.4DAY66XCT4.com.snapclick.shared`)
 
-4. **Build and Run** — Select target `SnapClick` → Destination `My Mac` → Run (⌘R)
-
----
-
-## 📂 Project Structure
-
-```
-SnapClick/
-├── Shared/                          # Shared modules between main App and FinderExtension
-│   ├── AppGroup.swift               # App Group shared UserDefaults bridge
-│   └── FileOperations.swift         # Core file operations (cut/paste/create/hash/reveal)
-│
-├── FinderExtension/                 # Finder right-click plugin
-│   ├── FinderSync.swift             # FIFinderSync lifecycle controller
-│   ├── MenuBuilder.swift            # Dynamic right-click menu construction engine
-│   ├── FinderExtension.entitlements
-│   └── Info.plist
-│
-└── SnapClick/                       # Main App
-    ├── App/
-    │   ├── SnapClickApp.swift       # SwiftUI lifecycle entry point
-    │   └── AppDelegate.swift        # AppKit lifecycle management & command dispatch
-    ├── Core/
-    │   ├── AppSettings.swift         # Global @AppStorage configuration
-    │   ├── PermissionManager.swift   # System permission detection & guidance
-    │   └── HotkeyManager.swift       # CGEventTap global hotkeys
-    ├── UI/
-    │   ├── MainWindow.swift          # SwiftUI multi-column settings center
-    │   ├── WelcomeView.swift         # First-launch permission onboarding
-    │   └── StatusBarController.swift # Menu bar icon & dropdown menu
-```
-
----
-
-## ⚠️ Development Notes
-
-1. **Non-Sandbox Privileges** — The main App disables Sandbox, which is required for global keyboard listening (CGEventTap) and native external terminal/editor launching.
-2. **Finder Extension Sandbox** — `FinderExtension` must run in a sandboxed environment, communicating with the main App via App Group shared data.
-3. **IPC Communication** — FinderExtension communicates with the main App via named pasteboards (NSPasteboard) to avoid triggering TCC permission dialogs.
-4. **File Reveal** — Uses `/usr/bin/open -R` instead of `NSWorkspace` to avoid Apple Event permission dialogs.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Follow these steps to contribute:
-
-1. Fork this repository.
-2. Create a feature branch (`git checkout -b feature/amazing-feature`).
-3. Commit your changes (`git commit -m 'Add amazing feature'`).
-4. Push to the branch (`git push origin feature/amazing-feature`).
-5. Create a Pull Request for review.
+4. **Build and Run** — Select Scheme `SnapClick` → Destination `My Mac` → Run (⌘R)
 
 ---
 
 ## 📮 Contact Author
 
-If you have questions, feature suggestions, or bug reports, feel free to contact:
+If you have questions, feature suggestions, or want to join the discussion, feel free to reach out through the following channels:
 
 - **Official Website**: <http://snapclick.cn/>
 - **Email**: [tyeerth@163.com](mailto:tyeerth@163.com)
-- **WeChat Group**:
-  <br>
-  <img src="docs/assets/wechat_qr.png" width="220" alt="SnapClick WeChat Group QR Code" style="border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+- **WeChat Group**: <img src="docs/assets/wechat_qr.png" width="220" alt="SnapClick WeChat Group QR Code" style="border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
 
 ---
 
