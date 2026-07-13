@@ -109,12 +109,34 @@ final class StatusBarController: NSObject {
         let areaT = parse(settings.hotkeyAreaScreenshot)
         let smartItem = makeItem(
             title: "智能截图".localized,
-            symbolName: "crop",
+            symbolName: "viewfinder",
             shortcut: areaT.shortcut,
             modifiers: areaT.modifiers,
             action: #selector(smartScreenshot)
         )
         menu.addItem(smartItem)
+
+        // 选区截图（仅拖拽框选）
+        let regionT = parse(settings.hotkeyRegionScreenshot)
+        let regionItem = makeItem(
+            title: "选区截图".localized,
+            symbolName: "crop",
+            shortcut: regionT.shortcut,
+            modifiers: regionT.modifiers,
+            action: #selector(regionScreenshot)
+        )
+        menu.addItem(regionItem)
+
+        // 窗口截图（仅点击截取窗口）
+        let winT = parse(settings.hotkeyWindowScreenshot)
+        let winItem = makeItem(
+            title: "窗口截图".localized,
+            symbolName: "macwindow",
+            shortcut: winT.shortcut,
+            modifiers: winT.modifiers,
+            action: #selector(windowScreenshot)
+        )
+        menu.addItem(winItem)
 
         let longT = parse(settings.hotkeyLongScreenshot)
         let longItem = makeItem(
@@ -250,6 +272,32 @@ final class StatusBarController: NSObject {
                 showPermissionAlert(for: .screenRecording)
             } catch {
                 print("[StatusBar] 智能截图出错: \(error)")
+            }
+        }
+    }
+
+    /// 选区截图（仅拖拽框选）
+    @objc private func regionScreenshot() {
+        Task { @MainActor in
+            do {
+                try await ScreenCaptureEngine.shared.captureArea()
+            } catch ScreenCaptureError.permissionDenied {
+                showPermissionAlert(for: .screenRecording)
+            } catch {
+                print("[StatusBar] 选区截图出错: \(error)")
+            }
+        }
+    }
+
+    /// 窗口截图（仅点击截取窗口）
+    @objc private func windowScreenshot() {
+        Task { @MainActor in
+            do {
+                try await ScreenCaptureEngine.shared.captureWindow()
+            } catch ScreenCaptureError.permissionDenied {
+                showPermissionAlert(for: .screenRecording)
+            } catch {
+                print("[StatusBar] 窗口截图出错: \(error)")
             }
         }
     }

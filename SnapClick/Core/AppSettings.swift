@@ -61,6 +61,10 @@ final class AppSettings: ObservableObject {
     @AppStorage("hotkeyWindowScreenshot")
     var hotkeyWindowScreenshot: String = "ctrl+shift+w"
 
+    /// 选区截图快捷键（仅区域框选，不支持点击窗口）
+    @AppStorage("hotkeyRegionScreenshot")
+    var hotkeyRegionScreenshot: String = "ctrl+shift+s"
+
     /// 长截图快捷键
     @AppStorage("hotkeyLongScreenshot")
     var hotkeyLongScreenshot: String = "ctrl+shift+l"
@@ -309,6 +313,16 @@ public final class LanguageManager: ObservableObject {
             "截图": "Screenshot",
             "区域截图": "Screenshot",
             "窗口截图": "Window Screenshot",
+            "智能截图": "Smart Capture",
+            "拖动鼠标框选": "Drag mouse to select",
+            "拖动鼠标框选区域": "Drag mouse to select area",
+            "点击截取窗口": "Click to capture window",
+            "点击截取该窗口": "Click to capture this window",
+            "或拖动选择截图区域": "or drag to select screenshot area",
+            "点击选择窗口": "Click to select window",
+            "拖动选择要长截图的区域": "Drag to select area for long screenshot",
+            "拖动选择截图区域": "Drag to select screenshot area",
+            "点击选择要截图的窗口": "Click to select window to capture",
             "点击截取窗口 · 拖拽选择区域": "Click to capture window · Drag to select area",
             "点击确认 · Enter 确定  |  ESC 取消": "Click to confirm · Press Enter  |  ESC Cancel",
             "选取目标窗口": "Select target window",
@@ -550,6 +564,16 @@ public final class LanguageManager: ObservableObject {
             "截图": "スクリーンショット",
             "区域截图": "スクリーンショット",
             "窗口截图": "ウィンドウスクリーンショット",
+            "智能截图": "スマートキャプチャ",
+            "拖动鼠标框选": "ドラッグで選択",
+            "拖动鼠标框选区域": "ドラッグで領域を選択",
+            "点击截取窗口": "クリックでウィンドウキャプチャ",
+            "点击截取该窗口": "このウィンドウをキャプチャ",
+            "或拖动选择截图区域": "または領域をドラッグしてキャプチャ",
+            "点击选择窗口": "クリックでウィンドウを選択",
+            "拖动选择要长截图的区域": "ロングスクリーンショットの領域をドラッグ",
+            "拖动选择截图区域": "スクリーンショットの領域をドラッグ",
+            "点击选择要截图的窗口": "クリックでウィンドウを選択",
             "点击截取窗口 · 拖拽选择区域": "クリックでウィンドウキャプチャ · ドラッグで領域選択",
             "点击确认 · Enter 确定  |  ESC 取消": "クリックで確認 · Enterで決定  |  ESC キャンセル",
             "选取目标窗口": "対象ウィンドウを選択",

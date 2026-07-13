@@ -91,6 +91,18 @@ class CaptureOverlayWindow: NSWindow {
         
         // 挂载 window 引用到 view，以便 Done 时可以关闭 window
         overlayView.parentWindow = self
+
+        // 智能截图 / 选区截图：使用自定义大十字光标 + 提示
+        // 隐藏系统默认光标，改为在 view 上自绘
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            switch self.overlayView.mode {
+            case .combined, .areaSelection:
+                NSCursor.hide()
+            case .windowSelection:
+                NSCursor.arrow.set()
+            }
+        }
     }
 
     // MARK: - 键盘事件（ESC 取消，回车确认）
@@ -278,6 +290,11 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
         if !isAnnotating && !isScrollingCaptureActive && !isWindowSelectedPending {
             drawHint(context: context)
         }
+
+        // 5. 自定义十字光标（覆盖在所有内容之上，确保可见）
+        if !isAnnotating && (mode == .areaSelection || mode == .combined) {
+            drawCustomCursor(context: context)
+        }
     }
 
     // MARK: - 选区矩形（标准化正方向）
@@ -457,36 +474,204 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
         context.strokePath()
     }
 
+    // MARK: - 绘制自定义十字光标（跟随鼠标）
+    private func drawCustomCursor(context: CGContext) {
+        let center = magnifierCenter
+
+        // 1. 十字大小（两条完整直线，跨过中心）
+        let armLength: CGFloat = 18
+        let strokeWidth: CGFloat = 1.2  // 更细的线宽
+
+        // 自定义蓝 #458DF7 = rgb(69, 141, 247)
+        let cursorBlue = NSColor(red: 69.0/255.0, green: 141.0/255.0, blue: 247.0/255.0, alpha: 1.0)
+
+        // 3. 绘制十字（蓝色主线 + 黑色描边，确保在任意背景下都可见）
+        context.saveGState()
+        context.setLineCap(.round)
+
+        // 黑色描边（更粗，作为底色）
+        context.setStrokeColor(NSColor.black.withAlphaComponent(0.85).cgColor)
+        context.setLineWidth(strokeWidth + 1.0)
+
+        // 水平线（完整一条）
+        context.move(to: CGPoint(x: center.x - armLength, y: center.y))
+        context.addLine(to: CGPoint(x: center.x + armLength, y: center.y))
+        context.strokePath()
+
+        // 垂直线（完整一条）
+        context.move(to: CGPoint(x: center.x, y: center.y - armLength))
+        context.addLine(to: CGPoint(x: center.x, y: center.y + armLength))
+        context.strokePath()
+
+        // 蓝色主线（覆盖在黑色描边上）
+        context.setStrokeColor(cursorBlue.cgColor)
+        context.setLineWidth(strokeWidth)
+
+        // 水平线
+        context.move(to: CGPoint(x: center.x - armLength, y: center.y))
+        context.addLine(to: CGPoint(x: center.x + armLength, y: center.y))
+        context.strokePath()
+
+        // 垂直线
+        context.move(to: CGPoint(x: center.x, y: center.y - armLength))
+        context.addLine(to: CGPoint(x: center.x, y: center.y + armLength))
+        context.strokePath()
+
+        context.restoreGState()
+    }
+
     // MARK: - 绘制操作提示
     private func drawHint(context: CGContext) {
-        let hint: String
+        let attrStr: NSAttributedString
+        let boxWidth: CGFloat
+
         if isLongScreenshotMode {
-            hint = "拖拽选择要长截图的区域  |  ESC 取消"
+            attrStr = makeHint(
+                primary: "拖动鼠标框选区域".localized,
+                secondary: "ESC 取消".localized
+            )
+            boxWidth = 300
         } else if mode == .combined {
-            hint = "点击截取窗口 · 拖拽选择区域  |  ESC 取消"
+            // 智能截图：用户已悬停在窗口上时，突出"点击"动作；默认显示双操作
+            if hoveredWindow != nil && !isDragging && !isAnnotating && !isWindowSelectedPending {
+                attrStr = makeHint(
+                    primary: "点击截取该窗口".localized,
+                    secondary: "或拖动选择截图区域".localized,
+                    accent: true
+                )
+                boxWidth = 320
+            } else {
+                attrStr = makeCombinedHint()
+                boxWidth = 420
+            }
+        } else if mode == .areaSelection {
+            attrStr = makeHint(
+                primary: "拖动鼠标框选区域".localized,
+                secondary: "ESC 取消".localized
+            )
+            boxWidth = 300
         } else {
-            hint = mode == .areaSelection ? "拖拽选择截图区域  |  ESC 取消" : "点击选择要截图的窗口  |  ESC 取消"
+            attrStr = makeHint(
+                primary: "点击选择窗口".localized,
+                secondary: "ESC 取消".localized
+            )
+            boxWidth = 260
         }
 
-        let attrs: [NSAttributedString.Key: Any] = [
-            .font:            NSFont.systemFont(ofSize: 13),
-            .foregroundColor: NSColor.white
-        ]
-        let attrStr  = NSAttributedString(string: hint, attributes: attrs)
         let textSize = attrStr.size()
-        let padding: CGFloat = 10
         let boxRect = CGRect(
-            x:      (bounds.width - textSize.width) / 2 - padding,
-            y:      bounds.height - 60,
-            width:  textSize.width + padding * 2,
-            height: textSize.height + padding
+            x:      (bounds.width - boxWidth) / 2,
+            y:      bounds.height - 72,
+            width:  boxWidth,
+            height: textSize.height + 18
         )
 
-        let bgPath = CGPath(roundedRect: boxRect, cornerWidth: 6, cornerHeight: 6, transform: nil)
-        context.setFillColor(NSColor(calibratedRed: 0, green: 0, blue: 0, alpha: 0.6).cgColor)
+        // 圆角矩形背景（半透明黑 + 1px 极淡白边）
+        let bgPath = CGPath(roundedRect: boxRect, cornerWidth: 10, cornerHeight: 10, transform: nil)
+        context.setFillColor(NSColor(calibratedRed: 0, green: 0, blue: 0, alpha: 0.55).cgColor)
         context.addPath(bgPath)
         context.fillPath()
-        attrStr.draw(in: boxRect.insetBy(dx: padding, dy: padding / 2))
+        context.setStrokeColor(NSColor.white.withAlphaComponent(0.15).cgColor)
+        context.setLineWidth(0.5)
+        context.addPath(bgPath)
+        context.strokePath()
+
+        attrStr.draw(in: boxRect.insetBy(dx: 18, dy: 9))
+    }
+
+    /// 标准单行提示（主操作 + 次要操作）
+    private func makeHint(primary: String, secondary: String, accent: Bool = false) -> NSAttributedString {
+        let result = NSMutableAttributedString()
+        result.append(NSAttributedString(
+            string: primary,
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 12.5, weight: .semibold),
+                .foregroundColor: accent ? NSColor.systemBlue : NSColor.white
+            ]
+        ))
+        result.append(NSAttributedString(
+            string: "   |   ",
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 12),
+                .foregroundColor: NSColor.white.withAlphaComponent(0.25)
+            ]
+        ))
+        result.append(NSAttributedString(
+            string: secondary,
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 12),
+                .foregroundColor: NSColor.white.withAlphaComponent(0.55)
+            ]
+        ))
+        return result
+    }
+
+    /// 智能截图双操作提示：「模式徽章 + 拖动 + 点击 + ESC」
+    private func makeCombinedHint() -> NSAttributedString {
+        let result = NSMutableAttributedString()
+
+        // 1. 模式徽章（蓝色圆点 + 文字）
+        result.append(NSAttributedString(
+            string: "● 智能截图".localized,
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 12, weight: .medium),
+                .foregroundColor: NSColor.systemBlue
+            ]
+        ))
+
+        // 分隔
+        result.append(separator())
+
+        // 2. 拖动鼠标框选
+        result.append(NSAttributedString(
+            string: "拖动鼠标框选".localized,
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 12.5, weight: .semibold),
+                .foregroundColor: NSColor.white
+            ]
+        ))
+
+        // 中点分隔
+        result.append(NSAttributedString(
+            string: "  ·  ",
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 12),
+                .foregroundColor: NSColor.white.withAlphaComponent(0.35)
+            ]
+        ))
+
+        // 3. 点击截取窗口
+        result.append(NSAttributedString(
+            string: "点击截取窗口".localized,
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 12.5, weight: .semibold),
+                .foregroundColor: NSColor.white
+            ]
+        ))
+
+        // 分隔
+        result.append(separator())
+
+        // 4. ESC 取消
+        result.append(NSAttributedString(
+            string: "ESC 取消".localized,
+            attributes: [
+                .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .medium),
+                .foregroundColor: NSColor.white.withAlphaComponent(0.55)
+            ]
+        ))
+
+        return result
+    }
+
+    private func separator() -> NSAttributedString {
+        NSAttributedString(
+            string: "   |   ",
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 12),
+                .foregroundColor: NSColor.white.withAlphaComponent(0.20)
+            ]
+        )
     }
 
     // MARK: - 绘制长截图捕获中的红色边框
@@ -688,7 +873,13 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
 
     override func mouseDragged(with event: NSEvent) {
         let loc = convert(event.locationInWindow, from: nil)
-        
+
+        // 选区 / 智能模式下拖动时：系统光标已被隐藏，自定义十字由 drawCustomCursor 绘制
+        // 只需保证 needsDisplay 触发（已在 mouseMoved 末尾）
+        if !isAnnotating && (mode == .areaSelection || mode == .combined) {
+            // 不需要设置系统光标
+        }
+
         if isAnnotating && canvas?.currentTool == .drag, let handle = activeDragHandle {
             let dx = loc.x - startPoint.x
             let dy = loc.y - startPoint.y
@@ -831,7 +1022,15 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
         if now - lastHoverEvalTime < hoverEvalMinInterval { return }
         lastHoverEvalTime = now
 
-        if mode == .windowSelection || mode == .combined {
+        if mode == .combined {
+            // 智能截图：自定义十字光标已在 drawCustomCursor 中绘制
+            // 仍然跟踪 hoveredWindow（用于决定文字提示和点击行为）
+            let newHover = windowAtPoint(loc)
+            if newHover?.windowID != hoveredWindow?.windowID {
+                hoveredWindow = newHover
+            }
+        } else if mode == .windowSelection {
+            // 窗口截图：保留系统手型光标
             let newHover = windowAtPoint(loc)
             if newHover?.windowID != hoveredWindow?.windowID {
                 hoveredWindow = newHover

@@ -18,11 +18,27 @@ struct ShortcutsSettingsView: View {
                 VStack(spacing: 12) {
                     HStack(spacing: 12) {
                         ShortcutCard(
-                            icon: "crop",
+                            icon: "viewfinder",
                             iconColor: .blue,
                             title: "智能截图".localized,
                             subtitle: "点击截取窗口 · 拖拽选择区域".localized,
                             hotkey: $settings.hotkeyAreaScreenshot
+                        )
+                        ShortcutCard(
+                            icon: "macwindow",
+                            iconColor: Color(red: 14/255, green: 165/255, blue: 233/255),
+                            title: "窗口截图".localized,
+                            subtitle: "纯窗口模式快速截图".localized,
+                            hotkey: $settings.hotkeyWindowScreenshot
+                        )
+                    }
+                    HStack(spacing: 12) {
+                        ShortcutCard(
+                            icon: "crop",
+                            iconColor: Color(red: 99/255, green: 102/255, blue: 241/255),
+                            title: "选区截图".localized,
+                            subtitle: "拖拽框选截图区域".localized,
+                            hotkey: $settings.hotkeyRegionScreenshot
                         )
                         ShortcutCard(
                             icon: "arrow.up.and.down",
@@ -31,9 +47,6 @@ struct ShortcutsSettingsView: View {
                             subtitle: "滚动截取全屏".localized,
                             hotkey: $settings.hotkeyLongScreenshot
                         )
-                        // 占位，保持三列对齐
-                        Color.clear
-                            .frame(maxWidth: .infinity)
                     }
                 }
             }

@@ -51,6 +51,28 @@ final class HotkeyManager: ObservableObject {
             }
         }
 
+        // 纯窗口截图（仅点击截取窗口，不进入区域选区）
+        register(settings.hotkeyWindowScreenshot, name: "窗口截图") {
+            Task {
+                do {
+                    try await ScreenCaptureEngine.shared.captureWindow()
+                } catch {
+                    print("窗口截图失败: \(error.localizedDescription)")
+                }
+            }
+        }
+
+        // 选区截图（仅区域框选，不支持点击截取窗口）
+        register(settings.hotkeyRegionScreenshot, name: "选区截图") {
+            Task {
+                do {
+                    try await ScreenCaptureEngine.shared.captureArea()
+                } catch {
+                    print("选区截图失败: \(error.localizedDescription)")
+                }
+            }
+        }
+
         register(settings.hotkeyColorPicker, name: "屏幕取色") {
             ColorPickerEngine.shared.startPicking()
         }
