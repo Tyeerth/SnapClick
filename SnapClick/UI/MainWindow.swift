@@ -160,29 +160,25 @@ enum DT {
         dark: Color.white.opacity(0.08)
     )
 
-    // 导航胶囊 Selected 渐变顶部（发光的液态玻璃）
-    static let navCapsuleSelectedTop = Color.dynamic(
-        light: Color.white.opacity(0.42),
-        dark: Color.white.opacity(0.30)
+    // 导航胶囊 Selected — macOS Sequoia 磨砂玻璃（中性灰白）
+    // 不使用任何强调色作为底色，仅靠亮度和层级区分状态
+    static let navCapsuleSelectedMaterial: NSVisualEffectView.Material = .hudWindow
+    // 选中态极淡白色描边（10% 白色，0.5px）— 表现玻璃边缘
+    static let navCapsuleSelectedBorder = Color.white.opacity(0.10)
+    // 选中态文字：纯白（dark 模式接近 95% 白色）
+    static let navCapsuleSelectedText = Color.dynamic(
+        light: Color(red: 15/255,  green: 23/255, blue: 42/255),
+        dark:  Color(red: 248/255, green: 250/255, blue: 252/255)
     )
-    // 导航胶囊 Selected 渐变中部
-    static let navCapsuleSelectedMid = Color.dynamic(
-        light: Color.white.opacity(0.26),
-        dark: Color.white.opacity(0.18)
+    // 选中态强调色（仅用于图标和文字）— 系统蓝
+    static let navCapsuleSelectedAccent = Color.dynamic(
+        light: Color(red: 0/255,   green: 122/255, blue: 255/255),
+        dark:  Color(red: 110/255, green: 188/255, blue: 255/255)
     )
-    // 导航胶囊 Selected 渐变底部
-    static let navCapsuleSelectedBottom = Color.dynamic(
-        light: Color.white.opacity(0.14),
-        dark: Color.white.opacity(0.08)
-    )
-    // 导航胶囊 Selected 边缘（顶部亮、底部淡）
-    static let navCapsuleSelectedBorderTop = Color.dynamic(
-        light: Color.white.opacity(0.70),
-        dark: Color.white.opacity(0.40)
-    )
-    static let navCapsuleSelectedBorderBottom = Color.dynamic(
-        light: Color.white.opacity(0.18),
-        dark: Color.white.opacity(0.10)
+    // 未选中态文字：65-75% 白色透明（dark 模式约 70% 白色）
+    static let navCapsuleUnselectedText = Color.dynamic(
+        light: Color(red: 100/255, green: 116/255, blue: 139/255),
+        dark:  Color.white.opacity(0.70)
     )
 
     // 外层背景（窗口底色，与侧边栏玻璃形成对比）
@@ -353,36 +349,34 @@ private struct SidebarNavItem: View {
 
     private var iconColor: Color {
         if isSelected {
-            return .customPrimaryText
+            return DT.navCapsuleSelectedAccent
         }
-        return isHovered ? .customMediumText : .customSecondaryText
+        return isHovered ? .customMediumText : DT.navCapsuleUnselectedText
     }
 
     private var textColor: Color {
         if isSelected {
-            return .customPrimaryText
+            return DT.navCapsuleSelectedAccent
         }
-        return isHovered ? .customMediumText : .customSecondaryText
+        return isHovered ? .customMediumText : DT.navCapsuleUnselectedText
     }
 
     @ViewBuilder
     private var capsuleBackground: some View {
         if isSelected {
             ZStack {
+                // 1. 真实毛玻璃基底（NSVisualEffectView .hudWindow）
+                // 制造 18-24px 背景模糊，参考 macOS 系统设置侧边栏
+                VisualEffectView(
+                    material: DT.navCapsuleSelectedMaterial,
+                    blendingMode: .withinWindow,
+                    state: .active
+                )
+                .clipShape(Capsule(style: .continuous))
+
+                // 2. 极淡白色叠加（8%）— 让玻璃层可识别但不抢戏
                 Capsule(style: .continuous)
-                    .fill(DT.navCapsuleSelectedTop)
-                Capsule(style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                DT.navCapsuleSelectedTop,
-                                DT.navCapsuleSelectedMid,
-                                DT.navCapsuleSelectedBottom
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
+                    .fill(Color.white.opacity(0.08))
             }
         } else if isHovered {
             Capsule(style: .continuous)
@@ -396,21 +390,12 @@ private struct SidebarNavItem: View {
     @ViewBuilder
     private var capsuleBorder: some View {
         if isSelected {
+            // 极淡白色描边（10% 白色，0.5px）— 仅表现玻璃边缘
             Capsule(style: .continuous)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            DT.navCapsuleSelectedBorderTop,
-                            DT.navCapsuleSelectedBorderBottom
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 0.75
-                )
+                .stroke(DT.navCapsuleSelectedBorder, lineWidth: 0.5)
         } else {
             Capsule(style: .continuous)
-                .stroke(Color.clear, lineWidth: 0.75)
+                .stroke(Color.clear, lineWidth: 0.5)
         }
     }
 }

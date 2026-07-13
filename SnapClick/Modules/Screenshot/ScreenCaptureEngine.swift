@@ -340,15 +340,19 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             self.overlayContinuation = continuation
             
             overlay.onCancelled = { [weak self] in
+                // 必须 orderOut + close 一起调用：仅 orderOut 会让窗口在内存中残留，
+                // 下次按 ESC 时 NSApp 仍会向该 keyWindow 投递 keyDown，导致需要按两次 ESC 才能退出
                 overlay.orderOut(nil)
+                overlay.close()
                 self?.overlayWindow = nil
                 let cont = self?.overlayContinuation
                 self?.overlayContinuation = nil
                 cont?.resume(throwing: ScreenCaptureError.userCancelled)
             }
-            
+
             overlay.onFinished = { [weak self] in
                 overlay.orderOut(nil)
+                overlay.close()
                 self?.overlayWindow = nil
                 let cont = self?.overlayContinuation
                 self?.overlayContinuation = nil

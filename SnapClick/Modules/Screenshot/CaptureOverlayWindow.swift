@@ -366,8 +366,6 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
     private func drawWindowHighlight(window: SCWindow, context: CGContext) {
         let viewRect = winToViewRect(window)
 
-        context.clear(viewRect)
-
         // 直接从全屏背景图裁剪窗口区域显示：backgroundImage 在覆盖层打开时已包含所有窗口内容，
         // 无需二次截图，色彩空间与背景图完全一致，也不存在任何延迟。
         // CGImage 像素坐标系：原点左上、Y 向下；需从 AppKit 视图坐标（左下、Y 向上）翻转换算。
@@ -380,6 +378,16 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
                 height: viewRect.height * overlayScale
             )
             if let cropped = bgCG.cropping(to: cropRect) {
+                // 修复双层阴影：
+                // backgroundImage 中窗口的阴影位于 viewRect 之外（macOS 窗口阴影在 frame 外侧），
+                // 如果不清除直接叠加 35% 暗化遮罩，会形成"暗化阴影 + 暗化背景"两层视觉。
+                // 这里把 viewRect 扩大阴影范围后 clear，再 fill 一层与全屏一致的 35% 黑色，
+                // 让窗口阴影区域与全屏暗化融为一体，消除双层。
+                let shadowRect = viewRect.insetBy(dx: -50, dy: -50)
+                context.clear(shadowRect)
+                context.setFillColor(NSColor(calibratedRed: 0, green: 0, blue: 0, alpha: 0.35).cgColor)
+                context.fill(shadowRect)
+
                 context.interpolationQuality = .high
                 context.draw(cropped, in: viewRect)
             }

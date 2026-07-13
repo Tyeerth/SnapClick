@@ -105,25 +105,16 @@ final class StatusBarController: NSObject {
         }
 
         // ── 截图组 ──────────────────────────────────────────────
+        // 智能截图（区域 + 窗口合一）：拖拽选区 / 点击截取悬停窗口
         let areaT = parse(settings.hotkeyAreaScreenshot)
-        let areaItem = makeItem(
-            title: "区域截图".localized,
+        let smartItem = makeItem(
+            title: "智能截图".localized,
             symbolName: "crop",
             shortcut: areaT.shortcut,
             modifiers: areaT.modifiers,
-            action: #selector(areaScreenshot)
+            action: #selector(smartScreenshot)
         )
-        menu.addItem(areaItem)
-
-        let windowT = parse(settings.hotkeyWindowScreenshot)
-        let windowItem = makeItem(
-            title: "窗口截图".localized,
-            symbolName: "macwindow.badge.plus",
-            shortcut: windowT.shortcut,
-            modifiers: windowT.modifiers,
-            action: #selector(windowScreenshot)
-        )
-        menu.addItem(windowItem)
+        menu.addItem(smartItem)
 
         let longT = parse(settings.hotkeyLongScreenshot)
         let longItem = makeItem(
@@ -250,26 +241,15 @@ final class StatusBarController: NSObject {
 
     // MARK: 菜单动作
 
-    @objc private func areaScreenshot() {
+    /// 智能截图（区域 + 窗口合一）：拖拽选区 / 点击截取悬停窗口
+    @objc private func smartScreenshot() {
         Task { @MainActor in
             do {
-                try await ScreenCaptureEngine.shared.captureArea()
+                try await ScreenCaptureEngine.shared.capture()
             } catch ScreenCaptureError.permissionDenied {
                 showPermissionAlert(for: .screenRecording)
             } catch {
-                print("[StatusBar] 区域截图出错: \(error)")
-            }
-        }
-    }
-
-    @objc private func windowScreenshot() {
-        Task { @MainActor in
-            do {
-                try await ScreenCaptureEngine.shared.captureWindow()
-            } catch ScreenCaptureError.permissionDenied {
-                showPermissionAlert(for: .screenRecording)
-            } catch {
-                print("[StatusBar] 窗口截图出错: \(error)")
+                print("[StatusBar] 智能截图出错: \(error)")
             }
         }
     }

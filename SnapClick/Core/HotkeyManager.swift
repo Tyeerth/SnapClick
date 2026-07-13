@@ -39,22 +39,14 @@ final class HotkeyManager: ObservableObject {
         
         let settings = AppSettings.shared
         
-        register(settings.hotkeyAreaScreenshot, name: "区域截图") {
+        // 智能截图（区域 + 窗口合一）：
+        // 拖拽选区 / 点击截取悬停窗口，单个快捷键统一入口
+        register(settings.hotkeyAreaScreenshot, name: "智能截图") {
             Task {
                 do {
-                    try await ScreenCaptureEngine.shared.captureArea()
+                    try await ScreenCaptureEngine.shared.capture()
                 } catch {
-                    print("区域截图失败: \(error.localizedDescription)")
-                }
-            }
-        }
-
-        register(settings.hotkeyWindowScreenshot, name: "窗口截图") {
-            Task {
-                do {
-                    try await ScreenCaptureEngine.shared.captureWindow()
-                } catch {
-                    print("窗口截图失败: \(error.localizedDescription)")
+                    print("智能截图失败: \(error.localizedDescription)")
                 }
             }
         }
