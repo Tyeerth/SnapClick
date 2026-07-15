@@ -59,11 +59,12 @@ final class StatusBarController: NSObject {
         guard let button = statusItem.button else { return }
 
         // 使用 SF Symbol 作为菜单栏图标 (camera.viewfinder)
-        let icon = NSImage(
+        let config = NSImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+        guard let icon = NSImage(
             systemSymbolName: "camera.viewfinder",
             accessibilityDescription: "SnapClick"
-        )
-        icon?.isTemplate = true  // 自动适应深色/浅色菜单栏
+        )?.withSymbolConfiguration(config) else { return }
+        icon.isTemplate = true  // 自动适应深色/浅色菜单栏
         button.image = icon
         button.toolTip = "SnapClick".localized
     }
