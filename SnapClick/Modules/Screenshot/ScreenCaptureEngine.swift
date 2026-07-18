@@ -174,21 +174,30 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
 
-        let screen = activeScreen()
-        let content = try await refreshContent()
-        let backgroundImage = try await captureScreen(screen)
+        await hideMainWindows()
+        try? await Task.sleep(nanoseconds: 150_000_000)
 
-        let windows = selectableWindows(from: content)
+        do {
+            let screen = activeScreen()
+            let content = try await refreshContent()
+            let backgroundImage = try await captureScreen(screen)
 
-        let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage,
-                                           windows: windows,
-                                           screen: screen)
-        self.overlayWindow = overlay
-        overlay.mode = .combined
-        overlay.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+            let windows = selectableWindows(from: content)
 
-        try await waitForOverlayToClose(overlay)
+            let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage,
+                                               windows: windows,
+                                               screen: screen)
+            self.overlayWindow = overlay
+            overlay.mode = .combined
+            overlay.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+
+            try await waitForOverlayToClose(overlay)
+            await restoreMainWindows()
+        } catch {
+            await restoreMainWindows()
+            throw error
+        }
     }
 
     // MARK: - 区域截图
@@ -202,16 +211,25 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
 
-        let screen = activeScreen()
-        let backgroundImage = try await captureScreen(screen)
+        await hideMainWindows()
+        try? await Task.sleep(nanoseconds: 150_000_000)
 
-        let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
-        self.overlayWindow = overlay
-        overlay.mode = .areaSelection
-        overlay.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        do {
+            let screen = activeScreen()
+            let backgroundImage = try await captureScreen(screen)
 
-        try await waitForOverlayToClose(overlay)
+            let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
+            self.overlayWindow = overlay
+            overlay.mode = .areaSelection
+            overlay.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+
+            try await waitForOverlayToClose(overlay)
+            await restoreMainWindows()
+        } catch {
+            await restoreMainWindows()
+            throw error
+        }
     }
 
     // MARK: - 长截图
@@ -227,16 +245,25 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
 
-        let screen = activeScreen()
-        let backgroundImage = try await captureScreen(screen)
-        let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
-        self.overlayWindow = overlay
-        overlay.mode = .areaSelection
-        overlay.isLongScreenshotMode = true
-        overlay.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        
-        try await waitForOverlayToClose(overlay)
+        await hideMainWindows()
+        try? await Task.sleep(nanoseconds: 150_000_000)
+
+        do {
+            let screen = activeScreen()
+            let backgroundImage = try await captureScreen(screen)
+            let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
+            self.overlayWindow = overlay
+            overlay.mode = .areaSelection
+            overlay.isLongScreenshotMode = true
+            overlay.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            
+            try await waitForOverlayToClose(overlay)
+            await restoreMainWindows()
+        } catch {
+            await restoreMainWindows()
+            throw error
+        }
     }
 
     // MARK: - 窗口截图
@@ -250,21 +277,30 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
 
-        let screen = activeScreen()
-        let content = try await refreshContent()
-        let backgroundImage = try await captureScreen(screen)
+        await hideMainWindows()
+        try? await Task.sleep(nanoseconds: 150_000_000)
 
-        let windows = selectableWindows(from: content)
+        do {
+            let screen = activeScreen()
+            let content = try await refreshContent()
+            let backgroundImage = try await captureScreen(screen)
 
-        let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage,
-                                           windows: windows,
-                                           screen: screen)
-        self.overlayWindow = overlay
-        overlay.mode = .windowSelection
-        overlay.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+            let windows = selectableWindows(from: content)
 
-        try await waitForOverlayToClose(overlay)
+            let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage,
+                                               windows: windows,
+                                               screen: screen)
+            self.overlayWindow = overlay
+            overlay.mode = .windowSelection
+            overlay.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+
+            try await waitForOverlayToClose(overlay)
+            await restoreMainWindows()
+        } catch {
+            await restoreMainWindows()
+            throw error
+        }
     }
 
     // MARK: - 全屏截图
@@ -280,19 +316,28 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
         
-        let screen = activeScreen()
-        let backgroundImage = try await captureScreen(screen)
-        
-        let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
-        self.overlayWindow = overlay
-        overlay.mode = .areaSelection
-        
-        // 直接进入全屏标注模式
-        overlay.enterFullScreenAnnotationDirectly()
-        
-        overlay.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        try await waitForOverlayToClose(overlay)
+        await hideMainWindows()
+        try? await Task.sleep(nanoseconds: 150_000_000)
+
+        do {
+            let screen = activeScreen()
+            let backgroundImage = try await captureScreen(screen)
+            
+            let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
+            self.overlayWindow = overlay
+            overlay.mode = .areaSelection
+            
+            // 直接进入全屏标注模式
+            overlay.enterFullScreenAnnotationDirectly()
+            
+            overlay.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            try await waitForOverlayToClose(overlay)
+            await restoreMainWindows()
+        } catch {
+            await restoreMainWindows()
+            throw error
+        }
     }
 
     // MARK: - 延时截图
@@ -317,20 +362,29 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
 
         defer { isCapturing = false }
         
-        // 延时结束后重新检测鼠标所在屏幕（用户在倒计时期间可能已移动到其它屏幕）
-        let screen = activeScreen()
-        let backgroundImage = try await captureScreen(screen)
-        
-        let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
-        self.overlayWindow = overlay
-        overlay.mode = .areaSelection
-        
-        // 直接进入全屏标注模式
-        overlay.enterFullScreenAnnotationDirectly()
-        
-        overlay.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        try await waitForOverlayToClose(overlay)
+        await hideMainWindows()
+        try? await Task.sleep(nanoseconds: 150_000_000)
+
+        do {
+            // 延时结束后重新检测鼠标所在屏幕（用户在倒计时期间可能已移动到其它屏幕）
+            let screen = activeScreen()
+            let backgroundImage = try await captureScreen(screen)
+            
+            let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
+            self.overlayWindow = overlay
+            overlay.mode = .areaSelection
+            
+            // 直接进入全屏标注模式
+            overlay.enterFullScreenAnnotationDirectly()
+            
+            overlay.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            try await waitForOverlayToClose(overlay)
+            await restoreMainWindows()
+        } catch {
+            await restoreMainWindows()
+            throw error
+        }
     }
 
     // MARK: - 辅助挂起方法
@@ -681,5 +735,30 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         } else {
             return "SnapClick_截图_\(dateString)"
         }
+    }
+
+    // MARK: - 临时隐藏主窗口以防截图时干扰或在长截图时弹窗
+    private var temporarilyHiddenWindows: [NSWindow] = []
+
+    @MainActor
+    private func hideMainWindows() {
+        temporarilyHiddenWindows.removeAll()
+        for window in NSApp.windows {
+            let title = window.title
+            if title == "SnapClick 设置" || title == "欢迎使用 SnapClick".localized || title == "Welcome to SnapClick" {
+                if window.isVisible {
+                    temporarilyHiddenWindows.append(window)
+                    window.orderOut(nil)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    private func restoreMainWindows() {
+        for window in temporarilyHiddenWindows {
+            window.makeKeyAndOrderFront(nil)
+        }
+        temporarilyHiddenWindows.removeAll()
     }
 }

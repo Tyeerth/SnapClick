@@ -37,6 +37,25 @@ class CaptureOverlayWindow: NSWindow {
     private let backgroundImage: NSImage
     private let availableWindows: [SCWindow]
 
+    // MARK: - 鼠标光标管理
+    private var isCursorHidden = false
+
+    func hideCursor() {
+        guard !isCursorHidden else { return }
+        NSCursor.hide()
+        isCursorHidden = true
+    }
+
+    func unhideCursor() {
+        guard isCursorHidden else { return }
+        NSCursor.unhide()
+        isCursorHidden = false
+    }
+
+    deinit {
+        unhideCursor()
+    }
+
     // MARK: - 初始化
     /// - Parameters:
     ///   - backgroundImage: 该屏幕的全屏截图（应与 screen 对应）
@@ -98,7 +117,7 @@ class CaptureOverlayWindow: NSWindow {
             guard let self = self else { return }
             switch self.overlayView.mode {
             case .combined, .areaSelection:
-                NSCursor.hide()
+                self.hideCursor()
             case .windowSelection:
                 NSCursor.arrow.set()
             }
@@ -480,30 +499,14 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
 
         // 1. 十字大小（两条完整直线，跨过中心）
         let armLength: CGFloat = 18
-        let strokeWidth: CGFloat = 1.2  // 更细的线宽
+        let strokeWidth: CGFloat = 2.0  // 线宽
 
         // 自定义蓝 #458DF7 = rgb(69, 141, 247)
         let cursorBlue = NSColor(red: 69.0/255.0, green: 141.0/255.0, blue: 247.0/255.0, alpha: 1.0)
 
-        // 3. 绘制十字（蓝色主线 + 黑色描边，确保在任意背景下都可见）
+        // 仅绘制蓝色十字主线，不带黑色描边
         context.saveGState()
         context.setLineCap(.round)
-
-        // 黑色描边（更粗，作为底色）
-        context.setStrokeColor(NSColor.black.withAlphaComponent(0.85).cgColor)
-        context.setLineWidth(strokeWidth + 1.0)
-
-        // 水平线（完整一条）
-        context.move(to: CGPoint(x: center.x - armLength, y: center.y))
-        context.addLine(to: CGPoint(x: center.x + armLength, y: center.y))
-        context.strokePath()
-
-        // 垂直线（完整一条）
-        context.move(to: CGPoint(x: center.x, y: center.y - armLength))
-        context.addLine(to: CGPoint(x: center.x, y: center.y + armLength))
-        context.strokePath()
-
-        // 蓝色主线（覆盖在黑色描边上）
         context.setStrokeColor(cursorBlue.cgColor)
         context.setLineWidth(strokeWidth)
 
@@ -1075,6 +1078,11 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
 
     // MARK: - 🌟 核心：进入就地标注模式
     private func enterInPlaceAnnotationMode() {
+        // 选区阶段 init 时调用过 NSCursor.hide() 隐藏系统光标并自绘十字，
+        // 进入标注模式后必须恢复系统光标，否则鼠标会一直"消失"
+        parentWindow?.unhideCursor()
+        NSCursor.arrow.set()
+
         isAnnotating = true
         needsDisplay = true // 强制重绘，高亮选区，外侧暗化
         let screenHeight = bounds.height
@@ -1474,6 +1482,9 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
     private func startScrollingCapture() {
         isScrollingCaptureActive = true
         
+        // 恢复系统光标，使用户在滚动截取和控制小工具栏时能看见鼠标
+        self.parentWindow?.unhideCursor()
+        
         // 隐藏主覆盖窗口，让鼠标/滚动事件能穿透到下层应用
         self.window?.orderOut(nil)
         
@@ -1775,7 +1786,8 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
     private func updateThumbnail(with image: NSImage) {
         let thumbnailScaleFactor: CGFloat = 0.25
         let thumbnailWidth = max(180, min(image.size.width * thumbnailScaleFactor, 300))
-        let thumbnailHeight = max(120, min(image.size.height * thumbnailScaleFactor, 500))
+        let extraHeight: CGFloat = 28
+        let thumbnailHeight = max(120, min(image.size.height * thumbnailScaleFactor, 500)) + extraHeight
         let thumbnailSize = NSSize(width: thumbnailWidth, height: thumbnailHeight)
         
         // 计算缩略图位置（选区右侧贴近一点的距离）
@@ -2384,7 +2396,6 @@ class LongScreenshotThumbnailView: NSView {
     private var statusBar: NSVisualEffectView!
     private var statusLabel: NSTextField!
     private var statusDot: NSView!
-    private var topScrimLayer: CAGradientLayer!
 
     private let statusBarHeight: CGFloat = 22
     private let edgeInset: CGFloat = 4
@@ -2401,22 +2412,12 @@ class LongScreenshotThumbnailView: NSView {
         layer?.backgroundColor = NSColor.black.withAlphaComponent(0.65).cgColor
 
         // 图片视图
-        imageView = NSImageView(frame: bounds.insetBy(dx: edgeInset, dy: edgeInset))
+        imageView = NSImageView(frame: imageViewFrame())
         imageView.imageScaling = .scaleProportionallyUpOrDown
         imageView.image = image
         imageView.autoresizingMask = [.width, .height]
         imageView.wantsLayer = true
         addSubview(imageView)
-
-        // 顶部渐变遮罩（提升状态条区域文字可读性，避免蓝色或浅色背景下不可读）
-        topScrimLayer = CAGradientLayer()
-        topScrimLayer.colors = [
-            NSColor.black.withAlphaComponent(0.55).cgColor,
-            NSColor.black.withAlphaComponent(0.0).cgColor
-        ]
-        topScrimLayer.locations = [0.0, 1.0]
-        topScrimLayer.frame = topScrimFrame()
-        layer?.addSublayer(topScrimLayer)
 
         // 状态条（暗色毛玻璃 HUD，保证在任何背景下都清晰）
         statusBar = NSVisualEffectView(frame: statusBarFrame())
@@ -2463,13 +2464,16 @@ class LongScreenshotThumbnailView: NSView {
 
     private func statusBarFrame() -> NSRect {
         NSRect(x: edgeInset + 2,
-               y: bounds.height - statusBarHeight - edgeInset - 2,
+               y: bounds.height - statusBarHeight - edgeInset,
                width: bounds.width - (edgeInset + 2) * 2,
                height: statusBarHeight)
     }
 
-    private func topScrimFrame() -> NSRect {
-        NSRect(x: 0, y: bounds.height - statusBarHeight - 14, width: bounds.width, height: statusBarHeight + 14)
+    private func imageViewFrame() -> NSRect {
+        NSRect(x: edgeInset,
+               y: edgeInset,
+               width: bounds.width - edgeInset * 2,
+               height: bounds.height - statusBarHeight - edgeInset * 2 - 4)
     }
 
     private func layoutStatusBarContents() {
@@ -2485,8 +2489,7 @@ class LongScreenshotThumbnailView: NSView {
     func updateImage(_ newImage: NSImage, size: NSSize) {
         self.image = newImage
         imageView.image = newImage
-        imageView.frame = bounds.insetBy(dx: edgeInset, dy: edgeInset)
-        topScrimLayer.frame = topScrimFrame()
+        imageView.frame = imageViewFrame()
         statusBar.frame = statusBarFrame()
         layoutStatusBarContents()
     }
