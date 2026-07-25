@@ -116,9 +116,22 @@ class AnnotationCanvas: NSView {
                 // 清除蒙层
                 context.clear(rect)
 
-                // 从底图重新绘制该区域（带色调）
-                if let image = baseImage {
-                    image.draw(in: rect, from: rect, operation: .sourceOver, fraction: 1.0)
+                if let image = baseImage,
+                   let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                    let scale = backingScaleFactor
+                    let srcRect = CGRect(
+                        x:      rect.origin.x * scale,
+                        y:      rect.origin.y * scale,
+                        width:  rect.width    * scale,
+                        height: rect.height   * scale
+                    )
+                    if let cropped = cgImage.cropping(to: srcRect) {
+                        let croppedImage = NSImage(cgImage: cropped, size: rect.size)
+                        context.saveGState()
+                        context.interpolationQuality = .high
+                        croppedImage.draw(in: rect)
+                        context.restoreGState()
+                    }
                 }
 
                 // 叠加高亮色调

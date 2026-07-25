@@ -101,9 +101,16 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
     ///   该 API 严格按 Z 序排列（数组前面的窗口在视觉上更上层），且会自动过滤被遮挡的窗口
     /// - 用 windowNumber 与 SCWindow.windowID 做映射，得到对应的 SCWindow 用于 ScreenCaptureKit 截图
     /// - 对最终结果再做一层属性过滤（layer/owner/尺寸/屏幕范围/SnapClick 自身/系统 UI）
-    private func selectableWindows(from content: SCShareableContent) -> [SCWindow] {
-        let screenFrames = NSScreen.screens.map { $0.frame }
-
+    ///
+    /// **线程模型**：CGWindowListCopyWindowInfo 是同步阻塞调用，会同步等待 WindowServer
+    /// 返回结果（多窗口/多屏场景下稳定 50-200ms）。本函数被设计为在后台队列执行：
+    /// 调用方需先在 MainActor 收集 `screenFrames`（NSScreen.screens 必须在主线程访问），
+    /// 再用 `Task.detached` 派发本函数。
+    ///
+    /// 标 `nonisolated` 是因为 ScreenCaptureEngine 整体是 `@MainActor`，但本函数只读入参、
+    /// 不访问 self，可以安全从后台 detached task 调用。
+    nonisolated private static func selectableWindows(from content: SCShareableContent,
+                                                      screenFrames: [CGRect]) -> [SCWindow] {
         // 系统级 UI 进程，不应作为可截图的"窗口"
         let systemBundles: Set<String> = [
             "com.apple.dock",
@@ -161,9 +168,24 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         return result
     }
 
+    /// `selectableWindows(from:screenFrames:)` 的 MainActor 包装：先在主线程收集
+    /// `NSScreen.screens`（该 API 必须主线程访问），再通过 `Task.detached` 把
+    /// 同步阻塞的 `CGWindowListCopyWindowInfo` 派发到后台队列。
+    /// 调用方用 `await` 期间会让出主线程，从而避免在截图启动路径上吃掉 50-200ms。
+    private func selectableWindowsDetached(from content: SCShareableContent) async -> [SCWindow] {
+        let frames = NSScreen.screens.map { $0.frame }
+        return await Task.detached(priority: .userInitiated) {
+            Self.selectableWindows(from: content, screenFrames: frames)
+        }.value
+    }
+
     // MARK: - 智能截图（区域 + 窗口合一）
     /// 显示覆盖层：悬停高亮窗口，拖拽选区，点击截取窗口
     /// 多屏幕支持：覆盖层显示在鼠标当前所在的屏幕上
+    ///
+    /// 性能路径：先 `await refreshContent()` 拿一次 `SCShareableContent`（避免再走一次
+    /// `SCShareableContent.excludingDesktopWindows` 的 WindowServer 枚举），然后用
+    /// `async let` 并行启动「截图」与「窗口过滤」，总耗时从串行的 sum 降到 max。
     func capture() async throws {
         guard !isCapturing else { return }
 
@@ -174,15 +196,16 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
 
-        await hideMainWindows()
-        try? await Task.sleep(nanoseconds: 150_000_000)
-
         do {
             let screen = activeScreen()
             let content = try await refreshContent()
-            let backgroundImage = try await captureScreen(screen)
 
-            let windows = selectableWindows(from: content)
+            // 并行：截图（已 async）+ 窗口过滤（同步阻塞 CG API，包到 detached 跑）
+            async let backgroundImageTask = captureScreen(screen, content: content)
+            async let windowsTask = selectableWindowsDetached(from: content)
+
+            let backgroundImage = try await backgroundImageTask
+            let windows = await windowsTask
 
             let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage,
                                                windows: windows,
@@ -190,17 +213,15 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             self.overlayWindow = overlay
             overlay.mode = .combined
             overlay.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
 
             try await waitForOverlayToClose(overlay)
-            await restoreMainWindows()
         } catch {
-            await restoreMainWindows()
             throw error
         }
     }
 
     // MARK: - 区域截图
+    /// 纯区域框选：只截屏，不枚举窗口列表。直接复用 captureScreen 默认 fallback 路径。
     func captureArea() async throws {
         guard !isCapturing else { return }
 
@@ -211,9 +232,6 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
 
-        await hideMainWindows()
-        try? await Task.sleep(nanoseconds: 150_000_000)
-
         do {
             let screen = activeScreen()
             let backgroundImage = try await captureScreen(screen)
@@ -222,12 +240,9 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             self.overlayWindow = overlay
             overlay.mode = .areaSelection
             overlay.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
 
             try await waitForOverlayToClose(overlay)
-            await restoreMainWindows()
         } catch {
-            await restoreMainWindows()
             throw error
         }
     }
@@ -245,9 +260,6 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
 
-        await hideMainWindows()
-        try? await Task.sleep(nanoseconds: 150_000_000)
-
         do {
             let screen = activeScreen()
             let backgroundImage = try await captureScreen(screen)
@@ -256,17 +268,15 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             overlay.mode = .areaSelection
             overlay.isLongScreenshotMode = true
             overlay.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
-            
+
             try await waitForOverlayToClose(overlay)
-            await restoreMainWindows()
         } catch {
-            await restoreMainWindows()
             throw error
         }
     }
 
     // MARK: - 窗口截图
+    /// 窗口截图：和智能截图一样的「content 复用 + async let 并行」路径
     func captureWindow() async throws {
         guard !isCapturing else { return }
 
@@ -277,15 +287,15 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         isCapturing = true
         defer { isCapturing = false }
 
-        await hideMainWindows()
-        try? await Task.sleep(nanoseconds: 150_000_000)
-
         do {
             let screen = activeScreen()
             let content = try await refreshContent()
-            let backgroundImage = try await captureScreen(screen)
 
-            let windows = selectableWindows(from: content)
+            async let backgroundImageTask = captureScreen(screen, content: content)
+            async let windowsTask = selectableWindowsDetached(from: content)
+
+            let backgroundImage = try await backgroundImageTask
+            let windows = await windowsTask
 
             let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage,
                                                windows: windows,
@@ -293,12 +303,9 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             self.overlayWindow = overlay
             overlay.mode = .windowSelection
             overlay.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
 
             try await waitForOverlayToClose(overlay)
-            await restoreMainWindows()
         } catch {
-            await restoreMainWindows()
             throw error
         }
     }
@@ -315,27 +322,21 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
 
         isCapturing = true
         defer { isCapturing = false }
-        
-        await hideMainWindows()
-        try? await Task.sleep(nanoseconds: 150_000_000)
 
         do {
             let screen = activeScreen()
             let backgroundImage = try await captureScreen(screen)
-            
+
             let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
             self.overlayWindow = overlay
             overlay.mode = .areaSelection
-            
+
             // 直接进入全屏标注模式
             overlay.enterFullScreenAnnotationDirectly()
-            
+
             overlay.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
             try await waitForOverlayToClose(overlay)
-            await restoreMainWindows()
         } catch {
-            await restoreMainWindows()
             throw error
         }
     }
@@ -361,28 +362,22 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         self.countdown = 0
 
         defer { isCapturing = false }
-        
-        await hideMainWindows()
-        try? await Task.sleep(nanoseconds: 150_000_000)
 
         do {
             // 延时结束后重新检测鼠标所在屏幕（用户在倒计时期间可能已移动到其它屏幕）
             let screen = activeScreen()
             let backgroundImage = try await captureScreen(screen)
-            
+
             let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
             self.overlayWindow = overlay
             overlay.mode = .areaSelection
-            
+
             // 直接进入全屏标注模式
             overlay.enterFullScreenAnnotationDirectly()
-            
+
             overlay.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
             try await waitForOverlayToClose(overlay)
-            await restoreMainWindows()
         } catch {
-            await restoreMainWindows()
             throw error
         }
     }
@@ -431,15 +426,27 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
     /// 截取指定屏幕的全屏图像（逻辑分辨率）
     /// macOS 14+ 使用 SCScreenshotManager（异步、非阻塞）
     /// macOS 13   降级使用 CGDisplayCreateImage
-    private func captureScreen(_ screen: NSScreen) async throws -> NSImage {
+    ///
+    /// - Parameter content: 可选已获取的 `SCShareableContent`。传入后会复用其 `displays`，
+    ///   避免再次调用 `SCShareableContent.excludingDesktopWindows` 触发第二次 WindowServer
+    ///   IPC 枚举（典型耗时 100-300ms）。调用方在窗口截图/智能截图入口处会先 await 一次
+    ///   `SCShareableContent.current`，这里直接复用同一份。
+    private func captureScreen(_ screen: NSScreen,
+                              content providedContent: SCShareableContent? = nil) async throws -> NSImage {
         let displayID = (screen.deviceDescription[
             NSDeviceDescriptionKey(rawValue: "NSScreenNumber")] as? CGDirectDisplayID) ?? CGMainDisplayID()
         let scale = screen.backingScaleFactor
 
         if #available(macOS 14.0, *) {
             do {
-                let content = try await SCShareableContent.excludingDesktopWindows(
-                    false, onScreenWindowsOnly: true)
+                // 优先复用调用方已获取的 content，避免重复 SCShareableContent 枚举
+                let content: SCShareableContent
+                if let provided = providedContent {
+                    content = provided
+                } else {
+                    content = try await SCShareableContent.excludingDesktopWindows(
+                        false, onScreenWindowsOnly: true)
+                }
                 guard let scDisplay = content.displays.first(where: { $0.displayID == displayID })
                         ?? content.displays.first else {
                     throw ScreenCaptureError.noScreenAvailable
@@ -542,7 +549,6 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
         // 显示标注编辑器窗口
         let editorWindow = AnnotationEditorWindow(screenshot: processed)
         editorWindow.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
     }
 
     // MARK: - 圆角处理
@@ -646,7 +652,7 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
     func saveWithAutoName(_ image: NSImage) throws -> URL {
         let settings = ScreenshotSettings.shared
         let fileName = generateFileName(settings: settings)
-        let directoryURL = URL(fileURLWithPath: settings.saveDirectory)
+        let directoryURL = SandboxManager.shared.writableURL(for: settings.saveDirectory)
 
         // 确保目录存在
         try FileManager.default.createDirectory(at: directoryURL,
@@ -736,29 +742,6 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             return "SnapClick_截图_\(dateString)"
         }
     }
-
-    // MARK: - 临时隐藏主窗口以防截图时干扰或在长截图时弹窗
-    private var temporarilyHiddenWindows: [NSWindow] = []
-
-    @MainActor
-    private func hideMainWindows() {
-        temporarilyHiddenWindows.removeAll()
-        for window in NSApp.windows {
-            let title = window.title
-            if title == "SnapClick 设置" || title == "欢迎使用 SnapClick".localized || title == "Welcome to SnapClick" {
-                if window.isVisible {
-                    temporarilyHiddenWindows.append(window)
-                    window.orderOut(nil)
-                }
-            }
-        }
-    }
-
-    @MainActor
-    private func restoreMainWindows() {
-        for window in temporarilyHiddenWindows {
-            window.makeKeyAndOrderFront(nil)
-        }
-        temporarilyHiddenWindows.removeAll()
-    }
 }
+
+

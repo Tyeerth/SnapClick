@@ -80,6 +80,31 @@ struct ShortcutsSettingsView: View {
                 }
             }
 
+            // ── 音频录制分组 ─────────────────────────────────────────────
+            VStack(alignment: .leading, spacing: 10) {
+                SectionLabel(title: "音频录制".localized, icon: "waveform.circle", color: .purple)
+
+                HStack(spacing: 12) {
+                    ShortcutCard(
+                        icon: "mic.fill",
+                        iconColor: .purple,
+                        title: "开始录音".localized,
+                        subtitle: "按设置开始录制麦克风或系统音频".localized,
+                        hotkey: $settings.hotkeyAudioRecord
+                    )
+                    ShortcutCard(
+                        icon: "stop.circle",
+                        iconColor: Color(red: 168/255, green: 85/255, blue: 247/255),
+                        title: "停止录音".localized,
+                        subtitle: "停止并保存当前音频录制".localized,
+                        hotkey: $settings.hotkeyStopAudioRecord
+                    )
+                    // 占位，保持三列对齐
+                    Color.clear
+                        .frame(maxWidth: .infinity)
+                }
+            }
+
             // ── 贴图 & 取色分组 ──────────────────────────────────────────
             VStack(alignment: .leading, spacing: 10) {
                 SectionLabel(title: "贴图 & 取色".localized, icon: "pin.circle", color: .indigo)

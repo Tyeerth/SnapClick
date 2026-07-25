@@ -83,7 +83,8 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         let screen = activeScreen()
         let bgImage = try await captureScreen(screen)
 
-        // 显示专属选区覆盖层等待用户拖拽和配置参数
+        // 显示专属选区覆盖层，底部已自带 RecordingSelectionHUDView
+        // 用户在覆盖层上拖完选区 → 在底部 HUD 上选清晰度等参数 → 点"开始录制"
         let (selectedRect, selectedWindow) = try await showSelectionOverlay(
             background: bgImage,
             screen: screen
@@ -91,6 +92,9 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         guard let rect = selectedRect else {
             throw ScreenRecordingError.userCancelled
         }
+
+        let quality = currentVideoQuality()
+        let areaScreen = NSScreen.screens.first(where: { $0.frame.intersects(rect) }) ?? screen
 
         // 提前显示四角闪烁标识，让用户在倒计时期间明确录制范围
         let indicator = RecordingAreaIndicatorWindow(recordingRect: rect)
@@ -108,7 +112,12 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         }
 
         // 开始录制选定区域
-        try await startRecording(captureRect: rect, targetWindow: selectedWindow)
+        try await startRecording(
+            captureRect: rect,
+            targetWindow: selectedWindow,
+            targetScreen: areaScreen,
+            quality: quality
+        )
     }
 
     // MARK: - 公共接口：全屏录制
@@ -118,9 +127,16 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
             throw ScreenRecordingError.permissionDenied
         }
 
+        // 三种录制模式（选区 / 窗口 / 全屏）共用同一份横向 HUD（RecordingSelectionHUDView）：
+        //   - 选区 / 窗口录制：RecordSelectionOverlayWindow 自带底部 HUD
+        //   - 全屏录制      ：RecordHUDStandaloneWindow 单独承载 HUD（无选区）
+        // HUD 上的所有参数（含清晰度档位）会写入 AppSettings，
+        // 启动录制时从这里读取 → 转为 VideoQuality 喂给 AVAssetWriter。
+        let screen = try await showStandaloneHUD()
+        let quality = currentVideoQuality()
+
         // 全屏录制同样显示四角闪烁标识，让用户明确录制范围
         // 向内收缩 5px，抵消指示器窗口的对外扩展，确保四角标识完整贴合屏幕边缘可见
-        let screen = activeScreen()
         let indicatorRect = screen.frame.insetBy(dx: 5, dy: 5)
         let indicator = RecordingAreaIndicatorWindow(recordingRect: indicatorRect)
         self.areaIndicatorWindow = indicator
@@ -134,7 +150,12 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
             throw error
         }
 
-        try await startRecording(captureRect: nil, targetWindow: nil)  // nil = 全屏
+        try await startRecording(
+            captureRect: nil,
+            targetWindow: nil,
+            targetScreen: screen,
+            quality: quality
+        )
     }
 
     // MARK: - 公共接口：窗口录制
@@ -150,7 +171,8 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         let screen = activeScreen()
         let bgImage = try await captureScreen(screen)
 
-        // 显示专属窗口覆盖层，等待用户选择和配置参数
+        // 显示专属窗口覆盖层，底部已自带 RecordingSelectionHUDView
+        // 用户在覆盖层上点选窗口 → 在底部 HUD 上选清晰度等参数 → 点"开始录制"
         let (selectedRect, selectedWindow) = try await showSelectionOverlay(
             background: bgImage,
             windows: windows,
@@ -159,6 +181,15 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         )
         guard let rect = selectedRect else {
             throw ScreenRecordingError.userCancelled
+        }
+
+        let quality = currentVideoQuality()
+        let windowScreen: NSScreen
+        if let win = selectedWindow,
+           let matched = NSScreen.screens.first(where: { $0.frame.intersects(win.frame) }) {
+            windowScreen = matched
+        } else {
+            windowScreen = NSScreen.screens.first(where: { $0.frame.intersects(rect) }) ?? screen
         }
 
         // 提前显示四角闪烁标识，让用户在倒计时期间明确录制范围
@@ -177,7 +208,12 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         }
 
         // 开始独立窗口录制
-        try await startRecording(captureRect: rect, targetWindow: selectedWindow)
+        try await startRecording(
+            captureRect: rect,
+            targetWindow: selectedWindow,
+            targetScreen: windowScreen,
+            quality: quality
+        )
     }
 
     // MARK: - 暂停/继续录制
@@ -319,7 +355,50 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
             }
 
             overlay.makeKeyAndOrderFront(nil)
+        }
+    }
+
+    // MARK: - 私有：独立 HUD 面板（全屏录制场景）
+    /// 全屏录制没有选区可拖，单独显示一份不带选区的横向 HUD（含"屏幕"下拉）。
+    /// 等用户点"开始录制"才返回：返回用户在 HUD 中选中的那块屏幕；
+    /// 找不到匹配屏时兑底到鼠标所在屏；点"取消"/ESC 抛 userCancelled。
+    ///
+    /// 注意：不要在 HUD 已经显示后再调用 panel.setFrame / panel.center——
+    ///   panel 自己的 init 已经按 hostScreen 正中算好 frame，
+    ///   重复设置会覆盖掉用户已经拖到的位置，体验上会看到 HUD 突然跳回屏幕正中。
+    private func showStandaloneHUD() async throws -> NSScreen {
+        let hostScreen = NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) })
+            ?? NSScreen.main
+            ?? NSScreen.screens[0]
+
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<NSScreen, Error>) in
+            let panel = RecordHUDStandaloneWindow(hostScreen: hostScreen)
+            panel.onRecord = {
+                // 用户在 HUD 的"屏幕"下拉里可能改过目标屏幕，
+                // 按名字匹配，没匹配上（拔显示器/重命名）就兑底到鼠标屏
+                let savedName = AppSettings.shared.recordFullScreenScreenName
+                let picked = NSScreen.screens.first(where: { $0.localizedName == savedName && !savedName.isEmpty })
+                    ?? NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) })
+                    ?? NSScreen.main
+                    ?? hostScreen
+                continuation.resume(returning: picked)
+            }
+            panel.onCancel = {
+                continuation.resume(throwing: ScreenRecordingError.userCancelled)
+            }
+            panel.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
+        }
+    }
+
+    // MARK: - 私有：当前选中的清晰度档位
+    /// 把 AppSettings.recordQuality（"标清" / "超清" / "原画"）映射为 VideoQuality 枚举，
+    /// 用于喂给 AVAssetWriter 的码率/编码参数。
+    private func currentVideoQuality() -> VideoQuality {
+        switch AppSettings.shared.recordQuality {
+        case "标清": return .standard
+        case "原画": return .original
+        default:     return .high  // 默认 / "超清"
         }
     }
 
@@ -460,19 +539,22 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
             self.countdownWindow = window
             window.makeKeyAndOrderFront(nil)
             window.center()
-            NSApp.activate(ignoringOtherApps: true)
         }
         self.countdownWindow = nil
     }
 
 
     // MARK: - 私有：核心录制启动
-    private func startRecording(captureRect: CGRect?, targetWindow: SCWindow? = nil) async throws {
+    private func startRecording(
+        captureRect: CGRect?,
+        targetWindow: SCWindow? = nil,
+        targetScreen: NSScreen? = nil,
+        quality: VideoQuality = .high
+    ) async throws {
         let settings = AppSettings.shared
 
         // ── 准备输出文件路径 ──────────────────────────────────────
-        let saveDir = URL(fileURLWithPath: settings.recordSavePath
-                            .replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path))
+        let saveDir = SandboxManager.shared.writableURL(for: settings.recordSavePath)
         try FileManager.default.createDirectory(at: saveDir, withIntermediateDirectories: true)
 
         let dateFormatter = DateFormatter()
@@ -490,7 +572,11 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         // 计算录制尺寸：以 captureRect 实际所在的屏幕为基准，避免在多屏/不同缩放比下
         // 用 NSScreen.main 的 backingScaleFactor 计算出错误的像素尺寸，
         // 导致 SCStream 输出的帧尺寸与 AVAssetWriterInput 期望尺寸不一致、append 静默失败、文件不完整。
+        // 优先级：用户显式指定的 targetScreen > 选区所在屏幕 > 主屏
         let screen: NSScreen = {
+            if let explicit = targetScreen {
+                return explicit
+            }
             if let rect = captureRect,
                let matched = NSScreen.screens.first(where: { $0.frame.intersects(rect) }) {
                 return matched
@@ -498,23 +584,24 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
             return NSScreen.main ?? NSScreen.screens[0]
         }()
         let screenScale = screen.backingScaleFactor
-        
+
         var baseRect = captureRect ?? CGRect(
             origin: .zero,
             size: CGSize(width: screen.frame.width, height: screen.frame.height)
         )
 
-        // 输出像素尺寸：基于用户选定的选区原始像素尺寸（保持其宽高比，不改变选区大小），
-        // 再按分辨率档位限制最长边。这样切换分辨率只会影响编码输出大小，不会改动用户已经
-        // 拖拽好的录制区域窗口。
+        // 原画画质：保留选区/屏幕的完整像素尺寸
+        // 超清/标清：按比例缩到对应档位对应的"参考像素上限"
         let nativeWidthPx  = baseRect.width  * screenScale
         let nativeHeightPx = baseRect.height * screenScale
 
-        // 取目标"最长边"上限（点）；"与选区匹配"则不限制
+        // 不同质量档位对应的"最长边像素上限"，控制最终输出文件体积
+        // 标清 → 1280  长边；超清 → 1920  长边；原画 → 不限制
         let maxLongSidePx: CGFloat? = {
-            switch settings.recordResolution {
-            case "原画": return 3840
-            default:    return nil
+            switch quality {
+            case .standard: return 1280
+            case .high:     return 1920
+            case .original: return nil
             }
         }()
 
@@ -531,65 +618,43 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
 
         var videoWidth  = Int(targetWidthPx.rounded())
         var videoHeight = Int(targetHeightPx.rounded())
-        
+
         // 保证宽高为偶数，防止 AVAssetWriter 报错
-        videoWidth = videoWidth - (videoWidth % 2)
+        videoWidth  = videoWidth  - (videoWidth  % 2)
         videoHeight = videoHeight - (videoHeight % 2)
 
-        // 视频编码轨设置
-        let codecKey = settings.recordCodec == "HEVC" ? AVVideoCodecType.hevc : AVVideoCodecType.h264
-
-        // ── 视频码率 ──────────────────────────────────────────────
-        // 屏幕录制内容多为静态 UI / 文字，时空冗余极高，码率边际效益快速衰减。
-        // 这里采用行业惯例（参考 OBS、QuickTime、ScreenFlow 默认值），
-        // 在保持文字/UI 锐利度的同时显著降低文件体积。
-        //
-        //  分辨率         H.264      HEVC
-        //  4K (≥3840)     80 Mbps   40 Mbps
-        //  2K (≥2560)     40 Mbps   20 Mbps
-        //  1080p (≥1920)  20 Mbps   10 Mbps
-        //  720p 及以下    10 Mbps    5 Mbps
-        let baseH264Bitrate: Int
-        switch videoWidth {
-        case 3840...: baseH264Bitrate = 80_000_000
-        case 2560...: baseH264Bitrate = 40_000_000
-        case 1920...: baseH264Bitrate = 20_000_000
-        default:      baseH264Bitrate = 10_000_000
-        }
-        // 高帧率额外补偿（60fps +50%，120fps +100%），保证每帧码率不衰减
-        let fpsFactor: Double
-        switch settings.recordFPS {
-        case 120...: fpsFactor = 2.0
-        case 60...:  fpsFactor = 1.5
-        default:     fpsFactor = 1.0
-        }
-        let scaledH264 = Int(Double(baseH264Bitrate) * fpsFactor)
-        let targetBitrate = settings.recordCodec == "HEVC"
-            ? scaledH264 / 2
-            : scaledH264
-
-        // H.264 Profile：1080p 及以上或高帧率选 High，保证编码器能充分利用码率
-        let h264Profile = (videoWidth >= 1920 || settings.recordFPS > 30)
-            ? AVVideoProfileLevelH264HighAutoLevel
-            : AVVideoProfileLevelH264MainAutoLevel
+        // ── 编码参数（仿 Snapzy RecordingVideoEncodingSettings） ──────────
+        let formatIsMOV = (settings.recordFormat == "MOV")
+        let codec = RecordingVideoEncodingSettings.preferredCodec(
+            formatIsMOV: formatIsMOV,
+            quality: quality
+        )
+        let bitrate = RecordingVideoEncodingSettings.calculatedBitrate(
+            width: videoWidth,
+            height: videoHeight,
+            fps: settings.recordFPS,
+            quality: quality,
+            codec: codec
+        )
 
         // 关键帧间隔固定为 1 秒（= FPS 帧）：
         //   - 太长（如 5s）：P 帧积累误差，快速滚动时会拖影/模糊
         //   - 1s 是屏幕录制的行业惯例，兼顾随机访问与压缩效率
         var compressionProps: [String: Any] = [
-            AVVideoAverageBitRateKey:               targetBitrate,
+            AVVideoAverageBitRateKey:               bitrate,
             AVVideoMaxKeyFrameIntervalKey:          settings.recordFPS,
             AVVideoMaxKeyFrameIntervalDurationKey:  1.0,
             AVVideoExpectedSourceFrameRateKey:      settings.recordFPS,
             AVVideoAllowFrameReorderingKey:         false,
         ]
-        if settings.recordCodec != "HEVC" {
-            compressionProps[AVVideoProfileLevelKey] = h264Profile
+        // H.264 才设置 profile level + CABAC；HEVC 用自己的 profile，不在此处指定
+        if codec == .h264 {
+            compressionProps[AVVideoProfileLevelKey] = quality.h264ProfileLevel
             compressionProps[AVVideoH264EntropyModeKey] = AVVideoH264EntropyModeCABAC
         }
 
         let videoSettings: [String: Any] = [
-            AVVideoCodecKey:                 codecKey,
+            AVVideoCodecKey:                 codec,
             AVVideoWidthKey:                 videoWidth,
             AVVideoHeightKey:                videoHeight,
             AVVideoColorPropertiesKey: [
@@ -838,6 +903,14 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         do {
             let input = try AVCaptureDeviceInput(device: device)
             let output = AVCaptureAudioDataOutput()
+
+            // 显式指定 Float32 线性 PCM 输出，避免依赖硬件默认格式产生歧义。
+            output.audioSettings = [
+                AVFormatIDKey:          kAudioFormatLinearPCM,
+                AVLinearPCMBitDepthKey: 32,
+                AVLinearPCMIsFloatKey:  true,
+                AVLinearPCMIsNonInterleaved: false
+            ]
 
             let micSession = AVCaptureSession()
             if micSession.canAddInput(input) { micSession.addInput(input) }

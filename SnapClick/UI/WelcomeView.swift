@@ -252,6 +252,14 @@ struct WelcomeView: View {
                                         PermissionManager.shared.requestFinderExtensionPermission()
                                     }
                                 )
+                                WelcomePermCard(
+                                    icon: "mic.fill",
+                                    iconColor: Color(red: 168/255, green: 85/255, blue: 247/255),
+                                    title: "麦克风 (Microphone)".localized,
+                                    description: "用于音频录音功能，可在系统设置中随时调整".localized,
+                                    isGranted: permission.hasMicrophonePermission,
+                                    onAuthorize: { PermissionManager.shared.requestMicrophonePermission() }
+                                )
                             }
                             .padding(.horizontal, 20)
 

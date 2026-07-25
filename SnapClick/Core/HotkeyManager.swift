@@ -131,7 +131,34 @@ final class HotkeyManager: ObservableObject {
                 }
             }
         }
-        
+
+        // 开始音频录音 → 先弹参数面板，由 StatusBarController 统一处理
+        register(settings.hotkeyAudioRecord, name: "开始录音") {
+            Task { @MainActor in
+                guard !AudioRecordingEngine.shared.isRecording else { return }
+                // 发通知，StatusBarController 收到后弹预启动面板
+                NotificationCenter.default.post(name: .showAudioPreLaunchPanel, object: nil)
+            }
+        }
+
+        // 停止音频录音
+        register(settings.hotkeyStopAudioRecord, name: "停止录音") {
+            Task { @MainActor in
+                guard AudioRecordingEngine.shared.isRecording else { return }
+                do {
+                    let fileURL = try await AudioRecordingEngine.shared.stopRecording()
+                    NSWorkspace.shared.activateFileViewerSelecting([fileURL])
+                } catch {
+                    let alert = NSAlert()
+                    alert.messageText = "停止录音失败"
+                    alert.informativeText = error.localizedDescription
+                    alert.alertStyle = .warning
+                    alert.addButton(withTitle: "好的")
+                    alert.runModal()
+                }
+            }
+        }
+
         if eventTap == nil {
             startListening()
         }

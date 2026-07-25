@@ -12,20 +12,6 @@ final class AppSettings: ObservableObject {
     static let shared = AppSettings()
 
     private init() {
-        // 历史遗留：录制分辨率档位文案演进
-        //   720p / 1080p / 2K / 标准 → 已废弃，回落为「与选区匹配」
-        //   4K / 超清 → 原画
-        let key = "recordResolution"
-        if let old = UserDefaults.standard.string(forKey: key) {
-            switch old {
-            case "720p", "1080p", "2K", "标准":
-                UserDefaults.standard.set("与选区匹配", forKey: key)
-            case "4K", "超清":
-                UserDefaults.standard.set("原画", forKey: key)
-            default:
-                break
-            }
-        }
     }
 
     // MARK: 截图设置
@@ -175,9 +161,16 @@ final class AppSettings: ObservableObject {
     @AppStorage("recordFPS")
     var recordFPS: Int = 60
 
-    /// 分辨率（与选区匹配 / 原画）
-    @AppStorage("recordResolution")
-    var recordResolution: String = "与选区匹配"
+    /// 录制清晰度档位（"标清" / "超清" / "原画"）
+    /// 录制前参数面板（RecordingSelectionHUDView）下拉选项写入此处
+    @AppStorage("recordQuality")
+    var recordQuality: String = "超清"
+
+    /// 全屏录制的目标屏幕（按 NSScreen.localizedName 匹配）
+    /// 录制前参数面板的"屏幕"下拉写入此处；
+    /// ScreenRecordingEngine 启动时按名字匹配，找不到时兑底到鼠标所在屏
+    @AppStorage("recordFullScreenScreenName")
+    var recordFullScreenScreenName: String = ""
 
     /// 录制系统音频
     @AppStorage("recordSystemAudio")
@@ -210,6 +203,48 @@ final class AppSettings: ObservableObject {
     /// 默认录制范围/模式（"area" / "screen" / "window"）
     @AppStorage("recordDefaultMode")
     var recordDefaultMode: String = "area"
+
+    // MARK: 音频录音设置
+
+    /// 音频录音保存路径
+    @AppStorage("audioRecordSavePath")
+    var audioRecordSavePath: String = "~/Desktop"
+
+    /// 音频质量（"经济" / "标准" / "高质量"）
+    @AppStorage("audioRecordQuality")
+    var audioRecordQuality: String = "标准"
+
+    /// 音频采样率（Hz，44100 / 48000）
+    @AppStorage("audioRecordSampleRate")
+    var audioRecordSampleRate: Int = 44_100
+
+    /// 录音声道数（1 单声道 / 2 立体声）
+    @AppStorage("audioRecordChannels")
+    var audioRecordChannels: Int = 2
+
+    /// 麦克风设备名称（"无" 表示不录麦克风）
+    @AppStorage("audioRecordMicrophone")
+    var audioRecordMicrophone: String = "无"
+
+    /// 录制系统音频（macOS 13+）
+    @AppStorage("audioRecordSystemAudio")
+    var audioRecordSystemAudio: Bool = true
+
+    /// 录音倒计时秒数（0 表示关闭）
+    @AppStorage("audioRecordCountdown")
+    var audioRecordCountdown: Int = 3
+
+    /// 录音时自动调整麦克风音量
+    @AppStorage("audioRecordAutoAdjust")
+    var audioRecordAutoAdjust: Bool = true
+
+    /// 开始录音快捷键
+    @AppStorage("hotkeyAudioRecord")
+    var hotkeyAudioRecord: String = "ctrl+shift+m"
+
+    /// 停止录音快捷键
+    @AppStorage("hotkeyStopAudioRecord")
+    var hotkeyStopAudioRecord: String = "ctrl+shift+n"
 }
 
 // MARK: - LanguageManager
@@ -454,15 +489,67 @@ public final class LanguageManager: ObservableObject {
 
             // 屏幕录制 - 新增
             "屏幕录制": "Screen Recording",
+            "音频录制": "Audio Recording",
+            "按设置开始录制麦克风或系统音频": "Start recording microphone and/or system audio per settings",
+            "停止并保存当前音频录制": "Stop and save the current audio recording",
+            "开始录音": "Start Recording",
+            "停止录音": "Stop Recording",
+            "取消录音": "Cancel Recording",
+            "确定取消": "Discard",
+            "继续录音": "Continue Recording",
+            "确定要取消录音吗？": "Discard this recording?",
+            "取消录音将不会保存本次录制的音频文件，并且无法恢复。": "The current audio will be discarded and cannot be recovered. To keep it, click Stop first.",
+            "录音中...": "Recording...",
+            "录音已暂停": "Recording Paused",
+            "正在录音...": "Recording...",
+            "音频源": "Audio Source",
+            "输出格式": "Output Format",
+            "系统音频": "System Audio",
+            "需要 macOS 13 或更高版本": "Requires macOS 13 or later",
+            "质量": "Quality",
+            "采样率": "Sample Rate",
+            "声道": "Channels",
+            "立体声": "Stereo",
+            "单声道": "Mono",
+            "倒计时": "Countdown",
+            "3 秒": "3 sec",
+            "5 秒": "5 sec",
+            "10 秒": "10 sec",
+            "M4A": "M4A",
+            "M4A (只读)": "M4A (read-only)",
+            "麦克风权限": "Microphone Permission",
+            "需要麦克风权限": "Microphone Permission Required",
+            "请在系统设置 → 隐私与安全性 → 麦克风中授权 SnapClick。": "Please authorize SnapClick in System Settings → Privacy & Security → Microphone.",
+            "音频预览": "Audio Preview",
+            "DURATION": "DURATION",
+            "FORMAT": "FORMAT",
+            "RATE": "RATE",
+            "无法开始录音": "Cannot Start Recording",
+            "无法开始音频录音": "Cannot Start Audio Recording",
+            "停止录音失败": "Failed to Stop Recording",
+            "屏幕录制进行中，请先停止屏幕录制再开始音频录音。": "Screen recording is in progress. Stop it first to start audio recording.",
+            "暂停录音": "Pause Recording",
+            "麦克风测试": "Microphone Test",
+            "检测麦克风": "Test Microphone",
+            "停止检测": "Stop Testing",
+            "输入等级": "Input Level",
+            "输入音量": "Input Volume",
+            "自动调整麦克风音量": "Auto Adjust Microphone Volume",
+            "录制时自动调整增益，避免音量过小或爆音": "Auto-adjust gain during recording to avoid quiet or clipped audio",
+            "正在进行其他录制任务，请先停止后再检测麦克风": "Another recording is in progress. Stop it before testing the microphone.",
+            "请先选择麦克风设备": "Please select a microphone first",
+            "找不到可用的麦克风设备": "No available microphone found",
+            "无法启动麦克风：": "Cannot start microphone: ",
             "录制预览": "Recording Preview",
             "录制范围": "Recording Area",
             "选区录制": "Area Selection",
             "全屏录制": "Full Screen",
             "应用窗口": "App Window",
             "视频参数": "Video Settings",
-            "分辨率": "Resolution",
-            "与选区匹配": "Match Selection",
-            "原画": "Original Quality",
+            "清晰度": "Quality",
+            "标清": "SD",
+            "超清": "HD",
+            "原画": "Original",
             "帧率": "Frame Rate",
             "视频格式": "Format",
             "编解码": "Codec",
@@ -701,14 +788,66 @@ public final class LanguageManager: ObservableObject {
 
             // 画面録画 - 新增
             "屏幕录制": "画面録画",
-            "录制预览": "録画プレビュー",
+            "音频录制": "音声録音",
+            "开始录音": "録音開始",
+            "停止录音": "録音停止",
+            "取消录音": "録音をキャンセル",
+            "确定取消": "破棄",
+            "继续录音": "録音再開",
+            "确定要取消录音吗？": "録音を破棄しますか？",
+            "取消录音将不会保存本次录制的音频文件，并且无法恢复。": "現在の音声は破棄され、復元できません。残す場合は、先に停止ボタンをクリックしてください。",
+            "录音中...": "録音中...",
+            "录音已暂停": "録音一時停止中",
+            "正在录音...": "録音中...",
+            "音频源": "音声ソース",
+            "输出格式": "出力形式",
+            "系统音频": "システム音声",
+            "需要 macOS 13 或更高版本": "macOS 13 以降が必要",
+            "质量": "音質",
+            "采样率": "サンプリングレート",
+            "声道": "チャンネル",
+            "立体声": "ステレオ",
+            "单声道": "モノラル",
+            "倒计时": "カウントダウン",
+            "3 秒": "3 秒",
+            "5 秒": "5 秒",
+            "10 秒": "10 秒",
+            "M4A": "M4A",
+            "M4A (只读)": "M4A（読み取り専用）",
+            "麦克风权限": "マイクの権限",
+            "需要麦克风权限": "マイクの権限が必要です",
+            "请在系统设置 → 隐私与安全性 → 麦克风中授权 SnapClick。": "システム設定 → プライバシーとセキュリティ → マイク で SnapClick を承認してください。",
+            "音频预览": "音声プレビュー",
+            "DURATION": "DURATION",
+            "FORMAT": "FORMAT",
+            "RATE": "RATE",
+            "无法开始录音": "録音を開始できません",
+            "无法开始音频录音": "音声録音を開始できません",
+            "停止录音失败": "録音停止に失敗",
+            "屏幕录制进行中，请先停止屏幕录制再开始音频录音。": "画面録画中です。先に停止してから音声録音を開始してください。",
+            "暂停录音": "録音一時停止",
+            "麦克风测试": "マイクテスト",
+            "检测麦克风": "マイクをテスト",
+            "停止检测": "テスト停止",
+            "输入等级": "入力レベル",
+            "输入音量": "入力音量",
+            "自动调整麦克风音量": "マイク音量を自動調整",
+            "录制时自动调整增益，避免音量过小或爆音": "録音中にゲインを自動調整し、音量の過不足を防ぎます",
+            "正在进行其他录制任务，请先停止后再检测麦克风": "別の録画が進行中です。マイクをテストする前に停止してください",
+            "请先选择麦克风设备": "まずマイクを選択してください",
+            "找不到可用的麦克风设备": "利用可能なマイクが見つかりません",
+            "无法启动麦克风：": "マイクを起動できません：",
+            "麦克风权限被拒绝": "マイクの権限が拒否されました",
+            "麦克风权限被拒绝，请在「系统设置 → 隐私与安全性 → 麦克风」中打开": "マイクの権限が拒否されました。「システム設定 → プライバシーとセキュリティ → マイク」で有効にしてください",
+            " 可能正被其他应用占用": " は他のアプリで使用中の可能性があります",
             "录制范围": "録画範囲",
             "选区录制": "範囲選択",
             "全屏录制": "全画面",
             "应用窗口": "アプリウィンドウ",
             "视频参数": "映像設定",
-            "分辨率": "解像度",
-            "与选区匹配": "選択範囲に合わせる",
+            "清晰度": "画質",
+            "标清": "SD",
+            "超清": "HD",
             "原画": "オリジナル画質",
             "帧率": "フレームレート",
             "视频格式": "フォーマット",

@@ -269,37 +269,40 @@ enum DT {
 // MARK: - 侧边栏导航项
 
 enum SettingsDestination: String, CaseIterable, Identifiable, Hashable {
-    case general     = "general"
-    case screenshot  = "screenshot"
-    case recording   = "recording"
-    case pinAndColor = "pinAndColor"
-    case contextMenu = "contextMenu"
-    case shortcuts   = "shortcuts"
-    case about       = "about"
+    case general         = "general"
+    case screenshot      = "screenshot"
+    case recording       = "recording"
+    case audioRecording  = "audioRecording"
+    case pinAndColor     = "pinAndColor"
+    case contextMenu     = "contextMenu"
+    case shortcuts       = "shortcuts"
+    case about           = "about"
 
     var id: String { rawValue }
 
     var localizedTitle: String {
         switch self {
-        case .general:     return "通用".localized
-        case .screenshot:  return "截图与标注".localized
-        case .recording:   return "屏幕录制".localized
-        case .pinAndColor: return "贴图 & 取色".localized
-        case .contextMenu: return "Finder 右键".localized
-        case .shortcuts:   return "快捷键".localized
-        case .about:       return "关于".localized
+        case .general:         return "通用".localized
+        case .screenshot:      return "截图与标注".localized
+        case .recording:       return "屏幕录制".localized
+        case .audioRecording:  return "音频录制".localized
+        case .pinAndColor:     return "贴图 & 取色".localized
+        case .contextMenu:     return "Finder 右键".localized
+        case .shortcuts:       return "快捷键".localized
+        case .about:           return "关于".localized
         }
     }
 
     var symbolName: String {
         switch self {
-        case .general:     return "gearshape"
-        case .screenshot:  return "camera.viewfinder"
-        case .recording:   return "record.circle"
-        case .pinAndColor: return "pin.circle"
-        case .contextMenu: return "folder.badge.gearshape"
-        case .shortcuts:   return "keyboard"
-        case .about:       return "info.circle"
+        case .general:         return "gearshape"
+        case .screenshot:      return "camera.viewfinder"
+        case .recording:       return "record.circle"
+        case .audioRecording:  return "waveform.circle.fill"
+        case .pinAndColor:     return "pin.circle"
+        case .contextMenu:     return "folder.badge.gearshape"
+        case .shortcuts:       return "keyboard"
+        case .about:           return "info.circle"
         }
     }
 }
@@ -659,6 +662,8 @@ private struct DetailView: View {
                             ScreenshotSettingsView()
                         case .recording:
                             RecordingSettingsView()
+                        case .audioRecording:
+                            AudioRecordingSettingsView()
                         case .pinAndColor:
                             PinColorSettingsView()
                         case .contextMenu:
@@ -1191,6 +1196,7 @@ private struct ScreenshotSettingsView: View {
                                         panel.canChooseDirectories = true
                                         panel.allowsMultipleSelection = false
                                         if panel.runModal() == .OK, let url = panel.url {
+                                            SandboxManager.shared.saveBookmark(for: url)
                                             settings.screenshotSavePath = url.path
                                         }
                                     }
@@ -1739,22 +1745,20 @@ private struct RecordingSettingsView: View {
                     DesignCard {
                         VStack(spacing: 0) {
 
-                            // 分辨率
+                            // 清晰度（与 HUD 共用 recordQuality，设置面板调档位后 HUD 打开时直接同步显示）
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("分辨率".localized)
+                                    Text("清晰度".localized)
                                         .font(.system(size: 13, weight: .medium))
                                         .foregroundStyle(.customPrimaryText)
-                                    Text("Recording Resolution")
+                                    Text("Recording Quality")
                                         .font(.system(size: 10))
                                         .foregroundStyle(.secondary)
                                 }
                                 Spacer()
-                                Picker("", selection: $settings.recordResolution) {
-                                    Text("与选区匹配".localized).tag("与选区匹配")
-                                    if settings.recordDefaultMode == "window" {
-                                        Text("与窗口匹配".localized).tag("与窗口匹配")
-                                    }
+                                Picker("", selection: $settings.recordQuality) {
+                                    Text("标清".localized).tag("标清")
+                                    Text("超清".localized).tag("超清")
                                     Text("原画".localized).tag("原画")
                                 }
                                 .labelsHidden()
@@ -1988,31 +1992,6 @@ private struct RecordingSettingsView: View {
 
     private func updateRecordingMode(_ mode: String) {
         settings.recordDefaultMode = mode
-
-        // 历史遗留：旧档位文案演进
-        switch settings.recordResolution {
-        case "720p", "1080p", "2K", "标准":
-            settings.recordResolution = "与选区匹配"
-        case "4K", "超清":
-            settings.recordResolution = "原画"
-        default:
-            break
-        }
-
-        // 联动调整分辨率选项
-        if mode == "area" {
-            if settings.recordResolution == "与窗口匹配" {
-                settings.recordResolution = "与选区匹配"
-            }
-        } else if mode == "screen" {
-            if settings.recordResolution == "与窗口匹配" {
-                settings.recordResolution = "与选区匹配"
-            }
-        } else if mode == "window" {
-            if settings.recordResolution == "与选区匹配" {
-                settings.recordResolution = "与窗口匹配"
-            }
-        }
     }
 }
 

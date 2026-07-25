@@ -575,10 +575,10 @@ final class RecordSelectionOverlayView: NSView {
             )
             
             let hostingView = NSHostingView(rootView: hudView)
-            hostingView.frame = CGRect(x: 0, y: 0, width: 840, height: 76)
-            
+            hostingView.frame = CGRect(x: 0, y: 0, width: 880, height: 64)
+
             let panel = NSWindow(
-                contentRect: CGRect(x: 0, y: 0, width: 840, height: 76),
+                contentRect: CGRect(x: 0, y: 0, width: 880, height: 64),
                 styleMask: [.borderless],
                 backing: .buffered,
                 defer: false
@@ -599,15 +599,15 @@ final class RecordSelectionOverlayView: NSView {
     
     private func updateHUDPosition() {
         guard let hud = hudWindow else { return }
-        
-        let hudWidth: CGFloat = 840
-        let hudHeight: CGFloat = 76
+
+        let hudWidth: CGFloat = 880
+        let hudHeight: CGFloat = 64
         let margin: CGFloat = 12
-        
+
         let screenFrame = NSScreen.main?.frame ?? CGRect(x: 0, y: 0, width: 1440, height: 900)
-        
+
         var x = selectedRect.midX - hudWidth / 2
-        
+
         // 优先放在选区上方，其次选区下方，若上下都超出屏幕（如全屏/满屏窗口）则浮在选区内部底部
         var y: CGFloat
         if selectedRect.minY - hudHeight - margin >= 10 {
@@ -617,7 +617,7 @@ final class RecordSelectionOverlayView: NSView {
         } else {
             y = selectedRect.minY + margin
         }
-        
+
         // 兜底夹紧，确保 HUD 始终完整可见
         y = max(10, min(y, screenFrame.height - hudHeight - 10))
         x = max(10, min(x, screenFrame.width - hudWidth - 10))
@@ -645,10 +645,20 @@ struct RecordingSelectionHUDView: View {
     let onRecord: () -> Void
     let onCancel: () -> Void
     let onResolutionChange: (String) -> Void
-    
+
+    /// 是否显示"屏幕"下拉：仅全屏录制场景下需要
+    /// 选区/窗口录制时不需要（屏幕由选区/窗口位置决定）
+    var showsScreenSelection: Bool = false
+
     @ObservedObject private var settings = AppSettings.shared
     @State private var microphones: [String] = ["无"]
     @State private var isCursorHovered = false
+
+    /// 独立 HUD（带"屏幕"下拉）比选区底部 HUD 多 ~150px，
+    /// 必须和 RecordHUDStandaloneWindow.hudWidth 保持一致，否则内容会被裁掉
+    private var hudFrameWidth: CGFloat {
+        showsScreenSelection ? 1030 : 880
+    }
     
     private var savePathDisplayName: String {
         let path = settings.recordSavePath
@@ -663,19 +673,50 @@ struct RecordingSelectionHUDView: View {
     
     var body: some View {
         HStack(spacing: 10) {
-            
-            // ── 1. 分辨率 ───────────────────────────────────────
+
+            // ── 0. 屏幕（仅全屏录制场景，由 showsScreenSelection 控制） ────
+            if showsScreenSelection {
+                HUDDropdown(
+                    label: "屏幕",
+                    selection: Binding(
+                        get: {
+                            let saved = settings.recordFullScreenScreenName
+                            if !saved.isEmpty,
+                               NSScreen.screens.contains(where: { $0.localizedName == saved }) {
+                                return saved
+                            }
+                            return NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) })?.localizedName
+                                ?? NSScreen.main?.localizedName
+                                ?? NSScreen.screens.first?.localizedName
+                                ?? ""
+                        },
+                        set: { newName in
+                            settings.recordFullScreenScreenName = newName
+                        }
+                    ),
+                    options: NSScreen.screens.enumerated().map { idx, screen in
+                        let isMain = (screen == NSScreen.main)
+                        return "屏幕 \(idx + 1)" + (isMain ? " · 主屏" : "")
+                    },
+                    width: 124
+                )
+                .help("选择要录制的屏幕（多屏环境）")
+
+                HUDSeparator()
+            }
+
+            // ── 1. 清晰度（3 档：标清 / 超清 / 原画） ───────────────
             HUDDropdown(
-                label: "RESOLUTION",
-                selection: $settings.recordResolution,
-                options: ["与选区匹配", "原画"],
+                label: "清晰度",
+                selection: $settings.recordQuality,
+                options: ["标清", "超清", "原画"],
                 width: 90,
                 onChange: onResolutionChange
             )
-            
+
             // ── 2. 格式与编码 ──────────────────────────────────────
             HUDDropdown(
-                label: "FORMAT",
+                label: "格式",
                 selection: Binding(
                     get: { "\(settings.recordFormat) (\(settings.recordCodec))" },
                     set: { val in
@@ -689,10 +730,10 @@ struct RecordingSelectionHUDView: View {
                 options: ["MOV (H.264)", "MOV (HEVC)", "MP4 (H.264)", "MP4 (HEVC)"],
                 width: 110
             )
-            
+
             // ── 3. 帧率 ──────────────────────────────────────────
             HUDDropdown(
-                label: "FPS",
+                label: "帧率",
                 selection: Binding(
                     get: { "\(settings.recordFPS) fps" },
                     set: { settings.recordFPS = Int($0.replacingOccurrences(of: " fps", with: "")) ?? 60 }
@@ -700,36 +741,36 @@ struct RecordingSelectionHUDView: View {
                 options: ["30 fps", "60 fps", "120 fps"],
                 width: 66
             )
-            
+
             HUDSeparator()
-            
+
             // ── 4. 麦克风 ─────────────────────────────────────────
             HStack(spacing: 4) {
                 Image(systemName: "mic.fill")
                     .font(.system(size: 11))
                     .foregroundColor(Color(white: 1.0, opacity: 0.8))
                     .padding(.top, 10)
-                
+
                 HUDDropdown(
-                    label: "MIC",
+                    label: "麦克风",
                     selection: $settings.recordMicrophone,
                     options: microphones,
                     width: 110
                 )
             }
-            
+
             // ── 5. 系统声音 ────────────────────────────────────────
             VStack(alignment: .leading, spacing: 3) {
-                Text("SYS AUDIO")
+                Text("系统声音")
                     .font(.system(size: 8, weight: .bold))
                     .foregroundColor(Color(white: 1.0, opacity: 0.4))
-                
+
                 HStack(spacing: 4) {
                     Image(systemName: settings.recordSystemAudio ? "speaker.wave.2.fill" : "speaker.slash.fill")
                         .font(.system(size: 11))
                         .foregroundColor(settings.recordSystemAudio ? .green : Color(white: 1.0, opacity: 0.8))
                         .frame(width: 14)
-                    
+
                     Button(action: {
                         settings.recordSystemAudio.toggle()
                     }) {
@@ -748,13 +789,13 @@ struct RecordingSelectionHUDView: View {
                 }
                 .frame(height: 24)
             }
-            
+
             // ── 6. 鼠标指针高亮 ────────────────────────────────────
             VStack(alignment: .leading, spacing: 3) {
-                Text("CURSOR")
+                Text("鼠标")
                     .font(.system(size: 8, weight: .bold))
                     .foregroundColor(Color(white: 1.0, opacity: 0.4))
-                
+
                 Button(action: {
                     settings.recordHighlightCursor.toggle()
                 }) {
@@ -775,13 +816,13 @@ struct RecordingSelectionHUDView: View {
                 }
             }
             .help("录像中是否显示并高亮鼠标指针")
-            
+
             // ── 7. 保存路径 ────────────────────────────────────────
             VStack(alignment: .leading, spacing: 3) {
-                Text("SAVE TO")
+                Text("保存到")
                     .font(.system(size: 8, weight: .bold))
                     .foregroundColor(Color(white: 1.0, opacity: 0.4))
-                
+
                 HUDFolderButton(action: {
                     let panel = NSOpenPanel()
                     panel.canChooseDirectories = true
@@ -793,38 +834,42 @@ struct RecordingSelectionHUDView: View {
                 }, savePathDisplayName: savePathDisplayName)
             }
             .help("修改保存路径: \(settings.recordSavePath)")
-            
+
             HUDSeparator()
-            
+
             // ── 8. 定时倒计时 ──────────────────────────────────────
             HUDDropdown(
-                label: "TIMER",
+                label: "倒计时",
                 selection: Binding(
-                    get: { settings.recordTimer == 0 ? "Off" : "\(settings.recordTimer)s" },
+                    get: { settings.recordTimer == 0 ? "关" : "\(settings.recordTimer)秒" },
                     set: {
-                        if $0 == "Off" {
+                        if $0 == "关" {
                             settings.recordTimer = 0
                         } else {
-                            settings.recordTimer = Int($0.replacingOccurrences(of: "s", with: "")) ?? 0
+                            let s = $0.replacingOccurrences(of: "秒", with: "")
+                            settings.recordTimer = Int(s) ?? 0
                         }
                     }
                 ),
-                options: ["Off", "3s", "5s", "10s"],
-                width: 50
+                options: ["关", "3秒", "5秒", "10秒"],
+                width: 60
             )
-            
+
+            // 倒计时和动作按钮之间留一点视觉间隔即可，不要占满整行
+            // （之前用 Spacer() 会把按钮推到 HUD 最右端，全屏 HUD 1030pt 宽时中间空一大段）
             Spacer(minLength: 0)
-            
+                .frame(maxWidth: 16)
+
             // ── 9. 动作按钮 ───────────────────────────────────────
             HUDCancelButton(action: onCancel)
                 .help("取消录屏 (ESC)")
-            
+
             HUDRecordButton(action: onRecord)
                 .help("开始录制")
-            
+
         }
         .padding(.horizontal, 14)
-        .frame(width: 840, height: 64)
+        .frame(width: hudFrameWidth, height: 64)
         .background(
             VisualEffectView(material: .hudWindow, blendingMode: .withinWindow)
                 .cornerRadius(22)

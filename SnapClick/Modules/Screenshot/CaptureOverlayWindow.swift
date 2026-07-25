@@ -712,7 +712,7 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
     // MARK: - 绘制长截图状态提示
     private func drawScrollingCaptureStatus(context: CGContext) {
         let rect = selectedRect
-        let text = "正在捕获长截图...  按 Enter 保存 | ESC 取消"
+        let text = "正在捕获长截图，请缓慢滚动页面...  按 Enter 保存 | ESC 取消"
 
         let attrs: [NSAttributedString.Key: Any] = [
             .font:            NSFont.systemFont(ofSize: 13, weight: .semibold),
@@ -1766,7 +1766,7 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
                                 self.showToast("长截图已保存！已复制到剪贴板")
                             } catch {
                                 // 回退保存到桌面
-                                let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
+                                let desktopURL = SandboxManager.shared.writableURL(for: "~/Desktop")
                                 let fallbackURL = desktopURL.appendingPathComponent(fileName)
                                 try? pngData.write(to: fallbackURL)
                                 self.showToast("长截图已保存到桌面！已复制到剪贴板")
@@ -1784,11 +1784,14 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
     
     /// 更新实时预览缩略图
     private func updateThumbnail(with image: NSImage) {
+        guard isScrollingCaptureActive else { return }
         let thumbnailScaleFactor: CGFloat = 0.25
         let thumbnailWidth = max(180, min(image.size.width * thumbnailScaleFactor, 300))
-        let extraHeight: CGFloat = 28
-        let thumbnailHeight = max(120, min(image.size.height * thumbnailScaleFactor, 500)) + extraHeight
-        let thumbnailSize = NSSize(width: thumbnailWidth, height: thumbnailHeight)
+        let previewHeight = max(120, min(image.size.height * thumbnailScaleFactor, 500))
+        let statusBarHeight: CGFloat = 26
+        let spacing: CGFloat = 8
+        let totalHeight = previewHeight + statusBarHeight + spacing
+        let thumbnailSize = NSSize(width: thumbnailWidth, height: totalHeight)
         
         // 计算缩略图位置（选区右侧贴近一点的距离）
         let rectInScreen = self.window?.convertToScreen(self.convert(self.selectedRect, to: nil)) ?? self.selectedRect
@@ -1825,6 +1828,7 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
             window.level = .statusBar
             window.isOpaque = false
             window.backgroundColor = .clear
+            window.hasShadow = true
             window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             window.contentView = thumbnailView
             window.ignoresMouseEvents = true
@@ -2393,45 +2397,53 @@ class StitchingManager {
 class LongScreenshotThumbnailView: NSView {
     private var image: NSImage
     private var imageView: NSImageView!
+    private var imageContainerView: NSView!
     private var statusBar: NSVisualEffectView!
     private var statusLabel: NSTextField!
     private var statusDot: NSView!
 
-    private let statusBarHeight: CGFloat = 22
+    private let statusBarHeight: CGFloat = 26
+    private let spacing: CGFloat = 8
     private let edgeInset: CGFloat = 4
 
     init(image: NSImage, size: NSSize) {
         self.image = image
         super.init(frame: NSRect(origin: .zero, size: size))
 
+        // 整个外部容器视图保持完全透明，我们只对子 View 进行边框/圆角处理
         wantsLayer = true
-        layer?.cornerRadius = 8
-        layer?.masksToBounds = true
-        layer?.borderColor = NSColor.white.withAlphaComponent(0.55).cgColor
-        layer?.borderWidth = 1
-        layer?.backgroundColor = NSColor.black.withAlphaComponent(0.65).cgColor
 
-        // 图片视图
-        imageView = NSImageView(frame: imageViewFrame())
+        // 1. 创建用于包裹预览图的容器 View（带 8px 圆角和 1px 细白边）
+        imageContainerView = NSView(frame: imageContainerFrame())
+        imageContainerView.wantsLayer = true
+        imageContainerView.layer?.cornerRadius = 8
+        imageContainerView.layer?.masksToBounds = true
+        imageContainerView.layer?.borderColor = NSColor.white.withAlphaComponent(0.55).cgColor
+        imageContainerView.layer?.borderWidth = 1
+        imageContainerView.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.65).cgColor
+        addSubview(imageContainerView)
+
+        // 2. 图片视图（作为 imageContainerView 的子视图添加）
+        imageView = NSImageView(frame: imageContainerView.bounds.insetBy(dx: edgeInset, dy: edgeInset))
         imageView.imageScaling = .scaleProportionallyUpOrDown
         imageView.image = image
         imageView.autoresizingMask = [.width, .height]
         imageView.wantsLayer = true
-        addSubview(imageView)
+        imageContainerView.addSubview(imageView)
 
-        // 状态条（暗色毛玻璃 HUD，保证在任何背景下都清晰）
+        // 3. 状态条（作为一个悬浮在外的独立卡片，带 6px 圆角和 0.5px 边框）
         statusBar = NSVisualEffectView(frame: statusBarFrame())
         statusBar.material = .hudWindow
         statusBar.blendingMode = .withinWindow
         statusBar.state = .active
         statusBar.wantsLayer = true
-        statusBar.layer?.cornerRadius = 5
+        statusBar.layer?.cornerRadius = 6
         statusBar.layer?.masksToBounds = true
         statusBar.layer?.borderColor = NSColor.white.withAlphaComponent(0.18).cgColor
         statusBar.layer?.borderWidth = 0.5
         addSubview(statusBar)
 
-        // 状态指示小圆点（保留蓝色作为状态标识，但只是小点不影响阅读）
+        // 状态指示小圆点
         statusDot = NSView(frame: .zero)
         statusDot.wantsLayer = true
         statusDot.layer?.backgroundColor = NSColor.systemBlue.cgColor
@@ -2463,33 +2475,44 @@ class LongScreenshotThumbnailView: NSView {
     }
 
     private func statusBarFrame() -> NSRect {
-        NSRect(x: edgeInset + 2,
-               y: bounds.height - statusBarHeight - edgeInset,
-               width: bounds.width - (edgeInset + 2) * 2,
+        NSRect(x: 0,
+               y: bounds.height - statusBarHeight,
+               width: bounds.width,
                height: statusBarHeight)
     }
 
-    private func imageViewFrame() -> NSRect {
-        NSRect(x: edgeInset,
-               y: edgeInset,
-               width: bounds.width - edgeInset * 2,
-               height: bounds.height - statusBarHeight - edgeInset * 2 - 4)
+    private func imageContainerFrame() -> NSRect {
+        NSRect(x: 0,
+               y: 0,
+               width: bounds.width,
+               height: bounds.height - statusBarHeight - spacing)
     }
 
     private func layoutStatusBarContents() {
         let h = statusBar.bounds.height
         let dotSize: CGFloat = 6
-        statusDot.frame = NSRect(x: 8, y: (h - dotSize) / 2, width: dotSize, height: dotSize)
-        statusLabel.frame = NSRect(x: 8 + dotSize + 6,
-                                   y: 0,
-                                   width: statusBar.bounds.width - (8 + dotSize + 6) - 6,
-                                   height: h)
+        let startX: CGFloat = 12
+        let spacing: CGFloat = 6
+        
+        let text = statusLabel.stringValue
+        let font = statusLabel.font ?? NSFont.systemFont(ofSize: 11, weight: .semibold)
+        let attrs: [NSAttributedString.Key: Any] = [.font: font]
+        let textSize = text.size(withAttributes: attrs)
+        let labelHeight = textSize.height
+        
+        statusDot.frame = NSRect(x: startX, y: (h - dotSize) / 2, width: dotSize, height: dotSize)
+        statusLabel.frame = NSRect(x: startX + dotSize + spacing,
+                                   y: (h - labelHeight) / 2,
+                                   width: statusBar.bounds.width - (startX + dotSize + spacing) - 10,
+                                   height: labelHeight)
+        statusLabel.alignment = .left
     }
 
     func updateImage(_ newImage: NSImage, size: NSSize) {
         self.image = newImage
         imageView.image = newImage
-        imageView.frame = imageViewFrame()
+        imageContainerView.frame = imageContainerFrame()
+        imageView.frame = imageContainerView.bounds.insetBy(dx: edgeInset, dy: edgeInset)
         statusBar.frame = statusBarFrame()
         layoutStatusBarContents()
     }
@@ -2556,7 +2579,7 @@ class LongScreenshotBorderView: NSView {
         context.fill(CGRect(x: selectedRect.maxX - cornerWidth, y: selectedRect.minY, width: cornerWidth, height: cornerLength))
         
         // 4. 绘制状态提示条
-        let statusText = "正在捕获长截图... 按 Enter 保存 | ESC 取消"
+        let statusText = "正在捕获长截图，请缓慢滚动页面... 按 Enter 保存 | ESC 取消"
         let attrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: 12, weight: .semibold),
             .foregroundColor: NSColor.white

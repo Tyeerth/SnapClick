@@ -14,6 +14,9 @@ final class StatusBarController: NSObject {
     
     private var recordingTimer: Timer?
     private var flashState: Bool = false
+    private var audioRecordingHUD: AudioRecordingHUDWindow?
+    /// 录音前参数面板（保留强引用，防止 ARC 过早释放）
+    private var audioPreLaunchPanel: AudioRecordingPreLaunchPanel?
 
     // MARK: 初始化
 
@@ -34,8 +37,17 @@ final class StatusBarController: NSObject {
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleRecordingStart), name: .recordingDidStart, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRecordingStop), name: .recordingDidStop, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAudioRecordingStart), name: .audioRecordingDidStart, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAudioRecordingStop), name: .audioRecordingDidStop, object: nil)
+        // 热键路径触发弹出参数面板
+        NotificationCenter.default.addObserver(self, selector: #selector(handleShowAudioPreLaunchPanel), name: .showAudioPreLaunchPanel, object: nil)
     }
     
+    @objc private func handleShowAudioPreLaunchPanel() {
+        showAudioPreLaunchPanel()
+    }
+
     @objc private func defaultsChanged() {
         setupMenu()
     }
@@ -180,6 +192,31 @@ final class StatusBarController: NSObject {
             action: #selector(recordWindow)
         )
         menu.addItem(recWindowItem)
+
+        menu.addItem(.separator())
+
+        // ── 音频录制组 ───────────────────────────────────────────
+        if !AudioRecordingEngine.shared.isRecording {
+            let startAudioT = parse(settings.hotkeyAudioRecord)
+            let startAudioItem = makeItem(
+                title: "开始录音".localized,
+                symbolName: "mic.fill",
+                shortcut: startAudioT.shortcut,
+                modifiers: startAudioT.modifiers,
+                action: #selector(startAudioRecording)
+            )
+            menu.addItem(startAudioItem)
+        } else {
+            let stopAudioT = parse(settings.hotkeyStopAudioRecord)
+            let stopAudioItem = makeItem(
+                title: "停止录音".localized,
+                symbolName: "stop.fill",
+                shortcut: stopAudioT.shortcut,
+                modifiers: stopAudioT.modifiers,
+                action: #selector(stopAudioRecording)
+            )
+            menu.addItem(stopAudioItem)
+        }
 
         menu.addItem(.separator())
 
@@ -559,7 +596,7 @@ final class StatusBarController: NSObject {
         alert.alertStyle = .warning
         alert.addButton(withTitle: "确定取消".localized)
         alert.addButton(withTitle: "继续录制".localized)
-        
+
         if alert.runModal() == .alertFirstButtonReturn {
             Task { @MainActor in
                 do {
@@ -570,12 +607,231 @@ final class StatusBarController: NSObject {
             }
         }
     }
+
+    // MARK: - 音频录音菜单动作
+
+    @objc private func startAudioRecording() {
+        // 菜单消失动画结束后再弹面板，避免层级冲突
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            self.showAudioPreLaunchPanel()
+        }
+    }
+
+    /// 弹出录音前参数选择面板
+    private func showAudioPreLaunchPanel() {
+        // 如果面板已存在（如快捷键连按），先关闭旧的
+        audioPreLaunchPanel?.orderOut(nil)
+        audioPreLaunchPanel = nil
+
+        let panel = AudioRecordingPreLaunchPanel()
+
+        panel.onRecord = { [weak self] in
+            self?.audioPreLaunchPanel = nil
+            self?.doStartAudioRecording()
+        }
+        panel.onCancel = { [weak self] in
+            self?.audioPreLaunchPanel = nil
+        }
+
+        self.audioPreLaunchPanel = panel
+        panel.makeKeyAndOrderFront(nil)
+        panel.center()
+    }
+
+    /// 真正执行录音启动（面板确认后调用）
+    private func doStartAudioRecording() {
+        Task { @MainActor in
+            do {
+                try await AudioRecordingEngine.shared.startRecording()
+            } catch AudioRecordingError.permissionDenied {
+                self.showAudioPermissionAlert()
+            } catch AudioRecordingError.conflictWithScreenRecording {
+                let alert = NSAlert()
+                alert.messageText = "无法开始音频录音".localized
+                alert.informativeText = "屏幕录制进行中，请先停止屏幕录制再开始音频录音。".localized
+                alert.alertStyle = .warning
+                alert.addButton(withTitle: "好的".localized)
+                alert.runModal()
+            } catch {
+                print("[状态栏] 开始录音失败: \(error)")
+                let alert = NSAlert()
+                alert.messageText = "无法开始录音".localized
+                alert.informativeText = error.localizedDescription
+                alert.alertStyle = .warning
+                alert.addButton(withTitle: "好的".localized)
+                alert.runModal()
+            }
+        }
+    }
+
+    @objc private func stopAudioRecording() {
+        Task { @MainActor in
+            do {
+                let fileURL = try await AudioRecordingEngine.shared.stopRecording()
+                NSWorkspace.shared.activateFileViewerSelecting([fileURL])
+            } catch {
+                print("[状态栏] 停止录音失败: \(error)")
+            }
+        }
+    }
+
+    @objc private func toggleAudioPause() {
+        let engine = AudioRecordingEngine.shared
+        if engine.isPaused {
+            engine.resumeRecording()
+        } else {
+            engine.pauseRecording()
+        }
+        setupAudioRecordingMenu()
+    }
+
+    @objc private func cancelAudioRecording() {
+        let alert = NSAlert()
+        alert.messageText = "确定要取消录音吗？".localized
+        alert.informativeText = "取消录音将不会保存本次录制的音频文件，并且无法恢复。".localized
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "确定取消".localized)
+        alert.addButton(withTitle: "继续录音".localized)
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            Task { @MainActor in
+                do {
+                    try await AudioRecordingEngine.shared.cancelRecording()
+                } catch {
+                    print("[状态栏] 取消录音失败: \(error)")
+                }
+            }
+        }
+    }
+
+    private func showAudioPermissionAlert() {
+        let alert = NSAlert()
+        alert.messageText = "需要麦克风权限".localized
+        alert.informativeText = "请授予 SnapClick 麦克风权限以录制音频，请到「系统设置 → 隐私与安全性 → 麦克风」中打开 SnapClick。".localized
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "授权".localized)
+        alert.addButton(withTitle: "取消".localized)
+        if alert.runModal() == .alertFirstButtonReturn {
+            // requestMicrophonePermission 内部会按 authorizationStatus 分流：
+            // .notDetermined → 弹系统授权框；.denied → 跳系统设置页
+            PermissionManager.shared.requestMicrophonePermission()
+        }
+    }
+
+    // MARK: - 音频录音 HUD 与动态菜单
+
+    private func showAudioHUD() {
+        if audioRecordingHUD == nil {
+            let hud = AudioRecordingHUDWindow(
+                onPauseResume: { [weak self] in self?.toggleAudioPause() },
+                onStop: { [weak self] in self?.stopAudioRecording() },
+                onCancel: { [weak self] in self?.cancelAudioRecording() }
+            )
+            audioRecordingHUD = hud
+        }
+        audioRecordingHUD?.orderFrontRegardless()
+    }
+
+    private func hideAudioHUD() {
+        audioRecordingHUD?.orderOut(nil)
+        audioRecordingHUD = nil
+    }
+
+    private func setupAudioRecordingMenu() {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+        menu.delegate = self
+
+        let engine = AudioRecordingEngine.shared
+        let statusText = engine.isPaused ? "录音已暂停".localized : "正在录音...".localized
+        let statusItem = NSMenuItem(title: statusText, action: nil, keyEquivalent: "")
+        statusItem.isEnabled = false
+        menu.addItem(statusItem)
+
+        menu.addItem(.separator())
+
+        let pauseTitle = engine.isPaused ? "继续录音".localized : "暂停录音".localized
+        let pauseSymbol = engine.isPaused ? "play.fill" : "pause.fill"
+        let pauseItem = makeItem(
+            title: pauseTitle,
+            symbolName: pauseSymbol,
+            shortcut: "",
+            modifiers: [],
+            action: #selector(toggleAudioPause)
+        )
+        menu.addItem(pauseItem)
+
+        let stopItem = makeItem(
+            title: "停止并保存".localized,
+            symbolName: "stop.fill",
+            shortcut: "",
+            modifiers: [],
+            action: #selector(stopAudioRecording)
+        )
+        menu.addItem(stopItem)
+
+        let cancelItem = makeItem(
+            title: "取消录音".localized,
+            symbolName: "trash",
+            shortcut: "",
+            modifiers: [],
+            action: #selector(cancelAudioRecording)
+        )
+        menu.addItem(cancelItem)
+
+        self.statusItem.menu = menu
+
+        for item in menu.items {
+            item.target = self
+        }
+    }
+
+    @objc private func handleAudioRecordingStart() {
+        showAudioHUD()
+        setupAudioRecordingMenu()
+
+        recordingTimer?.invalidate()
+        let timer = Timer(timeInterval: 0.5, target: self, selector: #selector(updateAudioRecordingStatus), userInfo: nil, repeats: true)
+        RunLoop.main.add(timer, forMode: .common)
+        recordingTimer = timer
+
+        updateAudioRecordingStatus()
+    }
+
+    @objc private func handleAudioRecordingStop() {
+        recordingTimer?.invalidate()
+        recordingTimer = nil
+
+        if let button = statusItem.button {
+            button.title = ""
+            setupIcon()
+        }
+
+        hideAudioHUD()
+        setupMenu()
+    }
+
+    @objc private func updateAudioRecordingStatus() {
+        guard let button = statusItem.button else { return }
+        let engine = AudioRecordingEngine.shared
+
+        let durationStr = formatDuration(engine.recordingDuration)
+        button.title = " " + durationStr
+
+        let config = NSImage.SymbolConfiguration(paletteColors: [.systemRed])
+        let symbolName = engine.isPaused ? "pause.circle.fill" : "mic.fill"
+        if let img = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil) {
+            button.image = img.withSymbolConfiguration(config)
+        }
+    }
 }
 
 extension StatusBarController: NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
         if ScreenRecordingEngine.shared.isRecording {
             setupRecordingMenu()
+        } else if AudioRecordingEngine.shared.isRecording {
+            setupAudioRecordingMenu()
         }
     }
 }
