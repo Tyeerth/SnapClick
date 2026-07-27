@@ -239,6 +239,7 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             let overlay = CaptureOverlayWindow(backgroundImage: backgroundImage, screen: screen)
             self.overlayWindow = overlay
             overlay.mode = .areaSelection
+            NSApp.activate(ignoringOtherApps: true)
             overlay.makeKeyAndOrderFront(nil)
 
             try await waitForOverlayToClose(overlay)
@@ -391,7 +392,6 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             overlay.onCancelled = { [weak self] in
                 // 必须 orderOut + close 一起调用：仅 orderOut 会让窗口在内存中残留，
                 // 下次按 ESC 时 NSApp 仍会向该 keyWindow 投递 keyDown，导致需要按两次 ESC 才能退出
-                NSCursor.unhide()
                 overlay.orderOut(nil)
                 overlay.close()
                 self?.overlayWindow = nil
@@ -401,7 +401,6 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
             }
 
             overlay.onFinished = { [weak self] in
-                NSCursor.unhide()
                 overlay.orderOut(nil)
                 overlay.close()
                 self?.overlayWindow = nil
@@ -649,10 +648,12 @@ class ScreenCaptureEngine: NSObject, ObservableObject {
 
     /// 根据命名规则生成文件名并保存到默认目录
     @discardableResult
-    func saveWithAutoName(_ image: NSImage) throws -> URL {
+    func saveWithAutoName(_ image: NSImage) async throws -> URL {
         let settings = ScreenshotSettings.shared
         let fileName = generateFileName(settings: settings)
-        let directoryURL = SandboxManager.shared.writableURL(for: settings.saveDirectory)
+        guard let directoryURL = await SandboxManager.shared.ensureWritableURL(for: settings.saveDirectory) else {
+            throw ScreenCaptureError.saveFailed("无法获取可写入的保存目录")
+        }
 
         // 确保目录存在
         try FileManager.default.createDirectory(at: directoryURL,

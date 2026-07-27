@@ -513,21 +513,33 @@ class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate {
     @objc private func clearAction() { canvas.clear(); updateButtonStates() }
 
     @objc private func doneAction() {
-        // 点击 Done：一键保存到桌面并复制到剪贴板，随后优雅地关闭窗口
+        // 点击 Done：先复制到剪贴板再异步保存到磁盘，保存失败弹 alert 告知用户
         let exported = canvas.exportAsImage()
         ScreenCaptureEngine.shared.copyToClipboard(exported)
-        
-        let path = (AppSettings.shared.screenshotSavePath as NSString).expandingTildeInPath
+
         let fmt = DateFormatter()
         fmt.dateFormat = "yyyy-MM-dd_HH.mm.ss"
-        let fileURL = URL(fileURLWithPath: path).appendingPathComponent("SnapClick_截图_\(fmt.string(from: Date())).png")
-        
-        do {
-            try ScreenCaptureEngine.shared.saveScreenshot(exported, to: fileURL.path)
-        } catch {
-            print("自动保存失败: \(error)")
-        }
+        let fileName = "SnapClick_截图_\(fmt.string(from: Date())).png"
+
+        let savePath = AppSettings.shared.screenshotSavePath
         self.close()
+
+        Task { @MainActor in
+            guard let directoryURL = await SandboxManager.shared.ensureWritableURL(for: savePath) else {
+                return
+            }
+            let fileURL = directoryURL.appendingPathComponent(fileName)
+            do {
+                try ScreenCaptureEngine.shared.saveScreenshot(exported, to: fileURL.path)
+            } catch {
+                let alert = NSAlert()
+                alert.messageText = "保存截图失败"
+                alert.informativeText = "无法保存到 \(fileURL.path)\n错误：\(error.localizedDescription)"
+                alert.alertStyle = .warning
+                alert.addButton(withTitle: "确定")
+                alert.runModal()
+            }
+        }
     }
 
     @objc private func cancelAction() {

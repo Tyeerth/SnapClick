@@ -141,7 +141,7 @@ final class AudioRecordingEngine: NSObject, ObservableObject {
         }
 
         // 准备输出文件
-        try prepareOutputURL()
+        try await prepareOutputURL()
 
         // 启动 AVAssetWriter + 音频输入轨
         try setupAssetWriter()
@@ -317,9 +317,11 @@ final class AudioRecordingEngine: NSObject, ObservableObject {
 
     // MARK: - 私有：准备输出文件
 
-    private func prepareOutputURL() throws {
+    private func prepareOutputURL() async throws {
         let settings = AppSettings.shared
-        let saveDir = SandboxManager.shared.writableURL(for: settings.audioRecordSavePath)
+        guard let saveDir = await SandboxManager.shared.ensureWritableURL(for: settings.audioRecordSavePath) else {
+            throw AudioRecordingError.engineStartFailed("无法获取可写入的保存目录")
+        }
         try FileManager.default.createDirectory(at: saveDir, withIntermediateDirectories: true)
 
         let formatter = DateFormatter()

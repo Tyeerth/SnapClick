@@ -66,26 +66,7 @@ final class SandboxManager {
     func stopAccessing(url: URL) {
         url.stopAccessingSecurityScopedResource()
     }
-    
-    // MARK: - 便捷方法：获取可写入的目录 URL
-    
-    /// 将路径字符串解析为可写入的 URL（处理沙盒权限）
-    /// - Parameter path: 保存路径（可能是 ~/Desktop 或绝对路径）
-    /// - Returns: 可写入的 URL，如果沙盒权限不足则返回 App 容器内的路径
-    func writableURL(for path: String) -> URL {
-        let expandedPath = path.replacingOccurrences(of: "~", with: NSHomeDirectory())
-        let targetURL = URL(fileURLWithPath: expandedPath)
-        
-        // 尝试通过 bookmark 访问
-        if let accessibleURL = accessDirectory(at: expandedPath) {
-            return accessibleURL
-        }
-        
-        // 如果无法访问用户目录，回退到 App 容器的 Documents 目录
-        let containerURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return containerURL
-    }
-    
+
     /// 检查路径是否可写，如果不可写则弹出目录选择器
     /// - Parameter path: 原始保存路径
     /// - Returns: 可写入的 URL

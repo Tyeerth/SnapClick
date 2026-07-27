@@ -42,14 +42,16 @@ class CaptureOverlayWindow: NSWindow {
 
     func hideCursor() {
         guard !isCursorHidden else { return }
-        NSCursor.hide()
         isCursorHidden = true
+        // 不再隐藏系统光标，改为通过 resetCursorRects 设置自定义蓝色十字光标
+        invalidateCursorRects(for: overlayView)
     }
 
     func unhideCursor() {
         guard isCursorHidden else { return }
-        NSCursor.unhide()
         isCursorHidden = false
+        NSCursor.arrow.set()
+        invalidateCursorRects(for: overlayView)
     }
 
     deinit {
@@ -111,8 +113,8 @@ class CaptureOverlayWindow: NSWindow {
         // 挂载 window 引用到 view，以便 Done 时可以关闭 window
         overlayView.parentWindow = self
 
-        // 智能截图 / 选区截图：使用自定义大十字光标 + 提示
-        // 隐藏系统默认光标，改为在 view 上自绘
+        // 智能截图 / 选区截图：通过系统级 NSCursor 显示蓝色十字光标
+        // 由 macOS WindowServer 在独立进程中渲染，不受主线程阻塞影响
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             switch self.overlayView.mode {
@@ -162,7 +164,10 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
 
     // MARK: 工作模式
     var mode: CaptureOverlayMode = .areaSelection {
-        didSet { needsDisplay = true }
+        didSet {
+            needsDisplay = true
+            window?.invalidateCursorRects(for: self)
+        }
     }
 
     // MARK: 私有属性
@@ -197,6 +202,35 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
     // 鼠标移动节流（避免在 ProMotion 120Hz 下每秒触发上百次 needsDisplay）
     private var lastHoverEvalTime: CFTimeInterval = 0
     private let hoverEvalMinInterval: CFTimeInterval = 1.0 / 60.0
+
+    // MARK: - 系统级蓝色十字光标（由 macOS WindowServer 内核渲染，不受主线程阻塞影响）
+    private static let blueCrosshairCursor: NSCursor = {
+        let armLength: CGFloat = 18
+        let strokeWidth: CGFloat = 2.0
+        let size: CGFloat = armLength * 2 + 4
+        let center = size / 2
+
+        let image = NSImage(size: NSSize(width: size, height: size), flipped: true) { _ in
+            let cursorBlue = NSColor(red: 69.0/255.0, green: 141.0/255.0, blue: 247.0/255.0, alpha: 1.0)
+            cursorBlue.setStroke()
+
+            let path = NSBezierPath()
+            path.lineWidth = strokeWidth
+            path.lineCapStyle = .round
+
+            // 水平线
+            path.move(to: NSPoint(x: center - armLength, y: center))
+            path.line(to: NSPoint(x: center + armLength, y: center))
+
+            // 垂直线
+            path.move(to: NSPoint(x: center, y: center - armLength))
+            path.line(to: NSPoint(x: center, y: center + armLength))
+
+            path.stroke()
+            return true
+        }
+        return NSCursor(image: image, hotSpot: NSPoint(x: center, y: center))
+    }()
 
     // MARK: ── 就地标注模式属性 ──────────────────────────────────────────
     private var isAnnotating = false
@@ -241,6 +275,9 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
         super.init(frame: frame)
         self.wantsLayer = true
 
+        // 强行激活应用，防止从其他 App 切换过来时第一次点击被 AppKit 当作应用激活事件吞掉
+        NSApp.activate(ignoringOtherApps: true)
+
         // 跟踪鼠标移动
         let trackingArea = NSTrackingArea(
             rect: frame,
@@ -251,6 +288,16 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
         addTrackingArea(trackingArea)
 
         // 取消"全部预热"，改为按需懒抓（hover 时拉取）+ NSCache LRU 限制内存峰值
+    }
+
+    // MARK: - 光标管理（系统级）
+    override func resetCursorRects() {
+        discardCursorRects()
+        // 选区/智能模式且未进入标注或窗口确认状态：显示蓝色十字光标
+        if !isAnnotating && !isWindowSelectedPending
+            && (mode == .areaSelection || mode == .combined) {
+            addCursorRect(bounds, cursor: Self.blueCrosshairCursor)
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -310,10 +357,8 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
             drawHint(context: context)
         }
 
-        // 5. 自定义十字光标（覆盖在所有内容之上，确保可见）
-        if !isAnnotating && (mode == .areaSelection || mode == .combined) {
-            drawCustomCursor(context: context)
-        }
+        // 5. 十字光标已改为系统级 NSCursor（通过 resetCursorRects 管理），
+        //    由 macOS WindowServer 在独立进程中渲染，不受主线程阻塞影响
     }
 
     // MARK: - 选区矩形（标准化正方向）
@@ -816,6 +861,11 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
         )
     }
 
+    // MARK: - 第一鼠标响应
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return true
+    }
+
     // MARK: - 鼠标事件
     override func mouseDown(with event: NSEvent) {
         let loc = convert(event.locationInWindow, from: nil)
@@ -1078,13 +1128,13 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
 
     // MARK: - 🌟 核心：进入就地标注模式
     private func enterInPlaceAnnotationMode() {
-        // 选区阶段 init 时调用过 NSCursor.hide() 隐藏系统光标并自绘十字，
-        // 进入标注模式后必须恢复系统光标，否则鼠标会一直"消失"
+        // 恢复系统箭头光标（选区阶段使用的蓝色十字光标由 resetCursorRects 管理）
         parentWindow?.unhideCursor()
         NSCursor.arrow.set()
 
         isAnnotating = true
         needsDisplay = true // 强制重绘，高亮选区，外侧暗化
+        window?.invalidateCursorRects(for: self) // 从十字光标切换回箭头
         let screenHeight = bounds.height
         let cropY = screenHeight - selectedRect.origin.y - selectedRect.height
         let scale = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 1.0
@@ -1746,36 +1796,33 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
                         let pasteboard = NSPasteboard.general
                         pasteboard.clearContents()
                         pasteboard.writeObjects([finalImage])
-                        
-                        // 保存到设置目录
+
+                        // 关闭覆盖层
+                        self.parentWindow?.onFinished?()
+                        self.window?.close()
+
                         if let tiffData = finalImage.tiffRepresentation,
                            let bitmap = NSBitmapImageRep(data: tiffData),
                            let pngData = bitmap.representation(using: .png, properties: [:]) {
                             let dateFormatter = DateFormatter()
                             dateFormatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
                             let fileName = "SnapClick_长截图_\(dateFormatter.string(from: Date())).png"
-                            
-                            // 优先保存到用户设置的截图保存目录
                             let saveDirectory = ScreenshotSettings.shared.saveDirectory
-                            let directoryURL = URL(fileURLWithPath: saveDirectory)
-                            let fileURL = directoryURL.appendingPathComponent(fileName)
-                            
-                            do {
-                                try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
-                                try pngData.write(to: fileURL)
-                                self.showToast("长截图已保存！已复制到剪贴板")
-                            } catch {
-                                // 回退保存到桌面
-                                let desktopURL = SandboxManager.shared.writableURL(for: "~/Desktop")
-                                let fallbackURL = desktopURL.appendingPathComponent(fileName)
-                                try? pngData.write(to: fallbackURL)
-                                self.showToast("长截图已保存到桌面！已复制到剪贴板")
+
+                            Task { @MainActor in
+                                guard let directoryURL = await SandboxManager.shared.ensureWritableURL(for: saveDirectory) else {
+                                    return
+                                }
+                                do {
+                                    try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+                                    let fileURL = directoryURL.appendingPathComponent(fileName)
+                                    try pngData.write(to: fileURL)
+                                    self.showToast("长截图已保存！已复制到剪贴板")
+                                } catch {
+                                    self.showToast("长截图保存失败：\(error.localizedDescription)")
+                                }
                             }
                         }
-                        
-                        // 关闭覆盖层
-                        self.parentWindow?.onFinished?()
-                        self.window?.close()
                     }
                 }
             }
@@ -1977,7 +2024,9 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
         DispatchQueue.main.async {
             let panel = NSSavePanel()
             panel.allowedContentTypes = [.png]
-            panel.nameFieldStringValue = "Screenshot_\(Int(Date().timeIntervalSince1970)).png"
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
+            panel.nameFieldStringValue = "SnapClick_截图_\(dateFormatter.string(from: Date())).png"
             
             if panel.runModal() == .OK, let url = panel.url {
                 if let tiffData = image.tiffRepresentation,

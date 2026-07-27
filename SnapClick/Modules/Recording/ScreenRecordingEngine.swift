@@ -554,7 +554,9 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         let settings = AppSettings.shared
 
         // ── 准备输出文件路径 ──────────────────────────────────────
-        let saveDir = SandboxManager.shared.writableURL(for: settings.recordSavePath)
+        guard let saveDir = await SandboxManager.shared.ensureWritableURL(for: settings.recordSavePath) else {
+            throw ScreenRecordingError.setupFailed("无法获取可写入的保存目录")
+        }
         try FileManager.default.createDirectory(at: saveDir, withIntermediateDirectories: true)
 
         let dateFormatter = DateFormatter()
