@@ -27,7 +27,7 @@ final class HotkeyManager: ObservableObject {
     
     private init() {
         NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.registerAll()
+            Task { @MainActor in self?.registerAll() }
         }
     }
     

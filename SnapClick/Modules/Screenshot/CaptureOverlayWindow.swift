@@ -14,7 +14,7 @@ enum CaptureOverlayMode {
 }
 
 // MARK: - 全屏覆盖层窗口
-class CaptureOverlayWindow: NSWindow {
+class CaptureOverlayWindow: NSWindow, NSWindowDelegate {
 
     // MARK: 回调
     var onAreaSelected:   ((CGRect) -> Void)?
@@ -113,6 +113,9 @@ class CaptureOverlayWindow: NSWindow {
         // 挂载 window 引用到 view，以便 Done 时可以关闭 window
         overlayView.parentWindow = self
 
+        // 自身作为 NSWindowDelegate，以便窗口关闭时回收系统颜色选择器
+        self.delegate = self
+
         // 智能截图 / 选区截图：通过系统级 NSCursor 显示蓝色十字光标
         // 由 macOS WindowServer 在独立进程中渲染，不受主线程阻塞影响
         DispatchQueue.main.async { [weak self] in
@@ -135,6 +138,9 @@ class CaptureOverlayWindow: NSWindow {
             if overlayView.isScrollingCaptureActive {
                 overlayView.stopScrollingCapture(saveMode: .cancel)
             } else {
+                if NSColorPanel.shared.isVisible {
+                    NSColorPanel.shared.orderOut(nil)
+                }
                 onCancelled?()
             }
         } else {
@@ -799,9 +805,7 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
         let maxX = rect.maxX
         let minY = rect.minY
         let maxY = rect.maxY
-        let midX = rect.midX
-        let midY = rect.midY
-        
+
         let p = point
         
         if abs(p.x - minX) < threshold && abs(p.y - minY) < threshold { return .topLeft }
@@ -2044,13 +2048,27 @@ class CaptureOverlayView: NSView, AnnotationCanvasDelegate {
             pasteboard.clearContents()
             pasteboard.writeObjects([image])
         }
+        if NSColorPanel.shared.isVisible {
+            NSColorPanel.shared.orderOut(nil)
+        }
         parentWindow?.onFinished?()
         self.window?.close()
     }
 
     @objc private func cancelAction() {
+        if NSColorPanel.shared.isVisible {
+            NSColorPanel.shared.orderOut(nil)
+        }
         parentWindow?.onCancelled?()
         self.window?.close()
+    }
+
+    // MARK: - NSWindowDelegate
+    /// 覆盖层关闭时同步回收系统颜色选择器，避免点开画板后选色器仍悬浮在桌面
+    func windowWillClose(_ notification: Notification) {
+        if NSColorPanel.shared.isVisible {
+            NSColorPanel.shared.orderOut(nil)
+        }
     }
 
     @objc private func toolButtonClicked(_ sender: NSButton) {
@@ -2299,7 +2317,7 @@ class ColorPresetButton: NSButton {
     }
 }
 
-class StitchingManager {
+class StitchingManager: @unchecked Sendable {
     // MARK: - Properties
     private var runningStitchedImage: NSImage?
     private var previousImage: NSImage?

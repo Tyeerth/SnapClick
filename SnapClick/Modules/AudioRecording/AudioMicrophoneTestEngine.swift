@@ -3,7 +3,7 @@
 // 与 AudioRecordingEngine 互斥：录音进行中禁止开启检测，检测中禁止开始录音
 // 复用 AudioRecordingEngine.computeLevel 计算 RMS
 
-import AVFoundation
+@preconcurrency import AVFoundation
 import Foundation
 
 @MainActor

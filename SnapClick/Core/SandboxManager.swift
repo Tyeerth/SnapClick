@@ -3,6 +3,7 @@ import AppKit
 
 /// 沙盒环境下的文件访问管理器
 /// 负责通过 Security-Scoped Bookmarks 持久化访问用户选择的目录
+@MainActor
 final class SandboxManager {
     static let shared = SandboxManager()
     
@@ -86,13 +87,13 @@ final class SandboxManager {
         
         // 无法写入，弹出目录选择器让用户重新选择
         return await withCheckedContinuation { continuation in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 let panel = NSOpenPanel()
                 panel.canChooseFiles = false
                 panel.canChooseDirectories = true
                 panel.allowsMultipleSelection = false
                 panel.message = "SnapClick 需要访问保存目录，请选择一个文件夹：".localized
-                
+
                 if panel.runModal() == .OK, let url = panel.url {
                     self.saveBookmark(for: url)
                     if url.startAccessingSecurityScopedResource() {

@@ -123,12 +123,8 @@ enum IconCache {
 
     /// 将指定扩展名的系统图标序列化为 PNG Data 的 Base64
     private static func fileTypeIconBase64(ext: String) -> String? {
-        let icon: NSImage
-        if let uttype = UTType(filenameExtension: ext) {
-            icon = NSWorkspace.shared.icon(for: uttype)
-        } else {
-            icon = NSWorkspace.shared.icon(forFileType: ext)
-        }
+        let uttype = UTType(filenameExtension: ext) ?? .data
+        let icon = NSWorkspace.shared.icon(for: uttype)
         icon.size = NSSize(width: 64, height: 64)
         guard let tiff = icon.tiffRepresentation,
               let rep = NSBitmapImageRep(data: tiff),

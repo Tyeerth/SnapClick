@@ -3,7 +3,7 @@
 // 使用 ScreenCaptureKit (macOS 12.3+) 实现屏幕录制功能，集成专属选区层、HUD 控制浮条以及多音轨麦克风捕获
 
 import ScreenCaptureKit
-import AVFoundation
+@preconcurrency import AVFoundation
 import AppKit
 import Combine
 
@@ -587,7 +587,7 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         }()
         let screenScale = screen.backingScaleFactor
 
-        var baseRect = captureRect ?? CGRect(
+        let baseRect = captureRect ?? CGRect(
             origin: .zero,
             size: CGSize(width: screen.frame.width, height: screen.frame.height)
         )
@@ -864,10 +864,9 @@ final class ScreenRecordingEngine: NSObject, ObservableObject {
         alert.addButton(withTitle: "取消录制")
         alert.addButton(withTitle: "继续录制")
         // 默认按钮为"继续录制"（右侧安全项），符合 HIG 销毁性操作规范
-        if let buttons = alert.buttons as? [NSButton] {
-            buttons[1].keyEquivalent = "\r"      // Enter -> 继续录制
-            buttons[0].keyEquivalent = "\u{1B}"   // Esc  -> 取消录制
-        }
+        let buttons = alert.buttons
+        buttons[1].keyEquivalent = "\r"      // Enter -> 继续录制
+        buttons[0].keyEquivalent = "\u{1B}"   // Esc  -> 取消录制
         NSApp.activate(ignoringOtherApps: true)
         let response = alert.runModal()
         if response == .alertFirstButtonReturn {

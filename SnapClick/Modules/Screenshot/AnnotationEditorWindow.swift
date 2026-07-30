@@ -13,7 +13,7 @@ class AnnotationEditorWindowController: NSWindowController {
 }
 
 // MARK: - 标注编辑器窗口
-class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate {
+class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate, NSWindowDelegate {
 
     // MARK: - 子视图
     fileprivate let canvas:       AnnotationCanvas
@@ -31,6 +31,7 @@ class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate {
 
     // MARK: - 颜色和大小控件
     private var colorWell:    NSColorWell!
+    private var colorWellContainer: NSView!
     private var sizeSlider:   NSSlider!
     private var sizeLabel:    NSTextField!
 
@@ -108,6 +109,9 @@ class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate {
         
         // 默认选中矩形工具
         selectTool(.rectangle)
+
+        // 自身作为 NSWindowDelegate，以便在窗口关闭时回收系统颜色选择器
+        self.delegate = self
     }
 
     // MARK: - 内容视图
@@ -214,6 +218,25 @@ class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate {
         colorWell.target = self
         colorWell.action = #selector(colorWellChanged(_:))
         colorWell.toolTip = "更多颜色"
+        colorWell.translatesAutoresizingMaskIntoConstraints = false
+
+        // 圆形高亮容器：用于在 colorWell 被"选中"（当前色不属于预设）时
+        // 叠加与 ColorSwatch 一致的半透明白色光晕
+        colorWellContainer = NSView(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+        colorWellContainer.wantsLayer = true
+        colorWellContainer.layer?.cornerRadius = 12
+        colorWellContainer.layer?.backgroundColor = NSColor.clear.cgColor
+        colorWellContainer.layer?.masksToBounds = true
+        colorWellContainer.translatesAutoresizingMaskIntoConstraints = false
+        colorWellContainer.addSubview(colorWell)
+        NSLayoutConstraint.activate([
+            colorWellContainer.widthAnchor.constraint(equalToConstant: 24),
+            colorWellContainer.heightAnchor.constraint(equalToConstant: 24),
+            colorWell.leadingAnchor.constraint(equalTo: colorWellContainer.leadingAnchor),
+            colorWell.trailingAnchor.constraint(equalTo: colorWellContainer.trailingAnchor),
+            colorWell.topAnchor.constraint(equalTo: colorWellContainer.topAnchor),
+            colorWell.bottomAnchor.constraint(equalTo: colorWellContainer.bottomAnchor)
+        ])
 
         // 快捷正圆色标组件
         var colorButtons: [NSView] = []
@@ -229,7 +252,7 @@ class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate {
         sizeSlider.frame = CGRect(x: 0, y: 0, width: 70, height: 20)
         sizeSlider.toolTip = "线条与字体尺寸"
 
-        let views: [NSView] = [colorWell]
+        let views: [NSView] = [colorWellContainer]
             + colorButtons
             + [makeSeparator(), makeLabel("大小:"), sizeSlider, sizeLabel]
 
@@ -480,23 +503,42 @@ class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate {
 
     // MARK: - 颜色变更
     @objc private func colorWellChanged(_ sender: NSColorWell) {
-        setColor(sender.color)
+        setColor(sender.color, source: .colorWell)
     }
 
-    func setColor(_ color: NSColor) {
+    /// 颜色来源：决定高亮颜色画板还是预设色块，二者互斥
+    fileprivate enum ColorSource {
+        case preset      // 用户点击了预设色块
+        case colorWell   // 用户在颜色画板（高级颜色）中选了色
+    }
+
+    fileprivate func setColor(_ color: NSColor, source: ColorSource = .preset) {
         canvas.currentColor = color
         colorWell?.color    = color
-        
-        // 触发所有子色块重绘，以显示/隐藏白描边高亮态
+
+        // 触发所有子色块重绘
+        // 只有"从预设点击"才允许预设高亮；
+        // 即使用户在高级选色器里选了恰好等于某个预设的颜色，高亮也属于画板，不属于预设色块
+        let fromColorWell = (source == .colorWell)
         for view in editorToolbar.subviews {
             if let stack = view as? NSStackView {
                 for item in stack.views {
                     if let swatch = item as? ColorSwatch {
-                        swatch.updateHighlightState(selectedColor: color)
+                        swatch.updateHighlightState(
+                            selectedColor: color,
+                            sourceIsColorWell: fromColorWell
+                        )
                     }
                 }
             }
         }
+
+        // 颜色画板"被选中" = 用户主动通过颜色画板选色
+        // 无论最终颜色是否恰好是预设之一，都以"进入高级选色"为准，
+        // 叠加与 ColorSwatch 一致的半透明白色光晕
+        colorWellContainer?.layer?.backgroundColor = fromColorWell
+            ? NSColor.white.withAlphaComponent(0.2).cgColor
+            : NSColor.clear.cgColor
     }
 
     // MARK: - 大小滑块
@@ -544,6 +586,14 @@ class AnnotationEditorWindow: NSWindow, AnnotationCanvasDelegate {
 
     @objc private func cancelAction() {
         self.close()
+    }
+
+    // MARK: - NSWindowDelegate
+    func windowWillClose(_ notification: Notification) {
+        // 同步关闭系统颜色选择器，避免点开画板后窗口已关但选色器仍悬浮在桌面
+        if NSColorPanel.shared.isVisible {
+            NSColorPanel.shared.orderOut(nil)
+        }
     }
 
     @objc private func copyAction() {
@@ -656,8 +706,10 @@ private class ColorSwatch: NSView {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    func updateHighlightState(selectedColor: NSColor) {
-        let isSelected = (color == selectedColor)
+    func updateHighlightState(selectedColor: NSColor, sourceIsColorWell: Bool = false) {
+        // 只有"从预设点击"才允许预设色块高亮；
+        // 即使用户在高级选色器里选了恰好等于该预设的颜色，高亮也属于颜色画板，不属于预设色块
+        let isSelected = !sourceIsColorWell && (color == selectedColor)
         // 选中时带有半透明白色背景（跟左侧工具按钮一致），未选中时透明
         self.layer?.backgroundColor = isSelected ? NSColor.white.withAlphaComponent(0.2).cgColor : NSColor.clear.cgColor
     }
@@ -680,6 +732,6 @@ private class ColorSwatch: NSView {
     }
 
     override func mouseDown(with event: NSEvent) {
-        parent?.setColor(color)
+        parent?.setColor(color, source: .preset)
     }
 }

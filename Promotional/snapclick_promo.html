@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>SnapClick - App Store 宣传图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+  html, body {
+    background: #f5f5f7;
+    font-family: -apple-system, "PingFang SC", "SF Pro SC", "Helvetica Neue", sans-serif;
+    width: 1280px;
+    height: 800px;
+    overflow: hidden;
+  }
+
+  .banner {
+    width: 1280px;
+    height: 800px;
+    background: #ffffff;
+    border-radius: 28px;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    border-radius: 22px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    transition: transform 0.3s ease;
+  }
+
+  .card.wide { grid-column: span 2; }
+
+  .card-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    padding: 16px;
+  }
+
+  .card .label {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 1px;
+    z-index: 5;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  }
+
+  /* ---------- 渐变色 ---------- */
+  .g1 { background: linear-gradient(135deg, #ff6b9d 0%, #ff3d6e 100%); }
+  .g23 { background: linear-gradient(135deg, #4dabf7 0%, #228be6 60%, #1864ab 100%); }
+  .g4 { background: linear-gradient(135deg, #ffd43b 0%, #fab005 100%); }
+  .g5 { background: linear-gradient(135deg, #38d9a9 0%, #20c997 100%); }
+  .g-logo { background: linear-gradient(135deg, #ffffff 0%, #f1f3f5 50%, #e9ecef 100%); }
+  .g7 { background: linear-gradient(135deg, #fa5252 0%, #c92a2a 100%); }
+  .g-rec { background: linear-gradient(135deg, #f783ac 0%, #e64980 50%, #c2255c 100%); }
+  .g9 { background: linear-gradient(135deg, #cc5de8 0%, #ae3ec9 100%); }
+  .g-color { background: linear-gradient(135deg, #ffd43b 0%, #ff922b 50%, #fa5252 75%, #cc5de8 100%); }
+  .g-finder { background: linear-gradient(135deg, #63e6be 0%, #099268 100%); }
+  .g-fav { background: linear-gradient(135deg, #4dabf7 0%, #228be6 50%, #1864ab 100%); }
+
+  /* ---------- Logo 卡片 ---------- */
+  .logo-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    height: 100%;
+  }
+  .logo-img {
+    width: 130px;
+    height: 130px;
+    border-radius: 30px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22), 0 4px 10px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+  }
+  .logo-text-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .logo-text {
+    font-size: 54px;
+    font-weight: 800;
+    color: #1864ab;
+    letter-spacing: -1.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    line-height: 1;
+  }
+  .logo-sub {
+    font-size: 15px;
+    font-weight: 700;
+    color: #495057;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+
+  /* ---------- 真实主窗口卡片 ---------- */
+  .real-window {
+    width: 75%;
+    max-width: 200px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+  }
+  .real-window .traffic {
+    background: #f6f6f6;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 4px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  .real-window .traffic span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+  .real-window .traffic span:nth-child(1) { background: #ff5f57; }
+  .real-window .traffic span:nth-child(2) { background: #ffbd2e; }
+  .real-window .traffic span:nth-child(3) { background: #28ca42; }
+  .real-window .body {
+    padding: 8px 10px;
+    font-size: 8px;
+    color: #212529;
+    line-height: 1.5;
+  }
+  .real-window .body .section-title {
+    font-size: 9px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #212529;
+  }
+  .real-window .body .item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    border-bottom: 0.5px solid #f1f3f5;
+  }
+  .real-window .body .item:last-child { border-bottom: none; }
+  .real-window .body .icon-circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .real-window .body .item-text { flex: 1; }
+  .real-window .body .item-text .name { font-weight: 600; font-size: 7.5px; }
+  .real-window .body .item-text .desc { font-size: 6px; color: #868e96; }
+
+  /* ---------- 智能截图卡片（自动识别点击/拖动） ---------- */
+  .smart-mockup {
+    width: 88%;
+    max-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .smart-screen {
+    width: 100%;
+    height: 90px;
+    background: linear-gradient(135deg, #fff 0%, #f1f3f5 100%);
+    border-radius: 7px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+    position: relative;
+    padding: 8px 10px;
+    overflow: hidden;
+  }
+  .smart-window {
+    position: absolute;
+    top: 12px;
+    left: 18px;
+    width: 60%;
+    background: #fff;
+    border: 0.5px solid #dee2e6;
+    border-radius: 4px;
+    padding: 4px 5px 5px 5px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  }
+  .smart-tbar {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 3px;
+  }
+  .smart-tbar span {
+    width: 3.5px;
+    height: 3.5px;
+    border-radius: 50%;
+  }
+  .smart-tbar span:nth-child(1) { background: #ff5f57; }
+  .smart-tbar span:nth-child(2) { background: #ffbd2e; }
+  .smart-tbar span:nth-child(3) { background: #28ca42; }
+  .smart-wline {
+    height: 1.5px;
+    background: #e9ecef;
+    border-radius: 1px;
+    margin-bottom: 2px;
+    width: 80%;
+  }
+  .smart-wline.short { width: 50%; }
+  .smart-cursor {
+    position: absolute;
+    right: 26px;
+    bottom: 14px;
+    width: 22px;
+    height: 22px;
+  }
+  .smart-cursor svg { width: 100%; height: 100%; }
+  .smart-sparkle {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 12px;
+    height: 12px;
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.6));
+  }
+  .smart-sparkle svg { width: 100%; height: 100%; }
+  .smart-modes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .smart-mode {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+    padding: 4px 8px;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .smart-mode-icon { width: 14px; height: 14px; display: flex; align-items: center; }
+  .smart-mode-icon svg { width: 100%; height: 100%; }
+  .smart-mode-label { white-space: nowrap; }
+  .smart-divider {
+    width: 1px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  /* ---------- 区域 & 窗口（合并卡） ---------- */
+  .region-window-mockup {
+    width: 88%;
+    max-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .rw-top { width: 100%; display: flex; justify-content: center; }
+  .rw-macbook {
+    width: 110px;
+    height: 70px;
+    background: linear-gradient(180deg, #495057 0%, #212529 100%);
+    border-radius: 7px 7px 4px 4px;
+    padding: 5px;
+    position: relative;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  }
+  .rw-macbook::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -12%;
+    right: -12%;
+    height: 3px;
+    background: #868e96;
+    border-radius: 0 0 5px 5px;
+  }
+  .rw-screen {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e7f5ff 0%, #d0ebff 100%);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .rw-window-frame {
+    position: absolute;
+    top: 12%;
+    left: 18%;
+    right: 18%;
+    bottom: 18%;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  }
+  .rw-window-frame::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 8px;
+    height: 2px;
+    background: #fa5252;
+    border-radius: 1px;
+    box-shadow: 5px 0 0 #fab005, 10px 0 0 #51cf66;
+  }
+  .rw-selection {
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    right: 20%;
+    bottom: 25%;
+    border: 1.5px dashed #fff;
+    background: rgba(69, 141, 247, 0.25);
+    border-radius: 1px;
+  }
+  .rw-cursor {
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    width: 14px;
+    height: 14px;
+  }
+  .rw-cursor svg { width: 100%; height: 100%; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)); }
+  .rw-modes {
+    display: flex;
+    gap: 6px;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 600;
+  }
+  .rw-mode {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+    padding: 3px 7px;
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .rw-mode-icon {
+    width: 11px;
+    height: 11px;
+    display: inline-block;
+  }
+  .rw-icon-region {
+    background: #fff;
+    -webkit-mask: radial-gradient(circle 2px at 0 0, transparent 99%, #000 100%) 0 0/3px 3px,
+                  linear-gradient(#000, #000) 0 0/100% 100%;
+    mask: radial-gradient(circle 2px at 0 0, transparent 99%, #000 100%) 0 0/3px 3px,
+          linear-gradient(#000, #000) 0 0/100% 100%;
+  }
+  .rw-icon-window {
+    background: #fff;
+    clip-path: polygon(0 25%, 25% 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  /* ---------- 录音卡片 ---------- */
+  .audio-mockup {
+    width: 88%;
+    max-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .audio-bars {
+    display: flex;
+    gap: 3px;
+    align-items: flex-end;
+    height: 28px;
+    padding: 0 4px;
+  }
+  .audio-bars span {
+    display: block;
+    width: 5px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  }
+  .audio-bars span:nth-child(1) { height: 40%; }
+  .audio-bars span:nth-child(2) { height: 70%; }
+  .audio-bars span:nth-child(3) { height: 55%; }
+  .audio-bars span:nth-child(4) { height: 90%; }
+  .audio-bars span:nth-child(5) { height: 65%; }
+  .audio-bars span:nth-child(6) { height: 85%; }
+  .audio-bars span:nth-child(7) { height: 50%; }
+  .audio-bars span:nth-child(8) { height: 75%; }
+  .audio-bars span:nth-child(9) { height: 60%; }
+  .audio-bars span:nth-child(10) { height: 95%; }
+  .audio-bars span:nth-child(11) { height: 45%; }
+  .audio-bars span:nth-child(12) { height: 70%; }
+  .audio-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .audio-mic {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .audio-mic svg { width: 22px; height: 22px; }
+  .audio-time {
+    font-family: -apple-system, "SF Mono", monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.5px;
+  }
+  .audio-hud-bar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 0.5px solid rgba(255, 255, 255, 0.25);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 8.5px;
+    color: #fff;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .audio-rec-dot {
+    width: 6px;
+    height: 6px;
+    background: #ff3d6e;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(255, 61, 110, 0.8);
+    animation: rec-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes rec-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .audio-status { letter-spacing: 0.5px; }
+  .audio-quality { color: rgba(255, 255, 255, 0.7); font-weight: 500; }
+
+  /* ---------- 区域 & 窗口截图（双 MacBook 组合） ---------- */
+  .macbook-pair {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .macbook-mini {
+    width: 80px;
+    height: 56px;
+    background: linear-gradient(180deg, #495057 0%, #212529 100%);
+    border-radius: 6px 6px 3px 3px;
+    position: relative;
+    padding: 4px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+  }
+  .macbook-mini::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: -10%;
+    right: -10%;
+    height: 3px;
+    background: #868e96;
+    border-radius: 0 0 4px 4px;
+  }
+  .macbook-mini .mini-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    position: relative;
+  }
+  .macbook-mini.left .mini-screen { background: linear-gradient(135deg, #ff8fa3, #ffa8a8); }
+  .macbook-mini.right .mini-screen { background: linear-gradient(135deg, #ffe066, #ffa94d); }
+  .mini-sel {
+    position: absolute;
+    border: 1.2px solid #fff;
+    background: rgba(255, 255, 255, 0.2);
+    width: 65%;
+    height: 50%;
+    top: 25%;
+    left: 17%;
+  }
+  .mini-window {
+    position: absolute;
+    top: 18%;
+    left: 12%;
+    right: 12%;
+    bottom: 22%;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 2px;
+    border: 1px solid #fff;
+  }
+  .mini-window::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* 拆分后单张 MacBook */
+  .macbook-single {
+    width: 120px;
+    height: 80px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .macbook-single .mini-screen {
+    width: 110px;
+    height: 72px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .macbook-single .mini-screen::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 124px;
+    height: 6px;
+    background: linear-gradient(180deg, #495057, #212529);
+    border-radius: 0 0 4px 4px;
+  }
+  .macbook-single .mini-sel {
+    position: absolute;
+    top: 20px;
+    left: 22px;
+    right: 22px;
+    bottom: 14px;
+    background: rgba(255, 145, 43, 0.12);
+    border: 2px dashed #ff922b;
+    border-radius: 2px;
+  }
+  .macbook-single .crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #ff922b;
+    box-shadow: 0 0 0 2px rgba(255, 145, 43, 0.3);
+    z-index: 2;
+  }
+  .macbook-single .crosshair::before,
+  .macbook-single .crosshair::after {
+    content: '';
+    position: absolute;
+    background: #ff922b;
+  }
+  .macbook-single .crosshair::before {
+    top: 50%;
+    left: -8px;
+    right: -8px;
+    height: 1.5px;
+    transform: translateY(-50%);
+  }
+  .macbook-single .crosshair::after {
+    left: 50%;
+    top: -8px;
+    bottom: -8px;
+    width: 1.5px;
+    transform: translateX(-50%);
+  }
+  .macbook-single.window-mode .mini-screen {
+    background: linear-gradient(135deg, #fff5e6, #ffe8cc);
+  }
+  .macbook-single .mini-window-frame {
+    position: absolute;
+    top: 16px;
+    left: 14px;
+    right: 14px;
+    bottom: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #ff922b;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  .macbook-single .mini-window-frame::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 6px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #ff6b6b;
+    box-shadow: 8px 0 0 #ffd43b, 16px 0 0 #51cf66;
+  }
+
+  /* ---------- 标注 - 画笔 ---------- */
+  .brush-icon {
+    width: 80px;
+    height: 80px;
+    position: relative;
+  }
+  .brush-icon svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+
+  /* ---------- 长截图 ---------- */
+  .long-page {
+    width: 90px;
+    height: 100px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .long-page .bar {
+    height: 4px;
+    background: #ced4da;
+    border-radius: 2px;
+  }
+  .long-page .bar.long { width: 90%; }
+  .long-page .bar.med { width: 65%; }
+  .long-page .bar.short { width: 40%; }
+  .long-page .bar.colored { background: #fff; }
+
+  /* ---------- 屏幕录制 ---------- */
+  .rec-circle {
+    width: 70px;
+    height: 70px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+    position: relative;
+  }
+  .rec-circle::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 20px solid #fa5252;
+    border-top: 13px solid transparent;
+    border-bottom: 13px solid transparent;
+    margin-left: 5px;
+  }
+  .rec-circle::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    background: #fa5252;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.15); }
+  }
+
+  /* ---------- 录音 ---------- */
+  .mic-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+  }
+  .mic-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* ---------- 智能取色放大镜 ---------- */
+  .color-picker-wrap {
+    position: relative;
+    width: 90px;
+    height: 90px;
+  }
+  .color-wheel {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #ff6b6b, #ffa94d, #ffd43b, #69db7c, #4dabf7, #9775fa, #e599f7, #ff6b6b
+    );
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22), inset 0 0 0 7px rgba(255, 255, 255, 0.3);
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .magnifier {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 38px;
+    height: 38px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #495057;
+  }
+  .magnifier::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: -6px;
+    width: 18px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.95);
+    transform: rotate(45deg);
+    transform-origin: left center;
+    border-radius: 2px;
+  }
+
+  /* ---------- 屏幕贴图 ---------- */
+  .pin-icon {
+    width: 76px;
+    height: 76px;
+    position: relative;
+  }
+  .pin-icon svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+  }
+
+  /* ---------- Finder 右键增强 ---------- */
+  .finder-wrap {
+    position: relative;
+    width: 130px;
+    height: 90px;
+  }
+  .finder-folder {
+    width: 80px;
+    height: 64px;
+    background: #fff;
+    border-radius: 6px;
+    position: absolute;
+    top: 8px;
+    left: 0;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 4px;
+  }
+  .finder-folder .folder-tab {
+    width: 30px;
+    height: 6px;
+    background: #adb5bd;
+    border-radius: 2px 2px 0 0;
+    position: absolute;
+    top: -3px;
+    left: 6px;
+  }
+  .finder-folder .line {
+    height: 3px;
+    background: #dee2e6;
+    border-radius: 2px;
+  }
+  .finder-folder .line:nth-child(2) { width: 70%; }
+  .finder-folder .line:nth-child(3) { width: 50%; }
+  .finder-folder .line:nth-child(4) { width: 80%; }
+  .context-menu {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 6px;
+    padding: 4px 0;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    min-width: 56px;
+  }
+  .context-menu .item {
+    padding: 4px 10px;
+    font-size: 9px;
+    color: #212529;
+    text-align: left;
+  }
+  .context-menu .item.highlight {
+    background: #228be6;
+    color: #fff;
+    border-radius: 3px;
+    margin: 0 3px;
+  }
+  .context-cursor {
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    width: 12px;
+    height: 16px;
+    background: #fff;
+    clip-path: polygon(0 0, 0 100%, 35% 70%, 50% 100%, 65% 95%, 50% 65%, 80% 60%);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+
+  /* ---------- 打开常用目录（参照真实 Finder 右键菜单） ---------- */
+  .ctx-pair {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .ctx-main {
+    width: 102px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 7px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    padding: 4px 0;
+  }
+  .ctx-main .ctx-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 5px;
+    font-size: 8.5px;
+    color: #212529;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ctx-main .ctx-item .ctx-icon {
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ctx-main .ctx-item .ctx-icon svg { width: 14px; height: 14px; }
+  .ctx-main .ctx-item .arrow {
+    margin-left: auto;
+    color: #868e96;
+    font-size: 12px;
+    line-height: 1;
+  }
+  .ctx-main .ctx-item.highlighted {
+    background: #339cff;
+    color: #fff;
+    border-radius: 4px;
+    margin: 0 2px;
+  }
+  .ctx-main .ctx-item.highlighted .arrow { color: #fff; }
+  .ctx-main .ctx-item.highlighted .ctx-icon svg { filter: brightness(0) invert(1); }
+  .ctx-main .ctx-item.highlighted .ctx-icon svg path,
+  .ctx-main .ctx-item.highlighted .ctx-icon svg rect,
+  .ctx-main .ctx-item.highlighted .ctx-icon svg line { fill: #fff; stroke: #fff; }
+
+  .ctx-sub {
+    width: 86px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 7px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    padding: 4px 0;
+  }
+  .ctx-sub .ctx-dir {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 6px;
+    font-size: 9px;
+    color: #212529;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ctx-sub .ctx-dir .folder-ic {
+    width: 14px;
+    height: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ctx-sub .ctx-dir .folder-ic svg { width: 14px; height: 12px; }
+</style>
+</head>
+<body>
+  <div class="banner">
+
+    <!-- Row 1 -->
+    <!-- 1. 智能截图 - 自动识别点击(窗口) / 拖动(选区) -->
+    <div class="card g1">
+      <div class="card-content">
+        <div class="smart-mockup">
+          <div class="smart-screen">
+            <div class="smart-window">
+              <div class="smart-tbar"><span></span><span></span><span></span></div>
+              <div class="smart-wline"></div>
+              <div class="smart-wline"></div>
+              <div class="smart-wline short"></div>
+            </div>
+            <div class="smart-cursor">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M 5 4 L 5 18 L 9 14 L 11 20 L 14 19 L 12 13 L 17 13 Z" fill="#fff" stroke="#339cff" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              <span class="smart-sparkle">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 8 1 L 9.5 6.5 L 15 8 L 9.5 9.5 L 8 15 L 6.5 9.5 L 1 8 L 6.5 6.5 Z" fill="#fff"/>
+                </svg>
+              </span>
+            </div>
+          </div>
+          <div class="smart-modes">
+            <div class="smart-mode">
+              <span class="smart-mode-icon">
+                <svg viewBox="0 0 20 20" fill="none">
+                  <path d="M 5 4 L 11 4 L 12 5 L 15 5 L 15 14 L 5 14 Z" fill="#fff" stroke="rgba(255,255,255,0.7)" stroke-width="0.8"/>
+                </svg>
+              </span>
+              <span class="smart-mode-label">点击 · 窗口</span>
+            </div>
+            <div class="smart-divider"></div>
+            <div class="smart-mode">
+              <span class="smart-mode-icon">
+                <svg viewBox="0 0 20 20" fill="none">
+                  <rect x="4" y="4" width="12" height="9" rx="1" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="2,1.5"/>
+                  <circle cx="4" cy="4" r="1.2" fill="#fff"/>
+                  <circle cx="16" cy="4" r="1.2" fill="#fff"/>
+                  <circle cx="4" cy="13" r="1.2" fill="#fff"/>
+                  <circle cx="16" cy="13" r="1.2" fill="#fff"/>
+                </svg>
+              </span>
+              <span class="smart-mode-label">拖动 · 选区</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">智能截图</div>
+    </div>
+
+    <!-- 2. 区域 & 窗口 (合并：选区模式 + 窗口模式) -->
+    <div class="card g23">
+      <div class="card-content">
+        <div class="region-window-mockup">
+          <div class="rw-top">
+            <div class="rw-macbook">
+              <div class="rw-screen">
+                <div class="rw-window-frame"></div>
+                <div class="rw-selection"></div>
+                <div class="rw-cursor">
+                  <svg viewBox="0 0 20 20" fill="none">
+                    <path d="M 4 3 L 4 15 L 7 12 L 9 17 L 11 16 L 9 11 L 13 11 Z" fill="#fff" stroke="#1864ab" stroke-width="1" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="rw-modes">
+            <div class="rw-mode">
+              <span class="rw-mode-icon rw-icon-region"></span>
+              <span>选区模式</span>
+            </div>
+            <div class="rw-mode">
+              <span class="rw-mode-icon rw-icon-window"></span>
+              <span>窗口模式</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">区域 & 窗口</div>
+    </div>
+
+    <!-- 3. 像素标注 -->
+    <div class="card g4">
+      <div class="card-content">
+        <div class="brush-icon">
+          <svg viewBox="0 0 80 80" fill="none">
+            <path d="M 12 68 L 18 50 L 52 16 L 64 28 L 30 62 Z" fill="#fff" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M 52 16 L 60 8 L 72 20 L 64 28 Z" fill="#fff"/>
+            <path d="M 12 68 L 6 74 L 14 70 Z" fill="#fff"/>
+            <circle cx="48" cy="36" r="3" fill="#fab005"/>
+            <path d="M 22 56 L 30 60 L 28 64 Z" fill="#fab005"/>
+          </svg>
+        </div>
+      </div>
+      <div class="label">像素标注</div>
+    </div>
+
+    <!-- 4. 长截图 (R1C4) -->
+    <div class="card g5">
+      <div class="card-content">
+        <div class="long-page">
+          <div class="bar colored" style="width: 50%; background: #228be6;"></div>
+          <div class="bar long"></div>
+          <div class="bar med"></div>
+          <div class="bar long"></div>
+          <div class="bar short"></div>
+          <div class="bar med"></div>
+          <div class="bar long"></div>
+          <div class="bar short"></div>
+          <div class="bar med"></div>
+        </div>
+      </div>
+      <div class="label">长截图</div>
+    </div>
+
+    <!-- Row 2 -->
+    <!-- 4. 屏幕录制 (左) -->
+    <div class="card g7">
+      <div class="card-content">
+        <div class="rec-circle"></div>
+      </div>
+      <div class="label">屏幕录制</div>
+    </div>
+
+    <!-- 5 + 6. SnapClick Logo (中, 2 cells) -->
+    <div class="card wide g-logo">
+      <div class="card-content">
+        <div class="logo-wrap">
+          <img class="logo-img" src="screenshots/app_icon_hd.png" alt="SnapClick"/>
+          <div class="logo-text-block">
+            <div class="logo-text">SnapClick</div>
+            <div class="logo-sub">macOS 效率工具</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. 长截图 (右) - 已移动到 R1C4, 此处不再需要 -->
+
+    <!-- 8. 录音 (新增 - R2C2) -->
+    <div class="card g-rec">
+      <div class="card-content">
+        <div class="audio-mockup">
+          <div class="audio-bars">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="audio-center">
+            <div class="audio-mic">
+              <svg viewBox="0 0 32 32" fill="none">
+                <rect x="12" y="5" width="8" height="14" rx="4" fill="#fff"/>
+                <path d="M 8 15 Q 8 22 16 22 Q 24 22 24 15" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <line x1="16" y1="22" x2="16" y2="26" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="12" y1="26" x2="20" y2="26" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="audio-time">00:23</div>
+          </div>
+          <div class="audio-hud-bar">
+            <span class="audio-rec-dot"></span>
+            <span class="audio-status">REC</span>
+            <span class="audio-quality">M4A · 48kHz</span>
+          </div>
+        </div>
+      </div>
+      <div class="label">录音</div>
+    </div>
+
+    <!-- Row 3 -->
+    <!-- 9. 智能取色 -->
+    <div class="card g-color">
+      <div class="card-content">
+        <div class="color-picker-wrap">
+          <div class="color-wheel"></div>
+          <div class="magnifier">16x</div>
+        </div>
+      </div>
+      <div class="label">智能取色</div>
+    </div>
+
+    <!-- 10. 屏幕贴图 -->
+    <div class="card g9">
+      <div class="card-content">
+        <div class="pin-icon">
+          <svg viewBox="0 0 76 76" fill="#fff">
+            <path d="M 38 8 C 26 8 18 16 18 26 C 18 33 22 38 27 40 L 24 60 L 34 55 L 34 68 L 42 68 L 42 55 L 52 60 L 49 40 C 54 38 58 33 58 26 C 58 16 50 8 38 8 Z" />
+          </svg>
+        </div>
+      </div>
+      <div class="label">屏幕贴图</div>
+    </div>
+
+    <!-- 11. Finder 右键增强 (新建文件 + 文件类型子菜单) -->
+    <div class="card g-finder">
+      <div class="card-content">
+        <div class="ctx-pair">
+          <div class="ctx-main">
+            <div class="ctx-item">
+              <span class="ctx-icon">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 3 4 L 7 4 L 8 5 L 13 5 L 13 13 L 3 13 Z" fill="#339cff"/>
+                </svg>
+              </span>
+              <span>打开常用目录</span>
+              <span class="arrow">›</span>
+            </div>
+            <div class="ctx-item highlighted">
+              <span class="ctx-icon">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 3 2 L 13 2 L 13 12 L 11 14 L 3 14 Z" fill="#fff" stroke="#fff" stroke-width="0.6"/>
+                  <line x1="5" y1="5" x2="11" y2="5" stroke="#339cff" stroke-width="0.8"/>
+                  <line x1="5" y1="7.5" x2="11" y2="7.5" stroke="#339cff" stroke-width="0.8"/>
+                  <line x1="5" y1="10" x2="9" y2="10" stroke="#339cff" stroke-width="0.8"/>
+                </svg>
+              </span>
+              <span>新建文件</span>
+              <span class="arrow">›</span>
+            </div>
+            <div class="ctx-item">
+              <span class="ctx-icon">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="3" width="12" height="9" rx="1" fill="none" stroke="#212529" stroke-width="1.1"/>
+                  <line x1="5" y1="6" x2="5" y2="4" stroke="#212529" stroke-width="1.1"/>
+                  <line x1="11" y1="6" x2="11" y2="4" stroke="#212529" stroke-width="1.1"/>
+                </svg>
+              </span>
+              <span>在终端中打开</span>
+            </div>
+            <div class="ctx-item">
+              <span class="ctx-icon">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 4 5 L 7 5 L 7 7 C 7 8.5 5.5 9.5 4 10 C 5.5 10.5 7 11.5 7 13 L 7 15 L 4 15 C 2.5 15 1 13.5 1 10 C 1 6.5 2.5 5 4 5 Z" fill="none" stroke="#212529" stroke-width="0.9" transform="translate(3,0)"/>
+                </svg>
+              </span>
+              <span>拷贝当前路径</span>
+            </div>
+          </div>
+          <div class="ctx-sub">
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 2.5 1.5 L 11 1.5 L 14 4.5 L 14 14.5 L 2.5 14.5 Z" fill="#fff" stroke="#dee2e6" stroke-width="0.4"/>
+                  <path d="M 11 1.5 L 14 4.5 L 11 4.5 Z" fill="#e9ecef" stroke="#dee2e6" stroke-width="0.4"/>
+                  <text x="8" y="11" font-size="3.6" font-weight="800" fill="#495057" text-anchor="middle" font-family="-apple-system">TXT</text>
+                </svg>
+              </span>
+              <span>示例文本</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 2.5 1.5 L 11 1.5 L 14 4.5 L 14 14.5 L 2.5 14.5 Z" fill="#fff" stroke="#dee2e6" stroke-width="0.4"/>
+                  <path d="M 11 1.5 L 14 4.5 L 11 4.5 Z" fill="#e9ecef" stroke="#dee2e6" stroke-width="0.4"/>
+                  <rect x="2.5" y="1.5" width="8.5" height="2" fill="#1971c2"/>
+                  <text x="8" y="11" font-size="3.4" font-weight="800" fill="#1971c2" text-anchor="middle" font-family="-apple-system">MD</text>
+                </svg>
+              </span>
+              <span>Markdown</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 2.5 1.5 L 11 1.5 L 14 4.5 L 14 14.5 L 2.5 14.5 Z" fill="#fff" stroke="#dee2e6" stroke-width="0.4"/>
+                  <path d="M 11 1.5 L 14 4.5 L 11 4.5 Z" fill="#e9ecef" stroke="#dee2e6" stroke-width="0.4"/>
+                  <rect x="2.5" y="1.5" width="8.5" height="2" fill="#1c7ed6"/>
+                  <text x="8" y="11.5" font-size="5" font-weight="900" fill="#1c7ed6" text-anchor="middle" font-family="-apple-system">W</text>
+                </svg>
+              </span>
+              <span>Word 文档</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 2.5 1.5 L 11 1.5 L 14 4.5 L 14 14.5 L 2.5 14.5 Z" fill="#fff" stroke="#dee2e6" stroke-width="0.4"/>
+                  <path d="M 11 1.5 L 14 4.5 L 11 4.5 Z" fill="#e9ecef" stroke="#dee2e6" stroke-width="0.4"/>
+                  <rect x="2.5" y="1.5" width="8.5" height="2" fill="#2b8a3e"/>
+                  <text x="8" y="11.5" font-size="5" font-weight="900" fill="#2b8a3e" text-anchor="middle" font-family="-apple-system">X</text>
+                </svg>
+              </span>
+              <span>Excel 表格</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 2.5 1.5 L 11 1.5 L 14 4.5 L 14 14.5 L 2.5 14.5 Z" fill="#fff" stroke="#dee2e6" stroke-width="0.4"/>
+                  <path d="M 11 1.5 L 14 4.5 L 11 4.5 Z" fill="#e9ecef" stroke="#dee2e6" stroke-width="0.4"/>
+                  <rect x="2.5" y="1.5" width="8.5" height="2" fill="#d9480f"/>
+                  <text x="8" y="11.5" font-size="5" font-weight="900" fill="#d9480f" text-anchor="middle" font-family="-apple-system">P</text>
+                </svg>
+              </span>
+              <span>PPT 演示</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 2.5 1.5 L 11 1.5 L 14 4.5 L 14 14.5 L 2.5 14.5 Z" fill="#fff" stroke="#dee2e6" stroke-width="0.4"/>
+                  <path d="M 11 1.5 L 14 4.5 L 11 4.5 Z" fill="#e9ecef" stroke="#dee2e6" stroke-width="0.4"/>
+                  <rect x="2.5" y="1.5" width="8.5" height="2" fill="#862e9c"/>
+                  <text x="8" y="11" font-size="3.4" font-weight="800" fill="#862e9c" text-anchor="middle" font-family="-apple-system">HTML</text>
+                </svg>
+              </span>
+              <span>HTML 文件</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">Finder 右键</div>
+    </div>
+
+    <!-- 12. 打开常用目录 (参照真实 Finder 右键菜单：打开常用目录 高亮 + 目录子菜单) -->
+    <div class="card g-fav">
+      <div class="card-content">
+        <div class="ctx-pair">
+          <div class="ctx-main">
+            <div class="ctx-item highlighted">
+              <span class="ctx-icon">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <path d="M 3 4 L 7 4 L 8 5 L 13 5 L 13 13 L 3 13 Z" fill="#339cff"/>
+                  <path d="M 3 4 L 7 4 L 8 5 L 13 5" stroke="#fff" stroke-width="0.5" fill="none"/>
+                </svg>
+              </span>
+              <span>打开常用目录</span>
+              <span class="arrow">›</span>
+            </div>
+            <div class="ctx-item">
+              <span class="ctx-icon">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <rect x="3" y="2" width="10" height="13" rx="1" stroke="#212529" stroke-width="1.2" fill="none"/>
+                  <line x1="5" y1="5" x2="11" y2="5" stroke="#212529" stroke-width="1"/>
+                  <line x1="5" y1="8" x2="11" y2="8" stroke="#212529" stroke-width="1"/>
+                  <line x1="5" y1="11" x2="9" y2="11" stroke="#212529" stroke-width="1"/>
+                </svg>
+              </span>
+              <span>新建文件</span>
+              <span class="arrow">›</span>
+            </div>
+            <div class="ctx-item">
+              <span class="ctx-icon">
+                <svg viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="3" width="12" height="9" rx="1" fill="#212529"/>
+                  <path d="M 5 6 L 5 4 L 11 4 L 11 6" stroke="#212529" stroke-width="1.2" fill="none"/>
+                </svg>
+              </span>
+              <span>在终端打开</span>
+            </div>
+          </div>
+          <div class="ctx-sub">
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 18 16" fill="none">
+                  <path d="M 1 4 L 1 14 L 17 14 L 17 6 L 8 6 L 7 4 Z" fill="url(#fd1)"/>
+                  <defs><linearGradient id="fd1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ec8ff"/><stop offset="1" stop-color="#339cff"/></linearGradient></defs>
+                </svg>
+              </span>
+              <span>桌面</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 18 16" fill="none">
+                  <path d="M 1 4 L 1 14 L 17 14 L 17 6 L 8 6 L 7 4 Z" fill="url(#fd2)"/>
+                  <defs><linearGradient id="fd2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ad4ff"/><stop offset="1" stop-color="#5ab1f5"/></linearGradient></defs>
+                </svg>
+              </span>
+              <span>文稿</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 18 16" fill="none">
+                  <path d="M 1 4 L 1 14 L 17 14 L 17 6 L 8 6 L 7 4 Z" fill="url(#fd3)"/>
+                  <defs><linearGradient id="fd3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#74c0fc"/><stop offset="1" stop-color="#339af0"/></linearGradient></defs>
+                </svg>
+              </span>
+              <span>下载</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 18 16" fill="none">
+                  <path d="M 1 4 L 1 14 L 17 14 L 17 6 L 8 6 L 7 4 Z" fill="url(#fd4)"/>
+                  <defs><linearGradient id="fd4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a5d8ff"/><stop offset="1" stop-color="#74c0fc"/></linearGradient></defs>
+                </svg>
+              </span>
+              <span>图片</span>
+            </div>
+            <div class="ctx-dir">
+              <span class="folder-ic">
+                <svg viewBox="0 0 18 16" fill="none">
+                  <path d="M 1 4 L 1 14 L 17 14 L 17 6 L 8 6 L 7 4 Z" fill="url(#fd5)"/>
+                  <defs><linearGradient id="fd5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset="1" stop-color="#fab005"/></linearGradient></defs>
+                </svg>
+              </span>
+              <span>个人收藏</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="label">打开常用目录</div>
+    </div>
+
+  </div>
+</body>
+</html>

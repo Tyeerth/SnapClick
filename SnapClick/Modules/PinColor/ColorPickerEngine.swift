@@ -26,7 +26,7 @@ final class ColorPickerEngine: ObservableObject {
     // MARK: - 私有属性
     private var mouseMonitor: Any?
     private var keyMonitor: Any?
-    private var localMonitors: [Any] = []
+    private var localMonitors: [Any?] = []
     private var overlayController: ColorPickerOverlayWindowController?
 
     /// 存储的全屏 CGImage（用于直接像素采色，避免每帧调用 CGWindowListCreateImage）
@@ -109,7 +109,7 @@ final class ColorPickerEngine: ObservableObject {
 
         if let m = mouseMonitor { NSEvent.removeMonitor(m); mouseMonitor = nil }
         if let m = keyMonitor   { NSEvent.removeMonitor(m); keyMonitor = nil }
-        for m in localMonitors  { NSEvent.removeMonitor(m) }
+        for m in localMonitors { if let m = m { NSEvent.removeMonitor(m) } }
         localMonitors = []
 
         overlayController?.close()

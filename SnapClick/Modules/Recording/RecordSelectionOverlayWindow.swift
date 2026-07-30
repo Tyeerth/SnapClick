@@ -360,9 +360,7 @@ final class RecordSelectionOverlayView: NSView {
         let maxX = rect.maxX
         let minY = rect.minY
         let maxY = rect.maxY
-        let midX = rect.midX
-        let midY = rect.midY
-        
+
         if abs(point.x - minX) < threshold && abs(point.y - minY) < threshold { return .topLeft }
         if abs(point.x - maxX) < threshold && abs(point.y - minY) < threshold { return .topRight }
         if abs(point.x - minX) < threshold && abs(point.y - maxY) < threshold { return .bottomLeft }
