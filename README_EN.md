@@ -111,34 +111,6 @@ Go to the [Releases page](https://github.com/Tyeerth/SnapClick/releases/latest) 
 
 See the [Build from Source](#-build-from-source) section below.
 
-### ⚠️ How to Open Unsigned Apps (Important)
-
-This project is not yet enrolled in the Apple paid Developer Program, so the released binaries are **not notarized by Apple**. On first launch, macOS Gatekeeper will block the app with a message such as "**is damaged and can't be opened**" or "**cannot be verified**". This does not indicate a problem with the app itself — use one of the following methods to launch it normally:
-
-#### Method 1: Remove the Quarantine Attribute (Recommended, Most Reliable)
-
-After dragging the app into your `Applications` folder, open Terminal and run:
-
-```bash
-sudo xattr -dr com.apple.quarantine /Applications/SnapClick.app
-```
-
-Enter your login password (the input is not echoed — this is normal) and press Return. You can then double-click to open the app normally.
-
-#### Method 2: Approve via System Settings
-
-1. Double-click the app, and click "**Cancel**" in the blocked prompt.
-2. Go to "**System Settings → Privacy & Security**" and scroll down to the Security section.
-3. Find the "**'SnapClick' was blocked**" message and click "**Open Anyway**".
-4. Click "**Open**" in the dialog that appears.
-
-#### Method 3: Open via Right-Click
-
-In the `Applications` folder, **right-click** SnapClick → choose "**Open**" → click "**Open**" again in the confirmation dialog.
-(Note: If the installer reports "is damaged", this method may not work — fall back to Method 1.)
-
-> 💡 The above steps only need to be performed once. After that, you can use the app like any other normal application.
-
 ### ⚠️ First-Run Permissions
 
 On first launch, you will be guided to grant the following system permissions so that all features work correctly:
