@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="SnapClick" width="100%">
+<img src="website/assets/双色主题.png" alt="SnapClick" width="100%">
 
 ### macOS Productivity Enhancer — Right-Click · Screenshot Annotation · Screen Recording · Screen Pinning · Smart Color Picker
 
@@ -22,8 +22,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 
 <br />
 
-<img src="docs/assets/hero_screenshot.png" alt="SnapClick Main Settings — Light Mode" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
-<img src="docs/assets/hero_dark_screenshot.png" alt="SnapClick Main Settings — Dark Mode" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<img src="website/assets/snapclick_promo@3x.png" alt="SnapClick — Nine Core Features at a Glance" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
 </div>
 
 ---
@@ -39,7 +38,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **Quick Open in Terminal/Editor** — Right-click to launch Terminal, iTerm2, VS Code, Warp, or Xcode in the current directory.
 
 <br>
-<img src="docs/assets/right_click_screenshot.png" alt="Finder Right-Click Menu" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="website/assets/一键调起终端.png" alt="Finder Right-Click — Open in Terminal" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---
@@ -53,8 +52,8 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 
 <br>
 <div align="center">
-  <img src="docs/assets/screenshot_editor_screenshot.png" alt="Screenshot & Real-time Annotation" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
-  <img src="docs/assets/long_screenshot_preview.png" alt="Smart Scrolling Screenshot" width="300" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+  <img src="website/assets/截图-有水印.png.png" alt="Screenshot & Real-time Annotation" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
+  <img src="website/assets/长截图.png" alt="Smart Scrolling Screenshot" width="320" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 </div>
 <br>
 
@@ -69,7 +68,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **HUD Floating Controller** — An independent floating control panel with elapsed time display, pause / resume / stop actions.
 
 <br>
-<img src="docs/assets/recording_overlay.png" alt="Screen Recording HUD & Selection" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="website/assets/录屏.png" alt="Screen Recording HUD & Selection" width="800" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---
@@ -81,7 +80,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **Free Interactive Adjustment** — Smooth scroll-wheel opacity adjustment, double-click to zoom, and quick pin management bar.
 
 <br>
-<img src="docs/assets/pin_window_overlay.png" alt="Pinned Screen Window" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="website/assets/贴图.png" alt="Pinned Screen Window" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---
@@ -93,7 +92,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **Color History** — Intelligently records and displays your 20 most recent color picks.
 
 <br>
-<img src="docs/assets/color_picker_overlay.png" alt="1:1 Pixel-Precision Magnifier Color Picker" width="450" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="website/assets/取色.jpg" alt="1:1 Pixel-Precision Magnifier Color Picker" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---
@@ -181,11 +180,10 @@ On first launch, you will be guided to grant the following system permissions so
 
 ## 📮 Contact Author
 
-If you have questions, feature suggestions, or want to join the discussion, feel free to reach out through the following channels:
+If you have questions or feature suggestions, feel free to reach out through the following channels:
 
 - **Official Website**: <http://snapclick.cn/>
 - **Email**: [tyeerth@163.com](mailto:tyeerth@163.com)
-- **WeChat Group**: <img src="docs/assets/wechat_qr.png" width="220" alt="SnapClick WeChat Group QR Code" style="border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
 
 ---
 

@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="SnapClick" width="100%">
+<img src="website/assets/双色主题.png" alt="SnapClick" width="100%">
 
 ### macOS 效率增强工具 — 右键增强 · 截图标注 · 屏幕录制 · 屏幕贴图 · 智能取色
 
-[![Version](https://img.shields.io/github/v/release/Tyeerth/SnapClick?color=blue\&label=version)](https://github.com/Tyeerth/SnapClick/releases)
+[![Version](https://img.shields.io/github/v/release/Tyeerth/SnapClick?color=blue&label=version)](https://github.com/Tyeerth/SnapClick/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey.svg)](https://github.com/Tyeerth/SnapClick/releases)
 [![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)](https://swift.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
@@ -22,8 +22,7 @@
 
 <br />
 
-<img src="docs/assets/hero_screenshot.png" alt="SnapClick 主设置界面" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
-<img src="docs/assets/hero_dark_screenshot.png" alt="SnapClick 主设置界面-暗黑模式" width="800" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<img src="website/assets/snapclick_promo@3x.png" alt="SnapClick 九大功能总览" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
 </div>
 
 ***
@@ -39,7 +38,7 @@
 - **常用终端/编辑器快捷打开** — 右键在当前目录拉起 Terminal、iTerm2、VS Code、Warp 或 Xcode。
 
 <br>
-<img src="docs/assets/right_click_screenshot.png" alt="Finder 右键增强菜单" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="website/assets/一键调起终端.png" alt="Finder 右键增强 — 一键调起终端" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ***
@@ -53,8 +52,8 @@
 
 <br>
 <div align="center">
-  <img src="docs/assets/screenshot_editor_screenshot.png" alt="屏幕截图与实时标注" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
-  <img src="docs/assets/long_screenshot_preview.png" alt="智能长截图捕获" width="300" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+  <img src="website/assets/截图-有水印.png.png" alt="屏幕截图与实时标注" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
+  <img src="website/assets/长截图.png" alt="智能长截图捕获" width="320" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 </div>
 <br>
 
@@ -69,7 +68,7 @@
 - **HUD 悬浮控制条** — 独立的浮动控制面板，提供录制时间显示、暂停 / 继续 / 停止操作。
 
 <br>
-<img src="docs/assets/recording_overlay.png" alt="屏幕录屏 HUD 与选区控制" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="website/assets/录屏.png" alt="屏幕录屏 HUD 与选区控制" width="800" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ***
@@ -81,7 +80,7 @@
 - **自由交互调节** — 支持滚轮无级调节贴图透明度，双击缩放大小，支持 Pin 状态快捷栏管理。
 
 <br>
-<img src="docs/assets/pin_window_overlay.png" alt="屏幕贴图置顶展示" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="website/assets/贴图.png" alt="屏幕贴图置顶展示" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ***
@@ -93,7 +92,7 @@
 - **取色历史** — 智能记录并展示最近取的 20 条颜色历史记录。
 
 <br>
-<img src="docs/assets/color_picker_overlay.png" alt="1:1 像素精准取色放大镜" width="450" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="website/assets/取色.jpg" alt="1:1 像素精准取色放大镜" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ***
@@ -178,11 +177,10 @@ sudo xattr -dr com.apple.quarantine /Applications/SnapClick.app
 
 ## 📮 联系作者
 
-如果您在使用中遇到问题、有功能建议，或者想参与讨论，欢迎通过以下方式联系：
+如果您在使用中遇到问题、有功能建议，欢迎通过以下方式联系：
 
 - **官方网站**：<http://snapclick.cn/>
 - **联系邮箱**：<tyeerth@163.com>
-- **微信交流群**： <img src="docs/assets/wechat_qr.png" width="220" alt="SnapClick 微信交流群二维码" style="border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
 
 ***
 
