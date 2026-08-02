@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="website/assets/双色主题.png" alt="SnapClick" width="100%">
+<img src="assets/banner.png" alt="SnapClick" width="100%">
 
 ### macOS Productivity Enhancer — Right-Click · Screenshot Annotation · Screen Recording · Screen Pinning · Smart Color Picker
 
@@ -22,7 +22,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 
 <br />
 
-<img src="website/assets/snapclick_promo@3x.png" alt="SnapClick — Nine Core Features at a Glance" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<img src="assets/promo.png" alt="SnapClick — Nine Core Features at a Glance" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
 </div>
 
 ---
@@ -38,7 +38,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **Quick Open in Terminal/Editor** — Right-click to launch Terminal, iTerm2, VS Code, Warp, or Xcode in the current directory.
 
 <br>
-<img src="website/assets/一键调起终端.png" alt="Finder Right-Click — Open in Terminal" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="assets/right-click-terminal.png" alt="Finder Right-Click — Open in Terminal" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---
@@ -52,8 +52,8 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 
 <br>
 <div align="center">
-  <img src="website/assets/截图-有水印.png.png" alt="Screenshot & Real-time Annotation" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
-  <img src="website/assets/长截图.png" alt="Smart Scrolling Screenshot" width="320" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+  <img src="assets/screenshot-annotation.png" alt="Screenshot & Real-time Annotation" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
+  <img src="assets/long-screenshot.png" alt="Smart Scrolling Screenshot" width="320" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 </div>
 <br>
 
@@ -68,7 +68,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **HUD Floating Controller** — An independent floating control panel with elapsed time display, pause / resume / stop actions.
 
 <br>
-<img src="website/assets/录屏.png" alt="Screen Recording HUD & Selection" width="800" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="assets/recording.png" alt="Screen Recording HUD & Selection" width="800" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---
@@ -80,7 +80,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **Free Interactive Adjustment** — Smooth scroll-wheel opacity adjustment, double-click to zoom, and quick pin management bar.
 
 <br>
-<img src="website/assets/贴图.png" alt="Pinned Screen Window" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="assets/pin-window.png" alt="Pinned Screen Window" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---
@@ -92,7 +92,7 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 - **Color History** — Intelligently records and displays your 20 most recent color picks.
 
 <br>
-<img src="website/assets/取色.jpg" alt="1:1 Pixel-Precision Magnifier Color Picker" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="assets/color-picker.jpg" alt="1:1 Pixel-Precision Magnifier Color Picker" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ---

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="website/assets/双色主题.png" alt="SnapClick" width="100%">
+<img src="assets/banner.png" alt="SnapClick" width="100%">
 
 ### macOS 效率增强工具 — 右键增强 · 截图标注 · 屏幕录制 · 屏幕贴图 · 智能取色
 
@@ -22,7 +22,7 @@
 
 <br />
 
-<img src="website/assets/snapclick_promo@3x.png" alt="SnapClick 九大功能总览" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<img src="assets/promo.png" alt="SnapClick 九大功能总览" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
 </div>
 
 ***
@@ -38,7 +38,7 @@
 - **常用终端/编辑器快捷打开** — 右键在当前目录拉起 Terminal、iTerm2、VS Code、Warp 或 Xcode。
 
 <br>
-<img src="website/assets/一键调起终端.png" alt="Finder 右键增强 — 一键调起终端" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="assets/right-click-terminal.png" alt="Finder 右键增强 — 一键调起终端" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ***
@@ -52,8 +52,8 @@
 
 <br>
 <div align="center">
-  <img src="website/assets/截图-有水印.png.png" alt="屏幕截图与实时标注" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
-  <img src="website/assets/长截图.png" alt="智能长截图捕获" width="320" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+  <img src="assets/screenshot-annotation.png" alt="屏幕截图与实时标注" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
+  <img src="assets/long-screenshot.png" alt="智能长截图捕获" width="320" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 </div>
 <br>
 
@@ -68,7 +68,7 @@
 - **HUD 悬浮控制条** — 独立的浮动控制面板，提供录制时间显示、暂停 / 继续 / 停止操作。
 
 <br>
-<img src="website/assets/录屏.png" alt="屏幕录屏 HUD 与选区控制" width="800" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="assets/recording.png" alt="屏幕录屏 HUD 与选区控制" width="800" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ***
@@ -80,7 +80,7 @@
 - **自由交互调节** — 支持滚轮无级调节贴图透明度，双击缩放大小，支持 Pin 状态快捷栏管理。
 
 <br>
-<img src="website/assets/贴图.png" alt="屏幕贴图置顶展示" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="assets/pin-window.png" alt="屏幕贴图置顶展示" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ***
@@ -92,7 +92,7 @@
 - **取色历史** — 智能记录并展示最近取的 20 条颜色历史记录。
 
 <br>
-<img src="website/assets/取色.jpg" alt="1:1 像素精准取色放大镜" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+<img src="assets/color-picker.jpg" alt="1:1 像素精准取色放大镜" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
 <br>
 
 ***
