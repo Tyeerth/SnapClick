@@ -9,10 +9,11 @@
 [![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)](https://swift.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/Tyeerth/SnapClick/total)](https://github.com/Tyeerth/SnapClick/releases/latest)
+[![App Store](https://img.shields.io/badge/Download-App%20Store-blue?style=flat&logo=app-store&logoColor=white)](https://apps.apple.com/cn/app/id6793145580)
 
-A premium productivity tool built exclusively for macOS, integrating Finder menu enhancement, advanced screenshot annotation, high-performance screen recording, screen pinning, and smart color picking — all delivered in a pure native Swift architecture for a silky-smooth, refined experience.
+A premium productivity tool built exclusively for macOS, integrating Finder menu enhancement, advanced screenshot annotation, high-performance screen recording, screen pinning, and smart color picking — all delivered in a pure native Swift architecture for a silky-smooth, refined experience. **SnapClick is now officially available on the Mac App Store — search "SnapClick" in the App Store to download instantly and enjoy Apple's official security verification and automatic updates.**
 
-[Features](#-features) · [Installation](#-installation) · [Build from Source](#-build-from-source) · [Contact Author](#-contact-author) · [Official Website](http://snapclick.cn/)
+[Features](#-features) · [Installation](#-installation) · [Build from Source](#-build-from-source) · [Contact Author](#-contact-author) · [Official Website](https://github.com/Tyeerth/SnapClick) · [Privacy Policy](https://tyeerth.github.io/snapclick-privacy/privacy.html)
 
 [中文文档](README.md)
 
@@ -99,7 +100,17 @@ A premium productivity tool built exclusively for macOS, integrating Finder menu
 
 ## 📥 Installation
 
-### Option 1: Direct Download (Recommended)
+### Option 0: Download from the Mac App Store (🆕 Recommended)
+
+SnapClick is now **officially available on the Mac App Store**. Simply search for "**SnapClick**" in the App Store to install it with one click — enjoy Apple's official security verification, automatic updates, and sandbox protection, without any manual configuration.
+
+<a href="https://apps.apple.com/cn/app/id6793145580">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-mac-app-store.svg" alt="Download on the Mac App Store" height="50">
+</a>
+
+> 💡 Installing via the App Store gives you automatic system-pushed updates — no need to manually download new versions.
+
+### Option 1: Direct Download (Recommended for Open-Source Users)
 
 Go to the [Releases page](https://github.com/Tyeerth/SnapClick/releases/latest) and download the latest `.dmg` or `.zip` archive. Extract the file and drag the app into your `Applications` directory.
 
@@ -154,7 +165,8 @@ On first launch, you will be guided to grant the following system permissions so
 
 If you have questions or feature suggestions, feel free to reach out through the following channels:
 
-- **Official Website**: <http://snapclick.cn/>
+- **Official Website**: <https://github.com/Tyeerth/SnapClick>
+- **Privacy Policy**: <https://tyeerth.github.io/snapclick-privacy/privacy.html>
 - **Email**: [tyeerth@163.com](mailto:tyeerth@163.com)
 
 ---

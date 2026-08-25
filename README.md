@@ -9,10 +9,11 @@
 [![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)](https://swift.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/Tyeerth/SnapClick/total)](https://github.com/Tyeerth/SnapClick/releases/latest)
+[![App Store](https://img.shields.io/badge/Download-App%20Store-blue?style=flat&logo=app-store&logoColor=white)](https://apps.apple.com/cn/app/id6793145580)
 
-一款专为 macOS 打造的高级效率增强工具，将 Finder 菜单增强、高级截图标注、高性能录屏、屏幕贴图、智能取色等常用效率功能一体化汇总，以纯原生 Swift 架构呈现，为您提供丝滑般尊贵的使用体验。
+一款专为 macOS 打造的高级效率增强工具，将 Finder 菜单增强、高级截图标注、高性能录屏、屏幕贴图、智能取色等常用效率功能一体化汇总，以纯原生 Swift 架构呈现，为您提供丝滑般尊贵的使用体验。**现已正式登陆 Mac App Store，欢迎前往 App Store 搜索「SnapClick」一键下载安装，享受苹果官方安全认证与自动更新服务。**
 
-[功能特性](#-功能特性) · [下载安装](#-下载安装) · [编译构建](#%EF%B8%8F-编译构建) · [联系作者](#-联系作者) · [官方网站](http://snapclick.cn/)
+[功能特性](#-功能特性) · [下载安装](#-下载安装) · [编译构建](#%EF%B8%8F-编译构建) · [联系作者](#-联系作者) · [官方网站](https://github.com/Tyeerth/SnapClick) · [隐私政策](https://tyeerth.github.io/snapclick-privacy/privacy.html)
 
 [English](README_EN.md)
 
@@ -99,7 +100,17 @@
 
 ## 📥 下载安装
 
-### 方式一：直接下载安装包（推荐）
+### 方式零：从 Mac App Store 下载（🆕 推荐）
+
+SnapClick 已正式上架 **Mac App Store**，您可以直接在 App Store 中搜索「**SnapClick**」进行下载安装，享受苹果官方安全认证、自动更新与沙盒保护，省去手动授权的繁琐步骤。
+
+<a href="https://apps.apple.com/cn/app/id6793145580">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-mac-app-store.svg" alt="Download on the Mac App Store" height="50">
+</a>
+
+> 💡 通过 App Store 安装可自动获得系统推送更新，无需手动下载新版安装包。
+
+### 方式一：直接下载安装包
 
 前往 [Releases 页面](https://github.com/Tyeerth/SnapClick/releases/latest) 下载最新的 `.dmg` 或 `.zip` 安装包，解压后拖拽到「应用程序」文件夹即可运行。
 
@@ -151,7 +162,8 @@
 
 如果您在使用中遇到问题、有功能建议，欢迎通过以下方式联系：
 
-- **官方网站**：<http://snapclick.cn/>
+- **官方网站**：<https://github.com/Tyeerth/SnapClick>
+- **隐私政策**：<https://tyeerth.github.io/snapclick-privacy/privacy.html>
 - **联系邮箱**：<tyeerth@163.com>
 
 ***
