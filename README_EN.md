@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="SnapClick" width="100%">
+<img src="assets/snapclick_icon_1024.png" alt="SnapClick" width="120">
 
 ### macOS Productivity Enhancer — Right-Click · Screenshot Annotation · Screen Recording · Screen Pinning · Smart Color Picker
 

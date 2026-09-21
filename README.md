@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="SnapClick" width="100%">
+<img src="assets/snapclick_icon_1024.png" alt="SnapClick" width="120">
 
 ### macOS 效率增强工具 — 右键增强 · 截图标注 · 屏幕录制 · 屏幕贴图 · 智能取色
 
