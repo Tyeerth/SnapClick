@@ -1,173 +1,158 @@
 <div align="center">
 
-<img src="assets/snapclick_icon_1024.png" alt="SnapClick" width="120">
+<img src="assets/snapclick_icon_1024.png" alt="SnapClick" width="112">
 
-### macOS 效率增强工具 — 右键增强 · 截图标注 · 屏幕录制 · 屏幕贴图 · 智能取色
+# SnapClick
 
-[![Version](https://img.shields.io/github/v/release/Tyeerth/SnapClick?color=blue&label=version)](https://github.com/Tyeerth/SnapClick/releases)
-[![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey.svg)](https://github.com/Tyeerth/SnapClick/releases)
-[![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)](https://swift.org)
-[![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/Tyeerth/SnapClick/total)](https://github.com/Tyeerth/SnapClick/releases/latest)
-[![App Store](https://img.shields.io/badge/Download-App%20Store-blue?style=flat&logo=app-store&logoColor=white)](https://apps.apple.com/cn/app/id6793145580)
+### macOS 一体化原生桌面效率套件 — 桌面灵动岛 · 截图标注 · 4K 录屏 · 本地 OCR · 取色测距 · 访达右键
 
-一款专为 macOS 打造的高级效率增强工具，将 Finder 菜单增强、高级截图标注、高性能录屏、屏幕贴图、智能取色等常用效率功能一体化汇总，以纯原生 Swift 架构呈现，为您提供丝滑般尊贵的使用体验。**现已正式登陆 Mac App Store，欢迎前往 App Store 搜索「SnapClick」一键下载安装，享受苹果官方安全认证与自动更新服务。**
-
-[功能特性](#-功能特性) · [下载安装](#-下载安装) · [编译构建](#%EF%B8%8F-编译构建) · [联系作者](#-联系作者) · [官方网站](https://github.com/Tyeerth/SnapClick) · [隐私政策](https://tyeerth.github.io/snapclick-privacy/privacy.html)
-
-[English](README_EN.md)
+[![Version](https://img.shields.io/github/v/release/Tyeerth/SnapClick?color=0A66FF&label=version)](https://github.com/Tyeerth/SnapClick/releases)
+[![Platform](https://img.shields.io/badge/macOS-13.0%2B-1E293B?logo=apple&logoColor=white)](https://apps.apple.com/cn/app/id6793145580)
+[![Swift](https://img.shields.io/badge/Swift-Pure%20Native-F05138?logo=swift&logoColor=white)](https://swift.org)
+[![Sandbox](https://img.shields.io/badge/App%20Sandbox-Verified-10B981)](https://apps.apple.com/cn/app/id6793145580)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE)
 
 <br />
 
-<img src="docs/assets/app_introduction.gif" alt="SnapClick 整体介绍动图" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<a href="https://apps.apple.com/cn/app/id6793145580">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-mac-app-store.svg" alt="在 Mac App Store 下载" height="48">
+</a>
+
+<br /><br />
+
+告别臃肿的菜单栏与重复的高价订阅。**SnapClick** 使用纯原生 Swift / SwiftUI 打造，将 **Mac 桌面灵动岛（SnapIsland）、AI 无痕擦除截图标注、长截图导出可搜索 PDF、本地 OCR 翻译、4K 120FPS 硬件加速录屏、16x 像素取色测距、剪贴板历史与 Finder 右键增强** 融为一体。**现已正式上架 Mac App Store，支持苹果官方沙盒认证与自动更新。**
+
+[全景对比](#-一表看懂以一敌八) · [核心功能](#-核心功能) · [技术与隐私](#-技术亮点与隐私守护) · [下载安装](#-下载安装) · [联系作者](#-联系作者与反馈)
+
+**简体中文** | [English](README_EN.md)
 
 <br />
 
-<img src="assets/promo.png" alt="SnapClick 九大功能总览" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+<img src="assets/v3/01_hero_overview.jpg" alt="SnapClick Mac 桌面效率，一岛全搞定" width="100%">
+
 </div>
 
-***
+---
 
-## ✨ 功能特性
+## 📊 一表看懂：以一敌八
 
-### 🔧 Finder 右键菜单增强
+| 核心模块 | 覆盖的高频效率场景 | 可替代的传统独立工具 |
+| --- | --- | --- |
+| **SnapIsland 桌面灵动岛** | 七大工作台（主页 / 金融行情 / 文件暂存 / 照镜子 / 终端 / 系统监控 / AI 对话）+ 灵动弹窗 + 锁屏控台 | Alcove / Boring Notch / Dropover |
+| **专业截图标注 & AI 擦除** | 智能/选区/窗口/长截图、14 种标注、聚光灯、防盗水印、AI 无痕擦除文字、双层可搜索 PDF | CleanShot X / Snipaste / Xnip |
+| **本地 OCR & 离线翻译** | 100% 本地屏幕识字、离线即时翻译、二维码识别 | TextSniper / Bob |
+| **4K 120FPS 录屏 & 录音** | ScreenCaptureKit 硬件加速、区域/窗口/全屏录制、系统内录 + 麦克风双音轨独立保存 | Kap / ScreenFlow / QuickTime |
+| **16x 取色 & 像素测距** | 十字放大镜取色（HEX/RGB/HSL/Swift/CSS）+ 测距 / 测物边缘吸附 / 参考线 / 十字线 | ColorSlurp / Sip / PixelSnap |
+| **Finder 访达右键增强** | 右键新建 Office/Markdown/代码模板、剪切粘贴、路径拷贝、一键直达终端 / VS Code / Cursor / Xcode | XtraFinder / 超级右键 |
+| **剪贴板历史 & 屏幕贴图** | 图文复制记录永久回溯与置顶、敏感信息智能脱敏、多视窗跨 Space 屏幕贴图 | Paste / Maccy |
 
-- **新建常用文件** — 右键一键新建 `.txt`、`.md`、`.docx`、`.xlsx`、`.pptx`、`.html`、`.css`、`.js`、`.py`、`.sh` 等多种格式文件，支持自定义模板，新建后自动进入重命名状态。
-- **文件剪切与粘贴** — 比原生更简单的高效剪切粘贴流，支持跨目录快速移动。
-- **快速移动/复制到** — 支持添加常用目录，一键归档。
-- **路径高级拷贝** — 支持拷贝完整路径、仅文件名或 POSIX 规范路径。
-- **常用终端/编辑器快捷打开** — 右键在当前目录拉起 Terminal、iTerm2、VS Code、Warp 或 Xcode。
+---
 
-<br>
-<img src="assets/right-click-terminal.png" alt="Finder 右键增强 — 一键调起终端" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
-<br>
+## ✨ 核心功能
 
-***
+### 🏝️ SnapIsland Mac 桌面灵动岛
 
-### 📸 高级截图与标注
+将 MacBook 屏幕顶部刘海与菜单栏区域升级为全能桌面效率中枢：
 
-- **区域截图 & 智能窗口识别** — 拖拽自由选区、自动贴合悬停窗口，支持快捷键 ⌥⇧A 一键调起。
-- **智能长截图捕获** — 支持滚动网页或超长文档，智能进行连续的长截图无缝捕捉。
-- **高级标注编辑器** — 丰富的标注工具栏，支持矩形、椭圆、直线、箭头、文字、画笔、高亮蒙层、步骤序号以及像素级马赛克。
-- **截图美化包装** — 优雅的毛玻璃大阴影、0-32px 自定义窗口圆角。
+- **截图钉上岛 & 文件暂存架**：截图完成后一键钉入灵动岛，或直接拖拽文件入岛暂存；跨应用拖出即用，支持一键隔空投送（AirDrop）。
+- **七大工作台 + AI 智能随航**：悬停或快捷键展开，一键切换 **主页、金融行情（自选股/大盘实时追踪）、文件暂存、照镜子、快捷终端、系统状态监控、AI 智能对话**（支持多模型切换、代码推理与语音输入）。
+- **灵动状态感知与锁屏控台**：优雅接替生硬的系统音量/亮度弹窗，呈现耳机电量与音乐声波；支持锁屏灵动岛（空格键快捷切歌，智能检测密码输入并自动退让焦点），内置桌面萌宠挂件。
 
-<br>
-<div align="center">
-  <img src="assets/screenshot-annotation.png" alt="屏幕截图与实时标注" width="480" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-right: 16px;">
-  <img src="assets/long-screenshot.png" alt="智能长截图捕获" width="320" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
-</div>
-<br>
+<img src="assets/v3/02_snapisland_workspaces.jpg" alt="SnapIsland Mac 桌面灵动岛与工作台" width="100%">
 
-***
+---
 
-### 🎥 高性能屏幕录制
+### 📸 专业截图标注 · AI 无痕擦除 · 本地 OCR
 
-- **底层 SCK 架构** — 基于 macOS 官方 ScreenCaptureKit 框架，硬件加速、超低系统资源占用。
-- **多维度选区录屏** — 支持自定义区域、全屏录制以及指定应用窗口录制三种模式。
-- **极速高帧率录制** — 支持 30/60/120 FPS 高帧率，支持 H.264 / HEVC 编解码与「原画」无损分辨率档位。
-- **双音轨独立录制** — 同时捕获系统内部声音（macOS 13+）与外接/内置麦克风，两条音轨独立保存便于后期混音。
-- **HUD 悬浮控制条** — 独立的浮动控制面板，提供录制时间显示、暂停 / 继续 / 停止操作。
+- **四大独立截图模式**：智能截图（自动贴合悬停窗口）、自由选区、指定窗口与自动滚动无缝长截图。
+- **14 种高频标注工具**：矩形、椭圆、箭头、文字、画笔、步骤序号、像素级马赛克、**聚光灯聚焦**、**文字/Logo 45° 防盗水印**与高清贴纸，支持毛玻璃阴影与圆角美化包装。
+- **AI 智能擦除与替换**：局部涂抹即可自动还原背景纹理，无痕去除敏感信息或杂物。
+- **双层可搜索矢量 PDF**：长截图与文档截图支持导出内嵌文字层的 PDF，直接支持 `⌘F` 关键词检索与划选复制。
+- **100% 本地 OCR 与离线翻译**：断网可用，一键提取并翻译屏幕任意区域文字与二维码，隐私数据绝不上传云端。
 
-<br>
-<img src="assets/recording.png" alt="屏幕录屏 HUD 与选区控制" width="800" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
-<br>
+<img src="assets/v3/03_annotation_ai_ocr_pdf.jpg" alt="专业截图标注、AI 智能擦除与双层可搜索 PDF" width="100%">
 
-***
+---
 
-### 📌 便捷屏幕贴图 (Pin Window)
+### 🎨 16x 精准取色放大镜 & 像素级智能测距
 
-- **多视窗屏幕贴图** — 将截图或任意图像一键固定在屏幕最上层展示，快捷键为 ⌥⇧P。
-- **悬浮多视窗管理** — 支持跨 Space 空间跟随，多贴图并存。
-- **自由交互调节** — 支持滚轮无级调节贴图透明度，双击缩放大小，支持 Pin 状态快捷栏管理。
+前端开发、iOS/macOS 工程师与 UI 设计师的桌面标尺：
 
-<br>
-<img src="assets/pin-window.png" alt="屏幕贴图置顶展示" width="700" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
-<br>
+- **16x 像素级十字取色**：精准放大屏幕像素，支持 **HEX、RGB、HSL、Swift (NSColor)、CSS** 一键复制，自动记录最近取色历史。
+- **四模式屏幕测距引擎**：提供 **测距模式（两点距离）**、**测物模式（智能边缘吸附识别窗口与组件）**、**参考线模式（水平/垂直持久对齐线）** 与 **十字线模式**。
+- **多单位无损切换**：支持 `px / pt / mm` 三档单位随时切换，基于屏幕真实坐标，1px = 1px 不失真。
 
-***
+<img src="assets/v3/04_color_picker_measure.jpg" alt="16x 像素取色放大镜与智能边缘测距" width="100%">
 
-### 🔍 精准取色放大镜
+---
 
-- **16x精准放大镜** — 支持可视化 16 倍像素级放大镜，支持快捷键 ⌥⇧C 快速调起。
-- **多格式一键转换** — 完美支持 HEX、RGB、HSL、Swift (NSColor) 与 CSS 等多种颜色代码一键复制。
-- **取色历史** — 智能记录并展示最近取的 20 条颜色历史记录。
+### 🎥 4K 120FPS 硬件加速录屏 & 独立音频录制
 
-<br>
-<img src="assets/color-picker.jpg" alt="1:1 像素精准取色放大镜" width="600" style="border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
-<br>
+- **ScreenCaptureKit 原生架构**：直接调用 macOS 官方底层框架硬件加速，超低 CPU 与内存占用，高帧率录制不发烫。
+- **多模式与高帧率**：支持自定义区域、指定窗口与全屏录制，提供 **30 / 60 / 120 FPS**、H.264 / HEVC 编解码与原画档位。
+- **双音轨独立捕捉**：同时捕获系统内部声音与外接/内置麦克风，两条音轨独立保存，便于剪映 / Final Cut Pro 后期混音。
+- **悬浮控台 & 独立录音**：顶部胶囊 / HUD 悬浮条随时暂停、继续、停止；同时内置独立音频录制模块，采样率、码率、格式均可自定义。
 
-***
+<img src="assets/v3/05_4k_screen_recording.jpg" alt="4K 120FPS 硬件加速录屏与双音轨捕捉" width="100%">
+
+---
+
+### 🔧 Finder 访达右键增强 · 剪贴板历史 · 屏幕贴图
+
+- **右键一键新建文件**：支持 `.txt`、`.md`、`.docx`、`.xlsx`、`.pptx`、`.html`、`.css`、`.js`、`.py`、`.sh`、`.json`、`.yaml` 等常用格式与自定义模板。
+- **开发者终端与编辑器直达**：自动识别本机已安装的工具，右键当前目录一键打开 **Terminal、iTerm2、VS Code、Cursor、Warp、Xcode 或 JetBrains 全家桶**；支持真正剪切粘贴与完整/POSIX 路径拷贝。
+- **剪贴板历史管理器**：永久回溯图文复制记录，支持关键词秒搜、常用条目置顶与敏感信息智能脱敏。
+- **多视窗屏幕贴图（Pin Window）**：截图或图片一键置顶悬浮，支持跨 Space 跟随、滚轮无级调节透明度与双击缩放。
+
+<img src="assets/v3/06_finder_clipboard_privacy.jpg" alt="Finder 右键增强与纯原生安全守护" width="100%">
+
+---
+
+## 🛡️ 技术亮点与隐私守护
+
+- **零“辅助功能”权限响应全局快捷键**：全面采用苹果官方 Carbon `RegisterEventHotKey` API，**无需开启高危的系统“辅助功能（Accessibility）”权限**即可毫秒级响应全局快捷键，完整通过 Mac App Store 沙盒审核。
+- **纯 Swift / SwiftUI 原生性能**：全面适配 Apple Silicon 芯片与 macOS 原生浅色/深色外观；Finder 右键菜单图标走 `NSCache` 内存缓存，唤起耗时 `< 5ms`。
+- **数据 100% 本地闭环**：截图、OCR、翻译、测距、剪贴板历史全部在本地处理，无账号体系，不收集任何个人隐私数据。
+
+---
 
 ## 📥 下载安装
 
-### 方式零：从 Mac App Store 下载（🆕 推荐）
+### 方式一：Mac App Store 下载（推荐）
 
-SnapClick 已正式上架 **Mac App Store**，您可以直接在 App Store 中搜索「**SnapClick**」进行下载安装，享受苹果官方安全认证、自动更新与沙盒保护，省去手动授权的繁琐步骤。
+直接打开 **Mac App Store** 搜索 **`SnapClick`**，或点击下方按钮一键安装，享受苹果官方安全签名认证、沙盒保护与自动更新服务：
 
 <a href="https://apps.apple.com/cn/app/id6793145580">
-  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-mac-app-store.svg" alt="Download on the Mac App Store" height="50">
+  <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-mac-app-store.svg" alt="在 Mac App Store 下载" height="50">
 </a>
 
-> 💡 通过 App Store 安装可自动获得系统推送更新，无需手动下载新版安装包。
+### 方式二：GitHub Releases 下载
 
-### 方式一：直接下载安装包
+前往 [Releases 页面](https://github.com/Tyeerth/SnapClick/releases/latest) 获取历史发布包。
 
-前往 [Releases 页面](https://github.com/Tyeerth/SnapClick/releases/latest) 下载最新的 `.dmg` 或 `.zip` 安装包，解压后拖拽到「应用程序」文件夹即可运行。
+> **💡 费用说明**：绝大部分高频基础功能可免费上手体验；进阶 Pro 功能提供低门槛灵活订阅与一次性永久买断，无强制高价年费。
 
-<a href="https://github.com/Tyeerth/SnapClick/releases/latest">
-  <img src="https://img.shields.io/badge/Download-Latest%20Release-blue?style=for-the-badge&logo=github" alt="Download Latest Release">
-</a>
+### ⚙️ 首次运行按需授权说明
 
-### 方式二：从源码编译
+为保障对应功能正常工作，首次使用相关模块时按引导授权即可：
 
-请参阅下方 [编译构建](#-编译构建) 章节。
+1. **屏幕录制权限**：用于截图、长截图、录屏、本地 OCR 与 16x 放大镜取色。
+2. **Finder 扩展启用**：如需使用访达右键增强，请前往「系统设置 → 通用 → 登录项与扩展 → Finder 扩展」中勾选启用 `FinderExtension`。
 
-### ⚠️ 首次运行授权说明
+*(全局快捷键无需任何额外系统辅助功能权限，开箱即用。)*
 
-首次启动时，为了功能正常运行，App 会引导您授予以下系统权限：
+---
 
-1. **屏幕录制权限** — 用于高性能截图、长截图、屏幕录制与放大镜取色。
-2. **辅助功能权限** — 用于捕获并拦截全局快捷键。
-3. **Finder 扩展启用** — 请前往「系统设置 → 通用 → 登录项与扩展 → Finder 扩展」中勾选启用 `FinderExtension`。
+## 📮 联系作者与反馈
 
-***
+如果您在使用中遇到问题，或有希望加入的新功能建议，欢迎随时联系：
 
-## 🏗️ 编译构建
-
-### 前置要求
-
-- macOS 13.0 (Ventura) 及以上
-- Xcode 15.0 及以上
-- Apple Developer Account（用于代码签名）
-
-### 构建步骤
-
-1. **克隆仓库**
-   ```bash
-   git clone https://github.com/Tyeerth/SnapClick.git
-   cd SnapClick
-   ```
-2. **打开项目**
-   ```bash
-   open SnapClick.xcodeproj
-   ```
-3. **配置开发者签名** — 在 Xcode 的 `Signing & Capabilities` 中为以下两个 Target 配置您的开发团队 (Team)：
-   - `SnapClick`（主 App，Bundle ID: `com.snapclick.app`，非沙盒特权模式）
-   - `FinderExtension`（右键扩展插件，Bundle ID: `com.snapclick.app.FinderExtension`，沙盒模式，绑定 App Group: `group.4DAY66XCT4.com.snapclick.shared`）
-4. **构建运行** — 选择 Scheme `SnapClick` → 构建目标 `My Mac` → 运行 (⌘R)
-
-***
-
-## 📮 联系作者
-
-如果您在使用中遇到问题、有功能建议，欢迎通过以下方式联系：
-
-- **官方网站**：<https://github.com/Tyeerth/SnapClick>
+- **提交反馈 / Issue**：<https://github.com/Tyeerth/SnapClick/issues>
 - **隐私政策**：<https://tyeerth.github.io/snapclick-privacy/privacy.html>
 - **联系邮箱**：<tyeerth@163.com>
 
-***
+---
 
 ## 📄 开源协议
 
-本项目基于 [Apache License 2.0](LICENSE) 开源协议。
+本项目基于 [Apache License 2.0](LICENSE) 许可协议。
